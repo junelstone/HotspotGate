@@ -2,6 +2,7 @@ using Microsoft.Extensions.Hosting.WindowsServices;
 using Serilog;
 using StonesHotspot.Core;
 using StonesHotspot.Licensing;
+using StonesHotspot.Service;
 using StonesHotspot.Web;
 
 // When started by the Service Control Manager the working directory is System32, so point the
@@ -36,8 +37,10 @@ try
     builder.Services.AddSingleton(paths);
     builder.Services.AddSingleton(TimeProvider.System);
     builder.Services.AddSingleton<ILicenseService, TrialStubLicenseService>();
+    builder.Services.AddHotspotCore(paths.DatabaseFile);
 
     var app = builder.Build();
+    await app.InitializeDatabaseAsync();
 
     app.UseSerilogRequestLogging();
     app.UseHotspotLocalization();
@@ -47,7 +50,7 @@ try
     Log.Information("Stone's Hotspot {Version} starting. Data folder: {DataFolder}. Edition: {Edition}",
         HotspotEndpoints.Version, paths.Root, licence.Edition);
 
-    app.Run();
+    await app.RunAsync();
     return 0;
 }
 catch (Exception ex) when (ex is not HostAbortedException)

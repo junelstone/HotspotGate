@@ -3,9 +3,9 @@
 Windows Wi-Fi hotspot manager (captive portal) by **Stone's IT Consulting**: turns a Windows 10/11 PC into a
 managed, paid Wi-Fi hotspot — vouchers, user accounts, tariffs, Mobile Money, admin dashboard.
 
-> **Status: Phase 0 — project skeleton.** The solution builds, the service starts and answers
-> `/health` and a placeholder `/admin` page in French/English. No network, database or licensing logic yet.
-> See [Build phases](#build-phases).
+> **Status: Phase 1 — data layer and business rules.** The service creates and migrates its SQLite database,
+> seeds an admin account and sample tariffs, and contains the tested rules for vouchers, sessions, accounts and
+> cash. No network control, customer portal or dashboard yet. See [Build phases](#build-phases).
 
 ## Requirements
 
@@ -67,13 +67,33 @@ Runtime data (`%ProgramData%\StonesHotspot\`):
 |---|---|
 | `logs\service-YYYYMMDD.log` | Service log, one file per day, 30 days kept |
 | `backups\` | Database backups (phase 5) |
-| `stoneshotspot.db` | SQLite database (phase 1) |
+| `stoneshotspot.db` | SQLite database (WAL mode, so also `-wal`/`-shm` files while running) |
+| `initial-admin-password.txt` | Created once, on first start: the random password of the `admin` account. Readable by Administrators only. Delete it after the first login |
+
+## First login
+
+On first start the service creates the staff account **`admin`** with a random password, written to
+`%ProgramData%\StonesHotspot\initial-admin-password.txt` (from source: `src\StonesHotspot.Service\data\`). The
+password must be changed at first login. There is deliberately no default password: customers on the
+hotspot can reach the dashboard port.
+
+## Database
+
+SQLite through EF Core; migrations are in `src/StonesHotspot.Core/Data/Migrations` and are applied
+automatically when the service starts. To change the model:
+
+```powershell
+dotnet tool restore                      # once: installs dotnet-ef from .config/dotnet-tools.json
+dotnet ef migrations add <Name> --project src/StonesHotspot.Core --output-dir Data/Migrations
+```
+
+Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.md).
 
 ## Solution layout
 
 | Project | Purpose |
 |---|---|
-| `src/StonesHotspot.Core` | Domain and business rules, no Windows dependency. FR/EN resources (`Localization/Strings*.resx`), `Xaf` money type (`1 000 FCFA`), data paths |
+| `src/StonesHotspot.Core` | Domain and business rules, no Windows dependency: EF Core model + migrations (`Data/`), rules (`Rules/`), services (`Services/`: tariffs, vouchers, sessions, accounts, cash, staff, devices, settings, audit). FR/EN resources, `Xaf` money type |
 | `src/StonesHotspot.Licensing` | `ILicenseService` (the single "is this feature allowed?" gate), editions, Basic/Pro feature table. Phase 0: always "Pro trial" |
 | `src/StonesHotspot.Network` | WinDivert packet gate, ICS, DNS forwarder, ARP (phases 2–3) |
 | `src/StonesHotspot.Web` | Captive portal and admin dashboard endpoints |
@@ -96,8 +116,8 @@ Runtime data (`%ProgramData%\StonesHotspot\`):
 
 | Phase | Content | State |
 |---|---|---|
-| 0 | Project skeleton | **done** |
-| 1 | Data layer and business rules | — |
+| 0 | Project skeleton | done |
+| 1 | Data layer and business rules | **done** |
 | 2 | Network setup (adapters, ICS, DHCP, connected clients) | — |
 | 3 | Packet gate (WinDivert) and DNS | — |
 | 4 | Captive portal | — |
@@ -116,4 +136,6 @@ Plans for each phase are in `docs/phase-N-plan.md`.
 | `build.ps1` says the .NET SDK is missing | Install the .NET 8 SDK, open a new terminal |
 | Port 8080 already in use | Change `Kestrel:Endpoints:Admin:Url` in `appsettings.json` (or `appsettings.Local.json`) |
 | Service won't start | Read `%ProgramData%\StonesHotspot\logs\service-*.log` and the Windows Event Viewer (Application log) |
+| "database is locked" in the log | Another program (e.g. DB Browser for SQLite) has the database open for writing; close it |
+| Lost the admin password | Another admin can reset it; an offline reset tool for the last admin comes with the dashboard (phase 5) |
 | Tray "Start/Stop" shows an administrator message | Run the tray app as administrator (the installer will grant service rights later) |
