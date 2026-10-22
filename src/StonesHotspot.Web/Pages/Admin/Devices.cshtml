@@ -1,0 +1,52 @@
+@page
+@model StonesHotspot.Web.Pages.Admin.DevicesModel
+@{
+    ViewData["Title"] = Strings.Nav_Devices;
+    var scan = Model.Scan;
+}
+@section Head {
+    <meta http-equiv="refresh" content="5">
+}
+<h1>@Strings.Nav_Devices</h1>
+<p class="muted">@Strings.Devices_Intro</p>
+
+@if (!Model.LanConfigured)
+{
+    <div class="msg warning">@Strings.Devices_NotConfigured</div>
+}
+@foreach (var p in scan.Problems)
+{
+    <div class="msg @Texts.CssClass(p.Severity)">@Texts.Problem(p)@if (p.Detail is not null) {<small>@p.Detail</small>}</div>
+}
+
+<p>
+    <strong>@string.Format(Strings.Devices_Count, scan.Devices.Count)</strong>
+    @if (scan.ScannedAt != DateTime.MinValue)
+    {
+        <span class="muted"> · @string.Format(Strings.Devices_LastScan, scan.ScannedAt.ToLocalTime().ToString("HH:mm:ss"))</span>
+    }
+</p>
+
+@if (scan.Devices.Count == 0)
+{
+    <div class="card muted">@Strings.Devices_None</div>
+}
+else
+{
+    <div class="scroll">
+    <table>
+        <tr><th>@Strings.Col_Mac</th><th>@Strings.Col_Ip</th><th>@Strings.Col_Hostname</th><th>@Strings.Col_State</th></tr>
+        @foreach (var d in scan.Devices)
+        {
+            <tr>
+                <td><code>@d.Mac</code> @if (d.IsRandomMac) { <span class="badge">@Strings.Devices_RandomMac</span> }</td>
+                <td>@d.Ip</td>
+                <td>@(d.Hostname ?? "—")</td>
+                <td>@Texts.NeighborState(d.State)</td>
+            </tr>
+        }
+    </table>
+    </div>
+}
+
+<p class="muted">@Strings.Devices_RandomMacNote</p>

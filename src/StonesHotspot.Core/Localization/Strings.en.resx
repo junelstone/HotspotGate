@@ -26,4 +26,70 @@
   <data name="Common_Ok" xml:space="preserve"><value>OK</value></data>
   <data name="Common_Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Common_Copy" xml:space="preserve"><value>Copy</value></data>
+  <data name="Common_Yes" xml:space="preserve"><value>Yes</value></data>
+  <data name="Common_No" xml:space="preserve"><value>No</value></data>
+  <data name="Nav_Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Nav_Network" xml:space="preserve"><value>Network</value></data>
+  <data name="Nav_Devices" xml:space="preserve"><value>Connected devices</value></data>
+  <data name="Admin_LocalOnly" xml:space="preserve"><value>This page is only available on the hotspot PC (http://localhost:8080) until staff login exists.</value></data>
+  <data name="Network_Title" xml:space="preserve"><value>Network setup</value></data>
+  <data name="Network_Intro" xml:space="preserve"><value>Choose the internet connection (WAN) and the adapter connected to the customers' Wi-Fi access point (LAN), then click "Share the internet".</value></data>
+  <data name="Network_StillOpen" xml:space="preserve"><value>Access control (captive portal) is not active yet: every device on the Wi-Fi has internet.</value></data>
+  <data name="Network_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Network_Mode" xml:space="preserve"><value>Mode</value></data>
+  <data name="Network_Mode_None" xml:space="preserve"><value>Sharing off</value></data>
+  <data name="Network_Mode_Ics" xml:space="preserve"><value>Windows Internet Connection Sharing (ICS)</value></data>
+  <data name="Network_Mode_MobileHotspot" xml:space="preserve"><value>Windows Mobile hotspot</value></data>
+  <data name="Network_Admin" xml:space="preserve"><value>Administrator rights</value></data>
+  <data name="Network_Gateway" xml:space="preserve"><value>Gateway address (LAN)</value></data>
+  <data name="Network_Wan" xml:space="preserve"><value>Internet connection (WAN)</value></data>
+  <data name="Network_Lan" xml:space="preserve"><value>Customer network (LAN)</value></data>
+  <data name="Network_Choose" xml:space="preserve"><value>— choose —</value></data>
+  <data name="Network_Suggested" xml:space="preserve"><value>suggested</value></data>
+  <data name="Network_Apply" xml:space="preserve"><value>Share the internet</value></data>
+  <data name="Network_Disable" xml:space="preserve"><value>Stop sharing</value></data>
+  <data name="Network_Applied" xml:space="preserve"><value>Sharing enabled.</value></data>
+  <data name="Network_Disabled" xml:space="preserve"><value>Sharing stopped.</value></data>
+  <data name="Network_Adapters" xml:space="preserve"><value>Network adapters</value></data>
+  <data name="Network_IcsShares" xml:space="preserve"><value>Current sharing in Windows</value></data>
+  <data name="Network_IcsPublic" xml:space="preserve"><value>Internet (public)</value></data>
+  <data name="Network_IcsPrivate" xml:space="preserve"><value>Customers (private)</value></data>
+  <data name="Network_IcsNone" xml:space="preserve"><value>None</value></data>
+  <data name="Network_Up" xml:space="preserve"><value>Connected</value></data>
+  <data name="Network_Down" xml:space="preserve"><value>Disconnected</value></data>
+  <data name="Network_HotspotAdapter" xml:space="preserve"><value>mobile hotspot</value></data>
+  <data name="Col_Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Col_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Col_State" xml:space="preserve"><value>State</value></data>
+  <data name="Col_Mac" xml:space="preserve"><value>MAC address</value></data>
+  <data name="Col_Ip" xml:space="preserve"><value>IP address</value></data>
+  <data name="Col_Gateway" xml:space="preserve"><value>Gateway</value></data>
+  <data name="Col_Hostname" xml:space="preserve"><value>Device name</value></data>
+  <data name="Network_Problem_NotAdministrator" xml:space="preserve"><value>The service is not running with administrator rights. Run it as the Windows service or from a "Run as administrator" prompt.</value></data>
+  <data name="Network_Problem_NotWindows" xml:space="preserve"><value>Connection sharing only works on Windows.</value></data>
+  <data name="Network_Problem_NoLanAdapter" xml:space="preserve"><value>No second network adapter for the customer network. Plug in the adapter connected to the access point, or turn on Windows Mobile hotspot.</value></data>
+  <data name="Network_Problem_WanNotSelected" xml:space="preserve"><value>Choose the internet connection (WAN).</value></data>
+  <data name="Network_Problem_LanNotSelected" xml:space="preserve"><value>Choose the customer network adapter (LAN).</value></data>
+  <data name="Network_Problem_AdapterNotFound" xml:space="preserve"><value>The chosen adapter no longer exists (unplugged or uninstalled).</value></data>
+  <data name="Network_Problem_SameAdapter" xml:space="preserve"><value>The internet connection and the customer network must be two different adapters.</value></data>
+  <data name="Network_Problem_WanDown" xml:space="preserve"><value>The internet connection is disconnected.</value></data>
+  <data name="Network_Problem_WanNoGateway" xml:space="preserve"><value>The internet connection has no gateway: it does not seem to reach the internet.</value></data>
+  <data name="Network_Problem_LanDown" xml:space="preserve"><value>The customer network adapter is disconnected (cable unplugged or access point off).</value></data>
+  <data name="Network_Problem_IcsSubnetConflict" xml:space="preserve"><value>IP address conflict: the internet connection already uses 192.168.137.x, which Windows reserves for sharing. Change your router or modem's network.</value></data>
+  <data name="Network_Problem_MobileHotspotOff" xml:space="preserve"><value>Windows Mobile hotspot is off. Turn it on in Settings &gt; Network &amp; internet &gt; Mobile hotspot.</value></data>
+  <data name="Network_Problem_IcsFailed" xml:space="preserve"><value>Windows refused to change connection sharing.</value></data>
+  <data name="Network_Problem_IcsNotActive" xml:space="preserve"><value>The configured sharing is not active in Windows. Click "Share the internet" to turn it back on.</value></data>
+  <data name="Network_Problem_GatewayIpConflict" xml:space="preserve"><value>IP address conflict: another device uses the gateway address. The access point is probably in router mode: switch it to access point / bridge mode.</value></data>
+  <data name="Network_Problem_DevicesOutsideSubnet" xml:space="preserve"><value>Some devices have addresses outside the hotspot network. The access point may hand out its own addresses: turn off its DHCP / router mode.</value></data>
+  <data name="Devices_Intro" xml:space="preserve"><value>Devices recently seen on the customer network (refreshes every 5 seconds).</value></data>
+  <data name="Devices_None" xml:space="preserve"><value>No device detected yet. A device shows up as soon as it has exchanged data with the PC.</value></data>
+  <data name="Devices_NotConfigured" xml:space="preserve"><value>First choose the customer network adapter under "Network".</value></data>
+  <data name="Devices_LastScan" xml:space="preserve"><value>Last scan: {0}</value></data>
+  <data name="Devices_Count" xml:space="preserve"><value>{0} device(s)</value></data>
+  <data name="Devices_RandomMac" xml:space="preserve"><value>Private MAC</value></data>
+  <data name="Devices_RandomMacNote" xml:space="preserve"><value>Recent phones use a different "private / random" MAC address for each Wi-Fi network. That is normal: it stays the same on this network. To whitelist a device, always use the MAC shown here.</value></data>
+  <data name="Devices_State_Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Devices_State_Idle" xml:space="preserve"><value>Recently idle</value></data>
+  <data name="Devices_State_Checking" xml:space="preserve"><value>Checking</value></data>
+  <data name="Admin_Home_Title" xml:space="preserve"><value>Dashboard</value></data>
 </root>

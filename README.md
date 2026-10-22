@@ -3,9 +3,9 @@
 Windows Wi-Fi hotspot manager (captive portal) by **Stone's IT Consulting**: turns a Windows 10/11 PC into a
 managed, paid Wi-Fi hotspot — vouchers, user accounts, tariffs, Mobile Money, admin dashboard.
 
-> **Status: Phase 1 — data layer and business rules.** The service creates and migrates its SQLite database,
-> seeds an admin account and sample tariffs, and contains the tested rules for vouchers, sessions, accounts and
-> cash. No network control, customer portal or dashboard yet. See [Build phases](#build-phases).
+> **Status: Phase 2 — network setup.** The service shares the internet from the WAN adapter to the LAN
+> adapter with Windows Internet Connection Sharing and lists the devices on the customers' Wi-Fi. No access
+> control yet: every device on the Wi-Fi has internet. See [Build phases](#build-phases).
 
 ## Requirements
 
@@ -77,6 +77,20 @@ On first start the service creates the staff account **`admin`** with a random p
 password must be changed at first login. There is deliberately no default password: customers on the
 hotspot can reach the dashboard port.
 
+## Network setup
+
+The PC needs two connections: **WAN** (the internet) and **LAN** (a second card cabled to a Wi-Fi access point in
+access point/bridge mode, or the PC's own Wi-Fi in Windows *Mobile hotspot* mode).
+
+1. Start the service with administrator rights (the Windows service always has them).
+2. On the PC, open <http://localhost:8080/admin/network>, choose WAN and LAN, click **Partager Internet**.
+   Windows Internet Connection Sharing (ICS) gives the LAN card **192.168.137.1** and hands out
+   192.168.137.x addresses to the customers.
+3. Connected devices: <http://localhost:8080/admin/devices>.
+
+These two pages only answer on the PC itself until staff login exists (phase 5). The service switches sharing
+back on at start if Windows dropped it. Full test list: [`docs/manual-tests/phase-2-network.md`](docs/manual-tests/phase-2-network.md).
+
 ## Database
 
 SQLite through EF Core; migrations are in `src/StonesHotspot.Core/Data/Migrations` and are applied
@@ -95,8 +109,8 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 |---|---|
 | `src/StonesHotspot.Core` | Domain and business rules, no Windows dependency: EF Core model + migrations (`Data/`), rules (`Rules/`), services (`Services/`: tariffs, vouchers, sessions, accounts, cash, staff, devices, settings, audit). FR/EN resources, `Xaf` money type |
 | `src/StonesHotspot.Licensing` | `ILicenseService` (the single "is this feature allowed?" gate), editions, Basic/Pro feature table. Phase 0: always "Pro trial" |
-| `src/StonesHotspot.Network` | WinDivert packet gate, ICS, DNS forwarder, ARP (phases 2–3) |
-| `src/StonesHotspot.Web` | Captive portal and admin dashboard endpoints |
+| `src/StonesHotspot.Network` | Adapters, ICS (`HNetCfg.HNetShare` COM), neighbour/ARP table, connected-device scan; WinDivert packet gate and DNS in phase 3 |
+| `src/StonesHotspot.Web` | Razor Pages: captive portal and admin dashboard (today: home, network setup, connected devices) |
 | `src/StonesHotspot.Service` | Windows Service host (Kestrel, Serilog, DI) |
 | `src/StonesHotspot.Tray` | Tray icon: status, Start/Stop, Open dashboard |
 | `src/StonesHotspot.LicenseServer` | Online licence API (skeleton) |
@@ -117,15 +131,18 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 | Phase | Content | State |
 |---|---|---|
 | 0 | Project skeleton | done |
-| 1 | Data layer and business rules | **done** |
-| 2 | Network setup (adapters, ICS, DHCP, connected clients) | — |
+| 1 | Data layer and business rules | done |
+| 2 | Network setup (adapters, ICS, connected devices) | **done** — Mode B (own DHCP) pending a decision |
 | 3 | Packet gate (WinDivert) and DNS | — |
 | 4 | Captive portal | — |
 | 5 | Admin dashboard | — |
 | 6 | Bandwidth control and web filter | — |
 | 7 | Business tools (shifts, POS, reports) | — |
 | 8 | Free access and SMS login | — |
-| … | Mobile Money, licensing, installer | — |
+| 9 | Mobile Money payments | — |
+| 10 | Licensing, trial and activation | — |
+| 11 | Windows service, installer and updates | — |
+| 12 | Hardening and final testing | — |
 
 Plans for each phase are in `docs/phase-N-plan.md`.
 
@@ -136,6 +153,9 @@ Plans for each phase are in `docs/phase-N-plan.md`.
 | `build.ps1` says the .NET SDK is missing | Install the .NET 8 SDK, open a new terminal |
 | Port 8080 already in use | Change `Kestrel:Endpoints:Admin:Url` in `appsettings.json` (or `appsettings.Local.json`) |
 | Service won't start | Read `%ProgramData%\StonesHotspot\logs\service-*.log` and the Windows Event Viewer (Application log) |
+| Network page: "not running with administrator rights" | Run the service as the Windows service, or start it from a PowerShell opened with "Run as administrator" |
+| Network page: "IP address conflict … 192.168.137.x" | Your internet box/modem uses the same network as Windows sharing. Change the box's LAN network (e.g. to 192.168.1.x) |
+| Phones get 192.168.0.x / 192.168.1.x instead of 192.168.137.x | The access point is in router mode or its DHCP is on: set it to access point/bridge mode |
 | "database is locked" in the log | Another program (e.g. DB Browser for SQLite) has the database open for writing; close it |
 | Lost the admin password | Another admin can reset it; an offline reset tool for the last admin comes with the dashboard (phase 5) |
 | Tray "Start/Stop" shows an administrator message | Run the tray app as administrator (the installer will grant service rights later) |

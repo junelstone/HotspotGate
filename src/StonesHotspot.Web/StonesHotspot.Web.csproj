@@ -1,8 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>StonesHotspot.Web</RootNamespace>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\StonesHotspot.Core\StonesHotspot.Core.csproj" />
     <ProjectReference Include="..\StonesHotspot.Licensing\StonesHotspot.Licensing.csproj" />
+    <ProjectReference Include="..\StonesHotspot.Network\StonesHotspot.Network.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,56 @@
+@{
+    var lang = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var path = Context.Request.Path;
+}
+<!doctype html>
+<html lang="@lang">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    @await RenderSectionAsync("Head", required: false)
+    <title>@ViewData["Title"] — @Strings.AppName</title>
+    <style>
+        :root { --bg:#f6f7f9; --fg:#1d2330; --muted:#5d6675; --card:#fff; --line:#dde1e7; --accent:#0b6e4f;
+                --error:#b42318; --error-bg:#fdecea; --warn:#8a5a00; --warn-bg:#fff4dc; --ok:#0b6e4f; --ok-bg:#e6f4ee; }
+        * { box-sizing:border-box; }
+        body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--fg); }
+        header { background:var(--accent); color:#fff; padding:.75rem 1rem; display:flex; flex-wrap:wrap; gap:1rem; align-items:center; }
+        header a { color:#fff; text-decoration:none; }
+        header nav { display:flex; gap:1rem; flex-wrap:wrap; flex:1; }
+        header .lang a { opacity:.8; margin-left:.5rem; }
+        main { max-width:1100px; margin:0 auto; padding:1rem; }
+        h1 { font-size:1.4rem; } h2 { font-size:1.1rem; margin-top:1.5rem; }
+        .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:1rem; margin:1rem 0; }
+        table { width:100%; border-collapse:collapse; background:var(--card); }
+        th, td { text-align:left; padding:.45rem .5rem; border-bottom:1px solid var(--line); vertical-align:top; }
+        th { font-size:.85rem; color:var(--muted); }
+        .scroll { overflow-x:auto; }
+        .muted { color:var(--muted); font-size:.9rem; }
+        .badge { display:inline-block; font-size:.75rem; padding:.1rem .4rem; border-radius:4px; background:#eef0f3; }
+        .msg { padding:.6rem .8rem; border-radius:6px; margin:.5rem 0; }
+        .msg.error { background:var(--error-bg); color:var(--error); }
+        .msg.warning { background:var(--warn-bg); color:var(--warn); }
+        .msg.info, .msg.ok { background:var(--ok-bg); color:var(--ok); }
+        .msg small { display:block; opacity:.8; margin-top:.2rem; word-break:break-word; }
+        label { display:block; font-weight:600; margin:.6rem 0 .2rem; }
+        select { width:100%; max-width:520px; padding:.45rem; font-size:1rem; }
+        button { padding:.55rem 1rem; font-size:1rem; border-radius:6px; border:1px solid var(--accent); background:var(--accent); color:#fff; cursor:pointer; margin:.8rem .5rem 0 0; }
+        button.secondary { background:#fff; color:var(--accent); }
+        code { font-size:.85rem; }
+    </style>
+</head>
+<body>
+<header>
+    <strong>@Strings.AppName</strong>
+    <nav>
+        <a href="/admin">@Strings.Nav_Home</a>
+        <a href="/admin/network">@Strings.Nav_Network</a>
+        <a href="/admin/devices">@Strings.Nav_Devices</a>
+    </nav>
+    <span class="lang"><a href="@path?lang=fr">FR</a><a href="@path?lang=en">EN</a></span>
+</header>
+<main>
+    @RenderBody()
+</main>
+</body>
+</html>

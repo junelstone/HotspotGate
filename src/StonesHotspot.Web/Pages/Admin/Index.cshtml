@@ -1,0 +1,15 @@
+@page
+@model StonesHotspot.Web.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = Strings.Admin_Home_Title;
+}
+<h1>@Strings.Admin_Home_Title</h1>
+<div class="card">
+    <p>@string.Format(Strings.Licence_TrialDaysLeft, Model.DaysLeft)</p>
+    <p class="muted">@Strings.Placeholder_ComingSoon</p>
+</div>
+<div class="card">
+    <p><a href="/admin/network">@Strings.Network_Title</a></p>
+    <p><a href="/admin/devices">@Strings.Nav_Devices</a></p>
+    <p class="muted">@Strings.Admin_LocalOnly</p>
+</div>

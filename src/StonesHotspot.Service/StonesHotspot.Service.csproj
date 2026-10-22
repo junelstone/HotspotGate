@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="StonesHotspot.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="appsettings.Local.example.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

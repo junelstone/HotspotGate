@@ -1,7 +1,11 @@
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using Microsoft.Extensions.Hosting.WindowsServices;
+using Microsoft.Extensions.WebEncoders;
 using Serilog;
 using StonesHotspot.Core;
 using StonesHotspot.Licensing;
+using StonesHotspot.Network;
 using StonesHotspot.Service;
 using StonesHotspot.Web;
 
@@ -38,6 +42,12 @@ try
     builder.Services.AddSingleton(TimeProvider.System);
     builder.Services.AddSingleton<ILicenseService, TrialStubLicenseService>();
     builder.Services.AddHotspotCore(paths.DatabaseFile);
+    builder.Services.AddHotspotNetwork();
+    builder.Services.AddHostedService<NetworkStartupService>();
+    builder.Services.AddHostedService<DeviceDiscoveryService>();
+    builder.Services.AddRazorPages();
+    // French text as plain UTF-8 instead of &#xE9; entities: lighter pages, same safety.
+    builder.Services.Configure<WebEncoderOptions>(o => o.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All));
 
     var app = builder.Build();
     await app.InitializeDatabaseAsync();
@@ -45,6 +55,7 @@ try
     app.UseSerilogRequestLogging();
     app.UseHotspotLocalization();
     app.MapHotspotEndpoints();
+    app.MapRazorPages();
 
     var licence = app.Services.GetRequiredService<ILicenseService>().GetStatus();
     Log.Information("Stone's Hotspot {Version} starting. Data folder: {DataFolder}. Edition: {Edition}",

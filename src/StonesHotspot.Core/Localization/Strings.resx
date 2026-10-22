@@ -26,4 +26,70 @@
   <data name="Common_Ok" xml:space="preserve"><value>OK</value></data>
   <data name="Common_Cancel" xml:space="preserve"><value>Annuler</value></data>
   <data name="Common_Copy" xml:space="preserve"><value>Copier</value></data>
+  <data name="Common_Yes" xml:space="preserve"><value>Oui</value></data>
+  <data name="Common_No" xml:space="preserve"><value>Non</value></data>
+  <data name="Nav_Home" xml:space="preserve"><value>Accueil</value></data>
+  <data name="Nav_Network" xml:space="preserve"><value>Réseau</value></data>
+  <data name="Nav_Devices" xml:space="preserve"><value>Appareils connectés</value></data>
+  <data name="Admin_LocalOnly" xml:space="preserve"><value>Cette page n'est accessible que sur le PC du hotspot (http://localhost:8080) tant que la connexion du personnel n'existe pas.</value></data>
+  <data name="Network_Title" xml:space="preserve"><value>Configuration réseau</value></data>
+  <data name="Network_Intro" xml:space="preserve"><value>Choisissez la connexion Internet (WAN) et la carte reliée au point d'accès Wi-Fi des clients (LAN), puis cliquez sur « Partager Internet ».</value></data>
+  <data name="Network_StillOpen" xml:space="preserve"><value>Le contrôle d'accès (portail captif) n'est pas encore actif : tout appareil connecté au Wi-Fi a Internet.</value></data>
+  <data name="Network_Status" xml:space="preserve"><value>État</value></data>
+  <data name="Network_Mode" xml:space="preserve"><value>Mode</value></data>
+  <data name="Network_Mode_None" xml:space="preserve"><value>Partage désactivé</value></data>
+  <data name="Network_Mode_Ics" xml:space="preserve"><value>Partage de connexion Internet Windows (ICS)</value></data>
+  <data name="Network_Mode_MobileHotspot" xml:space="preserve"><value>Point d'accès mobile Windows</value></data>
+  <data name="Network_Admin" xml:space="preserve"><value>Droits administrateur</value></data>
+  <data name="Network_Gateway" xml:space="preserve"><value>Adresse de la passerelle (LAN)</value></data>
+  <data name="Network_Wan" xml:space="preserve"><value>Connexion Internet (WAN)</value></data>
+  <data name="Network_Lan" xml:space="preserve"><value>Réseau des clients (LAN)</value></data>
+  <data name="Network_Choose" xml:space="preserve"><value>— choisir —</value></data>
+  <data name="Network_Suggested" xml:space="preserve"><value>suggéré</value></data>
+  <data name="Network_Apply" xml:space="preserve"><value>Partager Internet</value></data>
+  <data name="Network_Disable" xml:space="preserve"><value>Arrêter le partage</value></data>
+  <data name="Network_Applied" xml:space="preserve"><value>Partage activé.</value></data>
+  <data name="Network_Disabled" xml:space="preserve"><value>Partage arrêté.</value></data>
+  <data name="Network_Adapters" xml:space="preserve"><value>Cartes réseau</value></data>
+  <data name="Network_IcsShares" xml:space="preserve"><value>Partage actuel dans Windows</value></data>
+  <data name="Network_IcsPublic" xml:space="preserve"><value>Internet (public)</value></data>
+  <data name="Network_IcsPrivate" xml:space="preserve"><value>Clients (privé)</value></data>
+  <data name="Network_IcsNone" xml:space="preserve"><value>Aucun</value></data>
+  <data name="Network_Up" xml:space="preserve"><value>Connectée</value></data>
+  <data name="Network_Down" xml:space="preserve"><value>Déconnectée</value></data>
+  <data name="Network_HotspotAdapter" xml:space="preserve"><value>point d'accès mobile</value></data>
+  <data name="Col_Name" xml:space="preserve"><value>Nom</value></data>
+  <data name="Col_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Col_State" xml:space="preserve"><value>État</value></data>
+  <data name="Col_Mac" xml:space="preserve"><value>Adresse MAC</value></data>
+  <data name="Col_Ip" xml:space="preserve"><value>Adresse IP</value></data>
+  <data name="Col_Gateway" xml:space="preserve"><value>Passerelle</value></data>
+  <data name="Col_Hostname" xml:space="preserve"><value>Nom de l'appareil</value></data>
+  <data name="Network_Problem_NotAdministrator" xml:space="preserve"><value>Le service ne tourne pas avec les droits administrateur. Lancez-le comme service Windows ou depuis une invite « Exécuter en tant qu'administrateur ».</value></data>
+  <data name="Network_Problem_NotWindows" xml:space="preserve"><value>Le partage de connexion ne fonctionne que sous Windows.</value></data>
+  <data name="Network_Problem_NoLanAdapter" xml:space="preserve"><value>Aucune seconde carte réseau pour le réseau des clients. Branchez la carte reliée au point d'accès, ou activez le point d'accès mobile Windows.</value></data>
+  <data name="Network_Problem_WanNotSelected" xml:space="preserve"><value>Choisissez la connexion Internet (WAN).</value></data>
+  <data name="Network_Problem_LanNotSelected" xml:space="preserve"><value>Choisissez la carte du réseau des clients (LAN).</value></data>
+  <data name="Network_Problem_AdapterNotFound" xml:space="preserve"><value>La carte choisie n'existe plus (débranchée ou désinstallée).</value></data>
+  <data name="Network_Problem_SameAdapter" xml:space="preserve"><value>La connexion Internet et le réseau des clients doivent être deux cartes différentes.</value></data>
+  <data name="Network_Problem_WanDown" xml:space="preserve"><value>La connexion Internet est déconnectée.</value></data>
+  <data name="Network_Problem_WanNoGateway" xml:space="preserve"><value>La connexion Internet n'a pas de passerelle : elle ne semble pas reliée à Internet.</value></data>
+  <data name="Network_Problem_LanDown" xml:space="preserve"><value>La carte du réseau des clients est déconnectée (câble débranché ou point d'accès éteint).</value></data>
+  <data name="Network_Problem_IcsSubnetConflict" xml:space="preserve"><value>Conflit d'adresses IP : la connexion Internet utilise déjà le réseau 192.168.137.x, que Windows réserve au partage. Changez le réseau de votre box ou modem.</value></data>
+  <data name="Network_Problem_MobileHotspotOff" xml:space="preserve"><value>Le point d'accès mobile Windows est éteint. Activez-le dans Paramètres &gt; Réseau et Internet &gt; Point d'accès sans fil mobile.</value></data>
+  <data name="Network_Problem_IcsFailed" xml:space="preserve"><value>Windows a refusé de modifier le partage de connexion.</value></data>
+  <data name="Network_Problem_IcsNotActive" xml:space="preserve"><value>Le partage configuré n'est pas actif dans Windows. Cliquez sur « Partager Internet » pour le réactiver.</value></data>
+  <data name="Network_Problem_GatewayIpConflict" xml:space="preserve"><value>Conflit d'adresses IP : un autre appareil utilise l'adresse de la passerelle. Le point d'accès est probablement en mode routeur : passez-le en mode point d'accès / pont.</value></data>
+  <data name="Network_Problem_DevicesOutsideSubnet" xml:space="preserve"><value>Des appareils ont des adresses hors du réseau du hotspot. Le point d'accès distribue peut-être ses propres adresses : désactivez son DHCP / mode routeur.</value></data>
+  <data name="Devices_Intro" xml:space="preserve"><value>Appareils vus récemment sur le réseau des clients (actualisé toutes les 5 secondes).</value></data>
+  <data name="Devices_None" xml:space="preserve"><value>Aucun appareil détecté pour l'instant. Un appareil apparaît dès qu'il a échangé des données avec le PC.</value></data>
+  <data name="Devices_NotConfigured" xml:space="preserve"><value>Choisissez d'abord la carte du réseau des clients dans « Réseau ».</value></data>
+  <data name="Devices_LastScan" xml:space="preserve"><value>Dernière analyse : {0}</value></data>
+  <data name="Devices_Count" xml:space="preserve"><value>{0} appareil(s)</value></data>
+  <data name="Devices_RandomMac" xml:space="preserve"><value>MAC privée</value></data>
+  <data name="Devices_RandomMacNote" xml:space="preserve"><value>Les téléphones récents utilisent une adresse MAC « privée / aléatoire » différente pour chaque réseau Wi-Fi. C'est normal : elle reste la même sur ce réseau. Pour mettre un appareil en liste blanche, utilisez toujours la MAC affichée ici.</value></data>
+  <data name="Devices_State_Active" xml:space="preserve"><value>Actif</value></data>
+  <data name="Devices_State_Idle" xml:space="preserve"><value>Inactif récemment</value></data>
+  <data name="Devices_State_Checking" xml:space="preserve"><value>Vérification</value></data>
+  <data name="Admin_Home_Title" xml:space="preserve"><value>Tableau de bord</value></data>
 </root>

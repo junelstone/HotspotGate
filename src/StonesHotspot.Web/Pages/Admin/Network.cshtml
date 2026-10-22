@@ -1,0 +1,85 @@
+@page
+@model StonesHotspot.Web.Pages.Admin.NetworkModel
+@using StonesHotspot.Network.Ics
+@{
+    ViewData["Title"] = Strings.Network_Title;
+    var o = Model.Overview;
+    var gateway = o.Lan?.Addresses.FirstOrDefault().Address?.ToString() ?? "—";
+}
+<h1>@Strings.Network_Title</h1>
+<p class="muted">@Strings.Network_Intro</p>
+<div class="msg warning">@Strings.Network_StillOpen</div>
+
+@if (Model.SuccessMessage is not null)
+{
+    <div class="msg ok">@Model.SuccessMessage</div>
+}
+@foreach (var p in Model.VisibleProblems)
+{
+    <div class="msg @Texts.CssClass(p.Severity)">@Texts.Problem(p)@if (p.Detail is not null) {<small>@p.Detail</small>}</div>
+}
+
+<div class="card">
+    <h2>@Strings.Network_Status</h2>
+    <table>
+        <tr><th>@Strings.Network_Mode</th><td>@Texts.Mode(o.Configuration.Mode)</td></tr>
+        <tr><th>@Strings.Network_Admin</th><td>@Texts.YesNo(o.IsAdministrator)</td></tr>
+        <tr><th>@Strings.Network_Wan</th><td>@(o.Wan?.Name ?? "—")</td></tr>
+        <tr><th>@Strings.Network_Lan</th><td>@(o.Lan?.Name ?? "—")</td></tr>
+        <tr><th>@Strings.Network_Gateway</th><td>@gateway</td></tr>
+        <tr><th>@Strings.Network_IcsShares</th><td>
+            @if (o.Ics.Shares.Count == 0) { @Strings.Network_IcsNone }
+            @foreach (var s in o.Ics.Shares)
+            {
+                <div>@s.Name — @(s.Role == IcsRole.Public ? Strings.Network_IcsPublic : Strings.Network_IcsPrivate)</div>
+            }
+        </td></tr>
+    </table>
+</div>
+
+<div class="card">
+    <form method="post">
+        <label for="WanId">@Strings.Network_Wan</label>
+        <select asp-for="WanId">
+            <option value="">@Strings.Network_Choose</option>
+            @foreach (var a in o.Adapters)
+            {
+                <option value="@a.Id" selected="@(a.Id == Model.WanId)">@a.Name — @a.Description@(a.Id == o.Suggestion.Wan?.Id ? $" ({Strings.Network_Suggested})" : "")</option>
+            }
+        </select>
+
+        <label for="LanId">@Strings.Network_Lan</label>
+        <select asp-for="LanId">
+            <option value="">@Strings.Network_Choose</option>
+            @foreach (var a in o.Suggestion.LanCandidates)
+            {
+                <option value="@a.Id" selected="@(a.Id == Model.LanId)">@a.Name — @a.Description@(a.IsMobileHotspot ? $" ({Strings.Network_HotspotAdapter})" : "")</option>
+            }
+        </select>
+
+        <button type="submit" asp-page-handler="Apply">@Strings.Network_Apply</button>
+        @if (o.Configuration.Mode != NetworkMode.None)
+        {
+            <button type="submit" class="secondary" asp-page-handler="Disable">@Strings.Network_Disable</button>
+        }
+    </form>
+</div>
+
+<h2>@Strings.Network_Adapters</h2>
+<div class="scroll">
+<table>
+    <tr><th>@Strings.Col_Name</th><th>@Strings.Col_Type</th><th>@Strings.Col_State</th><th>@Strings.Col_Mac</th><th>@Strings.Col_Ip</th><th>@Strings.Col_Gateway</th></tr>
+    @foreach (var a in o.Adapters)
+    {
+        <tr>
+            <td>@a.Name<div class="muted">@a.Description</div>
+                @if (a.IsMobileHotspot) { <span class="badge">@Strings.Network_HotspotAdapter</span> }</td>
+            <td>@a.Type</td>
+            <td>@(a.IsUp ? Strings.Network_Up : Strings.Network_Down)</td>
+            <td><code>@a.Mac</code></td>
+            <td>@string.Join(", ", a.Addresses)</td>
+            <td>@string.Join(", ", a.Gateways)</td>
+        </tr>
+    }
+</table>
+</div>

@@ -30,21 +30,23 @@ public sealed class TestHost : IAsyncDisposable
     public FakeTimeProvider Clock { get; } = new(Start);
     public string? InitialAdminPassword { get; private set; }
 
-    private TestHost()
+    private TestHost(Action<IServiceCollection>? configure)
     {
         _connection = new SqliteConnection("Data Source=:memory:;Foreign Keys=True");
         _connection.Open();
 
-        _services = new ServiceCollection()
+        var services = new ServiceCollection()
             .AddSingleton<TimeProvider>(Clock)
             .AddHotspotCore(o => o.UseSqlite(_connection))
-            .AddSingleton<IPasswordHasher>(new BcryptPasswordHasher(workFactor: 4)) // fast hashing in tests
-            .BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
+            .AddSingleton<IPasswordHasher>(new BcryptPasswordHasher(workFactor: 4)); // fast hashing in tests
+        configure?.Invoke(services);
+        _services = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
     }
 
-    public static async Task<TestHost> CreateAsync()
+    /// <param name="configure">Extra or replacement registrations (fakes) for the test.</param>
+    public static async Task<TestHost> CreateAsync(Action<IServiceCollection>? configure = null)
     {
-        var host = new TestHost();
+        var host = new TestHost(configure);
         host.InitialAdminPassword = (await host.Run<DatabaseInitializer, DatabaseInitResult>(i => i.InitializeAsync())).InitialAdminPassword;
         return host;
     }

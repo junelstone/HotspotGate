@@ -10,4 +10,8 @@
     <ProjectReference Include="..\StonesHotspot.Core\StonesHotspot.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="StonesHotspot.Tests" />
+  </ItemGroup>
+
 </Project>

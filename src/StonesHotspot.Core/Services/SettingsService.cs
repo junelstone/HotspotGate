@@ -11,6 +11,9 @@ public static class SettingKeys
     public const string DefaultLanguage = "Ui.DefaultLanguage";
     public const string DefaultIdleTimeoutMinutes = "Sessions.DefaultIdleTimeoutMinutes";
     public const string LastReceiptNumber = "Receipts.LastNumber";
+    public const string NetworkMode = "Network.Mode";
+    public const string NetworkWanAdapterId = "Network.WanAdapterId";
+    public const string NetworkLanAdapterId = "Network.LanAdapterId";
 
     /// <summary>Values written on first start; existing values are never overwritten.</summary>
     public static IReadOnlyDictionary<string, string> Defaults { get; } = new Dictionary<string, string>
