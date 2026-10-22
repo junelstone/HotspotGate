@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>StonesHotspot.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Strongly typed accessor (StonesHotspot.Core.Localization.Strings) generated at build time. -->
+    <EmbeddedResource Update="Localization\Strings.resx">
+      <StronglyTypedFileName>$(IntermediateOutputPath)Strings.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>StonesHotspot.Core.Localization</StronglyTypedNamespace>
+      <StronglyTypedClassName>Strings</StronglyTypedClassName>
+      <PublicClass>true</PublicClass>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="StonesHotspot.Tests" />
+  </ItemGroup>
+
+</Project>

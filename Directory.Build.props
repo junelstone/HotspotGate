@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <!-- Lets the Windows-only projects (Tray, LicenseManager) compile on a Linux build agent too. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+
+    <Version>0.1.0</Version>
+    <Company>Stone's IT Consulting</Company>
+    <Product>Stone's Hotspot</Product>
+    <Copyright>© Stone's IT Consulting</Copyright>
+    <NeutralLanguage>fr</NeutralLanguage>
+  </PropertyGroup>
+</Project>

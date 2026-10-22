@@ -1,0 +1,87 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CA3846D4-7EFC-466C-A701-9A7FEB21284B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StonesHotspot.Core", "src\StonesHotspot.Core\StonesHotspot.Core.csproj", "{6A3E5CC1-B23E-4E52-A2F3-F72BD9270E1D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StonesHotspot.Licensing", "src\StonesHotspot.Licensing\StonesHotspot.Licensing.csproj", "{47AF3AA8-E807-4E48-953D-123DB01720FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StonesHotspot.Network", "src\StonesHotspot.Network\StonesHotspot.Network.csproj", "{6A3BC191-5187-4FA5-9ADB-9AB778FBE55D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StonesHotspot.Web", "src\StonesHotspot.Web\StonesHotspot.Web.csproj", "{2AD27729-FA6D-4F7E-9DEB-87231BA02CDB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StonesHotspot.Service", "src\StonesHotspot.Service\StonesHotspot.Service.csproj", "{13B20252-9420-4045-8732-EB3E503D4AA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StonesHotspot.LicenseServer", "src\StonesHotspot.LicenseServer\StonesHotspot.LicenseServer.csproj", "{80CFA014-95E9-4B39-8792-22527600946A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D21BF1E5-0CC1-49BB-BECE-A7D588B58788}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StonesHotspot.Tests", "tests\StonesHotspot.Tests\StonesHotspot.Tests.csproj", "{389EC857-3E37-4DEC-AA71-8BD5D4ECD95A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StonesHotspot.Tray", "src\StonesHotspot.Tray\StonesHotspot.Tray.csproj", "{A8513985-2FE2-4B06-BFEA-E3009E26F9CE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{DEA4BF72-36B1-4F5D-8FAC-66C26CB0838F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StonesHotspot.LicenseManager", "tools\StonesHotspot.LicenseManager\StonesHotspot.LicenseManager.csproj", "{57145CB1-7A52-4510-8349-ED7DB8504F03}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6A3E5CC1-B23E-4E52-A2F3-F72BD9270E1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A3E5CC1-B23E-4E52-A2F3-F72BD9270E1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A3E5CC1-B23E-4E52-A2F3-F72BD9270E1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A3E5CC1-B23E-4E52-A2F3-F72BD9270E1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47AF3AA8-E807-4E48-953D-123DB01720FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47AF3AA8-E807-4E48-953D-123DB01720FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47AF3AA8-E807-4E48-953D-123DB01720FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47AF3AA8-E807-4E48-953D-123DB01720FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A3BC191-5187-4FA5-9ADB-9AB778FBE55D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A3BC191-5187-4FA5-9ADB-9AB778FBE55D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A3BC191-5187-4FA5-9ADB-9AB778FBE55D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A3BC191-5187-4FA5-9ADB-9AB778FBE55D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AD27729-FA6D-4F7E-9DEB-87231BA02CDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AD27729-FA6D-4F7E-9DEB-87231BA02CDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AD27729-FA6D-4F7E-9DEB-87231BA02CDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AD27729-FA6D-4F7E-9DEB-87231BA02CDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13B20252-9420-4045-8732-EB3E503D4AA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13B20252-9420-4045-8732-EB3E503D4AA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13B20252-9420-4045-8732-EB3E503D4AA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13B20252-9420-4045-8732-EB3E503D4AA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80CFA014-95E9-4B39-8792-22527600946A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80CFA014-95E9-4B39-8792-22527600946A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80CFA014-95E9-4B39-8792-22527600946A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80CFA014-95E9-4B39-8792-22527600946A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{389EC857-3E37-4DEC-AA71-8BD5D4ECD95A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{389EC857-3E37-4DEC-AA71-8BD5D4ECD95A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{389EC857-3E37-4DEC-AA71-8BD5D4ECD95A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{389EC857-3E37-4DEC-AA71-8BD5D4ECD95A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8513985-2FE2-4B06-BFEA-E3009E26F9CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8513985-2FE2-4B06-BFEA-E3009E26F9CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8513985-2FE2-4B06-BFEA-E3009E26F9CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8513985-2FE2-4B06-BFEA-E3009E26F9CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57145CB1-7A52-4510-8349-ED7DB8504F03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57145CB1-7A52-4510-8349-ED7DB8504F03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57145CB1-7A52-4510-8349-ED7DB8504F03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57145CB1-7A52-4510-8349-ED7DB8504F03}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6A3E5CC1-B23E-4E52-A2F3-F72BD9270E1D} = {CA3846D4-7EFC-466C-A701-9A7FEB21284B}
+		{47AF3AA8-E807-4E48-953D-123DB01720FC} = {CA3846D4-7EFC-466C-A701-9A7FEB21284B}
+		{6A3BC191-5187-4FA5-9ADB-9AB778FBE55D} = {CA3846D4-7EFC-466C-A701-9A7FEB21284B}
+		{2AD27729-FA6D-4F7E-9DEB-87231BA02CDB} = {CA3846D4-7EFC-466C-A701-9A7FEB21284B}
+		{13B20252-9420-4045-8732-EB3E503D4AA3} = {CA3846D4-7EFC-466C-A701-9A7FEB21284B}
+		{80CFA014-95E9-4B39-8792-22527600946A} = {CA3846D4-7EFC-466C-A701-9A7FEB21284B}
+		{389EC857-3E37-4DEC-AA71-8BD5D4ECD95A} = {D21BF1E5-0CC1-49BB-BECE-A7D588B58788}
+		{A8513985-2FE2-4B06-BFEA-E3009E26F9CE} = {CA3846D4-7EFC-466C-A701-9A7FEB21284B}
+		{57145CB1-7A52-4510-8349-ED7DB8504F03} = {DEA4BF72-36B1-4F5D-8FAC-66C26CB0838F}
+	EndGlobalSection
+EndGlobal

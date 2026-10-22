@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AppName" xml:space="preserve"><value>Stone's Hotspot</value></data>
+  <data name="Language_French" xml:space="preserve"><value>French</value></data>
+  <data name="Language_English" xml:space="preserve"><value>English</value></data>
+  <data name="Tray_OpenDashboard" xml:space="preserve"><value>Open dashboard</value></data>
+  <data name="Tray_StartService" xml:space="preserve"><value>Start hotspot</value></data>
+  <data name="Tray_StopService" xml:space="preserve"><value>Stop hotspot</value></data>
+  <data name="Tray_Exit" xml:space="preserve"><value>Exit tray icon</value></data>
+  <data name="Status_Running" xml:space="preserve"><value>Hotspot running</value></data>
+  <data name="Status_Stopped" xml:space="preserve"><value>Hotspot stopped</value></data>
+  <data name="Status_NotInstalled" xml:space="preserve"><value>Service not installed</value></data>
+  <data name="Status_Unknown" xml:space="preserve"><value>Status unknown</value></data>
+  <data name="Error_AdminRequired" xml:space="preserve"><value>This action requires administrator rights.</value></data>
+  <data name="Error_ServiceControlFailed" xml:space="preserve"><value>Could not control the service: {0}</value></data>
+  <data name="Edition_Trial" xml:space="preserve"><value>Trial</value></data>
+  <data name="Edition_Basic" xml:space="preserve"><value>Basic</value></data>
+  <data name="Edition_Pro" xml:space="preserve"><value>Pro</value></data>
+  <data name="Licence_TrialDaysLeft" xml:space="preserve"><value>Pro trial — {0} day(s) left</value></data>
+  <data name="Licence_FeatureNotInEdition" xml:space="preserve"><value>This feature requires the {0} edition.</value></data>
+  <data name="Placeholder_ComingSoon" xml:space="preserve"><value>The dashboard will be available in a later version.</value></data>
+  <data name="Common_Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Common_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Common_Copy" xml:space="preserve"><value>Copy</value></data>
+</root>

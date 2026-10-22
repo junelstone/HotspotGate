@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AppName" xml:space="preserve"><value>Stone's Hotspot</value></data>
+  <data name="Language_French" xml:space="preserve"><value>Français</value></data>
+  <data name="Language_English" xml:space="preserve"><value>Anglais</value></data>
+  <data name="Tray_OpenDashboard" xml:space="preserve"><value>Ouvrir le tableau de bord</value></data>
+  <data name="Tray_StartService" xml:space="preserve"><value>Démarrer le hotspot</value></data>
+  <data name="Tray_StopService" xml:space="preserve"><value>Arrêter le hotspot</value></data>
+  <data name="Tray_Exit" xml:space="preserve"><value>Quitter l'icône</value></data>
+  <data name="Status_Running" xml:space="preserve"><value>Hotspot en marche</value></data>
+  <data name="Status_Stopped" xml:space="preserve"><value>Hotspot arrêté</value></data>
+  <data name="Status_NotInstalled" xml:space="preserve"><value>Service non installé</value></data>
+  <data name="Status_Unknown" xml:space="preserve"><value>État inconnu</value></data>
+  <data name="Error_AdminRequired" xml:space="preserve"><value>Cette action nécessite les droits administrateur.</value></data>
+  <data name="Error_ServiceControlFailed" xml:space="preserve"><value>Impossible de contrôler le service : {0}</value></data>
+  <data name="Edition_Trial" xml:space="preserve"><value>Essai</value></data>
+  <data name="Edition_Basic" xml:space="preserve"><value>Basic</value></data>
+  <data name="Edition_Pro" xml:space="preserve"><value>Pro</value></data>
+  <data name="Licence_TrialDaysLeft" xml:space="preserve"><value>Version d'essai Pro — {0} jour(s) restant(s)</value></data>
+  <data name="Licence_FeatureNotInEdition" xml:space="preserve"><value>Cette fonction nécessite l'édition {0}.</value></data>
+  <data name="Placeholder_ComingSoon" xml:space="preserve"><value>Le tableau de bord sera disponible dans une prochaine version.</value></data>
+  <data name="Common_Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Common_Cancel" xml:space="preserve"><value>Annuler</value></data>
+  <data name="Common_Copy" xml:space="preserve"><value>Copier</value></data>
+</root>

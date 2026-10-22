@@ -1,4 +1,32 @@
-.venv/
+# Build output
+bin/
+obj/
+artifacts/
+publish/
+TestResults/
+*.user
+*.suo
+.vs/
+.vscode/
+.idea/
+
+# Local configuration and secrets — never commit (use the *.example.json files next to them)
+appsettings.Local.json
+**/appsettings.Local.json
+*.pfx
+*.key
+*.lic
+
+# LicenseManager private data (private key, customer database, backups)
+tools/StonesHotspot.LicenseManager/data/
+*.shkey
+
+# Runtime data when running from source
 data/
-config.json
-__pycache__/
+logs/
+*.db
+*.db-shm
+*.db-wal
+
+# Installer output
+installer/Output/

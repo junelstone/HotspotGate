@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>StonesHotspot.Web</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StonesHotspot.Core\StonesHotspot.Core.csproj" />
+    <ProjectReference Include="..\StonesHotspot.Licensing\StonesHotspot.Licensing.csproj" />
+  </ItemGroup>
+
+</Project>
