@@ -33,6 +33,9 @@ public enum GateVerdict
 
     /// <summary>A DNS query: drop it and hand a copy to the DNS responder, which injects the answer.</summary>
     Dns,
+
+    /// <summary>Over the device's speed limit: re-inject unchanged after the returned delay (traffic shaping).</summary>
+    Delay,
 }
 
 /// <summary>
@@ -52,6 +55,20 @@ public sealed class PacketProcessor(TimeProvider clock)
     private readonly ConcurrentDictionary<ulong, RedirectFlow> _redirects = new();
     private readonly ConcurrentDictionary<uint, long> _learnedFree = new();
     private readonly ConcurrentDictionary<uint, ByteCounter> _bytes = new();
+    private readonly ConcurrentDictionary<uint, ShaperState> _shapers = new();
+
+    /// <summary>How far ahead of its rate a device may send at once.</summary>
+    public static readonly TimeSpan BurstTolerance = TimeSpan.FromMilliseconds(20);
+
+    /// <summary>Packets that would wait longer than this are dropped, so TCP slows down instead of queueing.</summary>
+    public static readonly TimeSpan MaxQueueDelay = TimeSpan.FromMilliseconds(400);
+
+    /// <summary>GCRA "theoretical arrival time" per direction, in UTC ticks.</summary>
+    private sealed class ShaperState
+    {
+        public long TatUp;
+        public long TatDown;
+    }
 
     private sealed class RedirectFlow(uint originalAddress, ushort originalPort, long lastUsed)
     {
@@ -76,23 +93,29 @@ public sealed class PacketProcessor(TimeProvider clock)
         _redirects.Clear();
         _learnedFree.Clear();
         _bytes.Clear();
+        _shapers.Clear();
         Counters = new GateCounters();
         _snapshot = snapshot;
     }
 
-    public GateVerdict Process(Span<byte> packet, PacketSource source, bool outbound)
+    public GateVerdict Process(Span<byte> packet, PacketSource source, bool outbound) => Process(packet, source, outbound, out _);
+
+    /// <param name="delay">With <see cref="GateVerdict.Delay"/>: how long to hold the packet before re-injecting it.</param>
+    public GateVerdict Process(Span<byte> packet, PacketSource source, bool outbound, out TimeSpan delay)
     {
+        delay = TimeSpan.Zero;
         var snapshot = _snapshot;
         if (snapshot is null || !Ipv4Packet.TryParse(packet, out var p))
             return Drop();
 
         return source == PacketSource.Forward
-            ? ProcessForward(packet, p, snapshot)
+            ? ProcessForward(packet, p, snapshot, out delay)
             : ProcessLocal(packet, p, snapshot, outbound);
     }
 
-    private GateVerdict ProcessForward(Span<byte> packet, in PacketInfo p, GateSnapshot s)
+    private GateVerdict ProcessForward(Span<byte> packet, in PacketInfo p, GateSnapshot s, out TimeSpan delay)
     {
+        delay = TimeSpan.Zero;
         if (s.IsClient(p.Source))
         {
             if (IsBroadcastOrMulticast(p.Destination, s))
@@ -108,12 +131,8 @@ public sealed class PacketProcessor(TimeProvider clock)
             if (s.Rules.BlockedIps.Contains(p.Destination))
                 return Refuse(p);
 
-            if (s.Authorized.ContainsKey(p.Source))
-            {
-                CounterFor(p.Source).AddUp(p.TotalLength);
-                Counters.PassUp();
-                return GateVerdict.Pass;
-            }
+            if (s.Authorized.TryGetValue(p.Source, out var sender))
+                return Authorized(p.Source, upload: true, p.TotalLength, sender.UpKbps, out delay);
 
             if (IsFree(p.Destination, s))
             {
@@ -129,12 +148,8 @@ public sealed class PacketProcessor(TimeProvider clock)
 
         if (s.IsClient(p.Destination))
         {
-            if (s.Authorized.ContainsKey(p.Destination) && !s.Rules.BlockedIps.Contains(p.Source))
-            {
-                CounterFor(p.Destination).AddDown(p.TotalLength);
-                Counters.PassDown();
-                return GateVerdict.Pass;
-            }
+            if (s.Authorized.TryGetValue(p.Destination, out var receiver) && !s.Rules.BlockedIps.Contains(p.Source))
+                return Authorized(p.Destination, upload: false, p.TotalLength, receiver.DownKbps, out delay);
             if (IsFree(p.Source, s))
             {
                 Counters.Free();
@@ -144,6 +159,69 @@ public sealed class PacketProcessor(TimeProvider clock)
         }
 
         return GateVerdict.Pass; // not customer traffic (the filter should not capture it)
+    }
+
+    /// <summary>Traffic of an authorised device: shaped to its limit, counted when it is delivered.</summary>
+    private GateVerdict Authorized(uint client, bool upload, int bytes, int? kbps, out TimeSpan delay)
+    {
+        var verdict = Shape(client, upload, bytes, kbps, out delay);
+        if (verdict == GateVerdict.Drop)
+        {
+            Counters.ShapedDrop();
+            return GateVerdict.Drop;
+        }
+
+        var counter = CounterFor(client);
+        counter.Touch(clock.GetUtcNow().UtcTicks);
+        if (upload)
+        {
+            counter.AddUp(bytes);
+            Counters.PassUp();
+        }
+        else
+        {
+            counter.AddDown(bytes);
+            Counters.PassDown();
+        }
+        if (verdict == GateVerdict.Delay)
+            Counters.Shaped();
+        return verdict;
+    }
+
+    /// <summary>
+    /// GCRA shaper (virtual scheduling): a packet within the rate passes, a packet up to <see cref="MaxQueueDelay"/>
+    /// over is delayed, anything later is dropped. Long-run throughput equals the limit.
+    /// </summary>
+    internal GateVerdict Shape(uint client, bool upload, int bytes, int? kbps, out TimeSpan delay)
+    {
+        delay = TimeSpan.Zero;
+        if (kbps is not > 0)
+            return GateVerdict.Pass;
+
+        var state = _shapers.GetOrAdd(client, static _ => new ShaperState());
+        var now = clock.GetUtcNow().UtcTicks;
+        var cost = bytes * 8L * TimeSpan.TicksPerSecond / (kbps.Value * 1000L);
+        lock (state)
+        {
+            ref var tat = ref upload ? ref state.TatUp : ref state.TatDown;
+            if (tat < now)
+                tat = now;
+            var wait = tat - now - BurstTolerance.Ticks;
+            if (wait > MaxQueueDelay.Ticks)
+                return GateVerdict.Drop;
+            tat += cost;
+            if (wait <= 0)
+                return GateVerdict.Pass;
+            delay = TimeSpan.FromTicks(wait);
+            return GateVerdict.Delay;
+        }
+    }
+
+    /// <summary>Authorised devices that sent or received traffic within <paramref name="within"/> (fair share).</summary>
+    public IReadOnlyCollection<uint> RecentlyActive(TimeSpan within)
+    {
+        var since = clock.GetUtcNow().UtcTicks - within.Ticks;
+        return _bytes.Where(kv => kv.Value.LastActivity >= since).Select(kv => kv.Key).ToList();
     }
 
     private GateVerdict ProcessLocal(Span<byte> packet, in PacketInfo p, GateSnapshot s, bool outbound)
@@ -256,6 +334,11 @@ public sealed class PacketProcessor(TimeProvider clock)
         {
             if (authorized is null || !authorized.ContainsKey(ip))
                 _bytes.TryRemove(ip, out _);
+        }
+        foreach (var ip in _shapers.Keys)
+        {
+            if (authorized is null || !authorized.ContainsKey(ip))
+                _shapers.TryRemove(ip, out _);
         }
     }
 

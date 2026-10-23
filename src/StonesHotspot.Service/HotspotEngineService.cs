@@ -32,7 +32,11 @@ internal sealed class HotspotEngineService(
     public static readonly TimeSpan ReconcileInterval = TimeSpan.FromSeconds(5);
     public static readonly TimeSpan RulesInterval = TimeSpan.FromSeconds(10);
 
+    /// <summary>Devices that moved data within this time count as "active" for fair share.</summary>
+    public static readonly TimeSpan ActiveWindow = TimeSpan.FromSeconds(10);
+
     private FilterRules _rules = FilterRules.Empty;
+    private FairShare _fairShare = FairShare.Off;
     private string? _lastReconcileProblem;
     private DateTimeOffset _lastTick = DateTimeOffset.MinValue;
 
@@ -49,6 +53,8 @@ internal sealed class HotspotEngineService(
             {
                 // Every second, or at once when a login/logout asks for it.
                 await refresh.WaitAsync(TickInterval, stoppingToken);
+                if (refresh.TakeRulesReload())
+                    await ReloadRulesAsync(stoppingToken);
                 await TickAsync(stoppingToken);
 
                 var now = clock.GetUtcNow();
@@ -118,7 +124,7 @@ internal sealed class HotspotEngineService(
 
         var db = services.GetRequiredService<HotspotDbContext>();
         var sessions = await db.Sessions.AsNoTracking().Where(s => s.EndedAt == null)
-            .Select(s => new AccessSession(s.Id, s.Device.Mac, s.Ip)).ToListAsync(ct);
+            .Select(s => new AccessSession(s.Id, s.Device.Mac, s.Ip, s.Tariff.DownloadKbps, s.Tariff.UploadKbps)).ToListAsync(ct);
 
         var now = clock.GetUtcNow();
         if (_lastTick != DateTimeOffset.MinValue)
@@ -140,6 +146,8 @@ internal sealed class HotspotEngineService(
 
         var authorized = AccessTableBuilder.Build(new AccessInputs(
             sessions, whitelisted, blocked, lanNeighbors, licence.GetStatus().HotspotAllowed));
+        // Plan limits, lowered to an even share of the line when fair share is on.
+        authorized = BandwidthPolicy.Apply(authorized, _fairShare, processor.RecentlyActive(ActiveWindow));
         processor.Update(new GateSnapshot(config.Lan, Ipv4Subnet.ToUInt32(config.Lan.Address), config.PortalPort, authorized, _rules));
     }
 
@@ -165,11 +173,19 @@ internal sealed class HotspotEngineService(
         }
     }
 
-    private async Task ReloadRulesAsync(CancellationToken ct)
+    /// <summary>Web-filter rules, family DNS and fair-share settings (reloaded every 10 s; also called by tests).</summary>
+    internal async Task ReloadRulesAsync(CancellationToken ct)
     {
         await using var scope = scopes.CreateAsyncScope();
         var rules = await scope.ServiceProvider.GetRequiredService<WebFilterService>().ListEnabledAsync(ct);
-        _rules = ToFilterRules(rules);
+        var settings = scope.ServiceProvider.GetRequiredService<SettingsService>();
+        _rules = ToFilterRules(rules) with { FamilyDns = await settings.GetBoolAsync(SettingKeys.FilterFamilyDns, ct) };
+        _fairShare = new FairShare(
+            await settings.GetBoolAsync(SettingKeys.FairShareEnabled, ct),
+            await settings.GetIntAsync(SettingKeys.FairShareTotalDownKbps, 0, ct),
+            await settings.GetIntAsync(SettingKeys.FairShareTotalUpKbps, 0, ct),
+            await settings.GetIntAsync(SettingKeys.FairShareMinKbps, 256, ct),
+            await settings.GetIntAsync(SettingKeys.FairShareMaxKbps, 0, ct));
     }
 
     internal static FilterRules ToFilterRules(IEnumerable<WebFilterRule> rules)

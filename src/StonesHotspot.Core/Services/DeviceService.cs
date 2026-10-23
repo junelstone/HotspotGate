@@ -33,9 +33,17 @@ public sealed class DeviceService(HotspotDbContext db, AuditService audit, TimeP
         return device;
     }
 
-    public async Task SetWhitelistedAsync(string mac, bool whitelisted, Staff? actor, CancellationToken ct = default)
+    public Task<List<Device>> ListWhitelistedAsync(CancellationToken ct = default) =>
+        db.Devices.AsNoTracking().Where(d => d.Whitelisted).OrderBy(d => d.Mac).ToListAsync(ct);
+
+    public Task<List<Device>> ListBlockedAsync(CancellationToken ct = default) =>
+        db.Devices.AsNoTracking().Where(d => d.Blocked).OrderBy(d => d.Mac).ToListAsync(ct);
+
+    public async Task SetWhitelistedAsync(string mac, bool whitelisted, Staff? actor, CancellationToken ct = default, string? note = null)
     {
         var device = await TouchAsync(mac, null, null, ct);
+        if (note is not null)
+            device.Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
         device.Whitelisted = whitelisted;
         if (whitelisted)
             device.Blocked = false;
@@ -44,9 +52,11 @@ public sealed class DeviceService(HotspotDbContext db, AuditService audit, TimeP
     }
 
     /// <summary>Blocks a device. Its sessions are ended by the next <see cref="SessionService.TickAsync"/>.</summary>
-    public async Task SetBlockedAsync(string mac, bool blocked, Staff? actor, CancellationToken ct = default)
+    public async Task SetBlockedAsync(string mac, bool blocked, Staff? actor, CancellationToken ct = default, string? note = null)
     {
         var device = await TouchAsync(mac, null, null, ct);
+        if (note is not null)
+            device.Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
         device.Blocked = blocked;
         if (blocked)
             device.Whitelisted = false;

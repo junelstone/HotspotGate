@@ -3,9 +3,9 @@
 Windows Wi-Fi hotspot manager (captive portal) by **Stone's IT Consulting**: turns a Windows 10/11 PC into a
 managed, paid Wi-Fi hotspot — vouchers, user accounts, tariffs, Mobile Money, admin dashboard.
 
-> **Status: Phase 5 — admin dashboard.** Staff sign in on the PC or a phone, sell and print codes, manage plans,
-> voucher batches, customer accounts, staff, settings and backups; cashiers work in their own shift. See
-> [Build phases](#build-phases).
+> **Status: Phase 6 — bandwidth control and web filter.** Each plan's speed limits are enforced by the gate
+> (traffic shaping), the line can be shared fairly, the WAN speed can be measured, and staff manage blocked sites,
+> ready-made lists, family DNS, free-access sites and MAC white/black lists. See [Build phases](#build-phases).
 
 ## Requirements
 
@@ -89,7 +89,7 @@ deliberately no default password: customers on the hotspot can reach the dashboa
 | Role | Can use |
 |---|---|
 | **Caissier / Cashier** | Home, **Vendre** (new codes printed on a ticket, or a pre-printed card), **Ma caisse** (open with starting cash, sales, close with counted cash), **Comptes** (search, top up) |
-| **Administrateur** | Everything: **En direct** (customers online: add time, log out, block, whitelist), **Forfaits**, **Tickets** (batches, A4 cards / 58–80 mm tickets with QR, CSV, disable), **Comptes**, **Personnel**, **Paramètres** (name, Wi-Fi name, logo, colour, welcome page, terms, language, idle timeout), **Sauvegarde**, network and diagnostics pages |
+| **Administrateur** | Everything: **En direct** (customers online: add time, log out, block, whitelist), **Forfaits**, **Filtrage web**, **Débit**, **Tickets** (batches, A4 cards / 58–80 mm tickets with QR, CSV, disable), **Comptes**, **Personnel**, **Paramètres** (name, Wi-Fi name, logo, colour, welcome page, terms, language, idle timeout), **Sauvegarde**, network and diagnostics pages |
 
 - Sign-in ends after 2 hours without activity; 5 wrong passwords from one address → 5 minutes wait. New staff
   and reset passwords are temporary: they must be changed at first sign-in.
@@ -126,6 +126,18 @@ the internet. After login the customer goes to the **welcome page** (setting `Po
 to the page they first asked for. Business name, accent colour (`Portal.AccentColor`) and logo
 (`%ProgramData%\StonesHotspot\branding\logo.png`) and the terms of use are set in **Paramètres**.
 
+### Speed limits and web filter
+
+- **Débit** (admin): plan limits overview, **WAN speed test** (download/upload from speed.cloudflare.com; URLs in
+  `appsettings.json` → `Bandwidth`), **fair share** (the line's total split between active devices, with a
+  minimum and maximum per device; the lower of plan and share applies).
+- Limits are enforced by **shaping** in the gate: packets over the rate are delayed (up to 400 ms) then
+  re-injected, beyond that dropped — so a phone's speed test shows the plan's speed. Editing a plan changes running
+  sessions within a second.
+- **Filtrage web** (admin): blocked domains/IPs, ready-made lists *Réseaux sociaux* (without WhatsApp) and
+  *Contenus adultes*, **family DNS** (Cloudflare for Families 1.1.1.3, blocks adult and malware sites),
+  free-access sites (walled garden), MAC whitelist and blacklist. Changes apply immediately.
+
 ### Packet gate (WinDivert)
 
 `build.ps1` downloads **WinDivert 2.2.2** from its official release (SHA-256 checked, see
@@ -140,7 +152,8 @@ PC's own internet is never filtered.
 
 Manual tests: [`phase-2-network.md`](docs/manual-tests/phase-2-network.md),
 [`phase-3-gate.md`](docs/manual-tests/phase-3-gate.md), [`phase-4-portal.md`](docs/manual-tests/phase-4-portal.md),
-[`phase-5-dashboard.md`](docs/manual-tests/phase-5-dashboard.md).
+[`phase-5-dashboard.md`](docs/manual-tests/phase-5-dashboard.md),
+[`phase-6-bandwidth-filter.md`](docs/manual-tests/phase-6-bandwidth-filter.md).
 
 ## Database
 
@@ -186,8 +199,8 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 | 2 | Network setup (adapters, ICS, connected devices) | done (Mode B dropped) |
 | 3 | Packet gate (WinDivert) and DNS | done — to be verified on Windows |
 | 4 | Captive portal | done — to be verified on Windows |
-| 5 | Admin dashboard | **done** |
-| 6 | Bandwidth control and web filter | — |
+| 5 | Admin dashboard | done |
+| 6 | Bandwidth control and web filter | **done** — speeds to be verified on Windows |
 | 7 | Business tools (shifts, POS, reports) | — |
 | 8 | Free access and SMS login | — |
 | 9 | Mobile Money payments | — |
@@ -214,5 +227,8 @@ Plans for each phase are in `docs/phase-N-plan.md`.
 | Phones never show "Sign in to network" | Check the firewall rule for port 80 above and the gate state on <http://localhost:8080/admin/gate> |
 | "database is locked" in the log | Another program (e.g. DB Browser for SQLite) has the database open for writing; close it |
 | Lost the admin password | Another admin resets it in **Personnel**. If no admin can sign in: restore a backup, or contact Stone's IT Consulting (an offline reset tool comes with the installer, phase 11) |
+| Speed test in **Débit** fails | The PC has no internet, or speed.cloudflare.com is blocked: set other URLs in `appsettings.json` → `Bandwidth` |
+| Customers slower than their plan | Check **Débit**: fair share may give them less (many active devices or totals set too low). The gate page shows delayed/dropped packets |
+| A blocked site still opens | The phone cached the address: switch its Wi-Fi off and on. Apps using their own encrypted DNS (DoH) can bypass domain blocking; add the site's IP range as well |
 | Dashboard says "Accès refusé" | The page is for administrators; sign in with an admin account |
 | Tray "Start/Stop" shows an administrator message | Run the tray app as administrator (the installer will grant service rights later) |

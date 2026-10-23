@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using StonesHotspot.Network.Adapters;
+using StonesHotspot.Network.Bandwidth;
 using StonesHotspot.Network.Dns;
 using StonesHotspot.Network.Gate;
 using StonesHotspot.Network.Gate.WinDivert;
@@ -13,9 +14,14 @@ namespace StonesHotspot.Network;
 public static class NetworkServiceCollectionExtensions
 {
     /// <summary>Registers the Windows network implementations (harmless stand-ins on other systems).</summary>
-    public static IServiceCollection AddHotspotNetwork(this IServiceCollection services, HotspotNetworkOptions? options = null)
+    public static IServiceCollection AddHotspotNetwork(
+        this IServiceCollection services, HotspotNetworkOptions? options = null, SpeedTestOptions? speedTest = null)
     {
         services.AddSingleton(options ?? new HotspotNetworkOptions());
+        services.AddSingleton(speedTest ?? new SpeedTestOptions());
+        services.AddSingleton(sp => new WanSpeedTest(
+            new HttpClient { Timeout = TimeSpan.FromSeconds(30) }, sp.GetRequiredService<SpeedTestOptions>(),
+            sp.GetRequiredService<TimeProvider>(), sp.GetRequiredService<ILogger<WanSpeedTest>>()));
         services.AddSingleton<INetworkAdapterProvider, SystemNetworkAdapterProvider>();
         services.AddSingleton<IPrivilegeChecker, ProcessPrivilegeChecker>();
         services.AddSingleton<ConnectedDeviceRegistry>();

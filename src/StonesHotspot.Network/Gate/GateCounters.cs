@@ -3,7 +3,7 @@ namespace StonesHotspot.Network.Gate;
 /// <summary>Packet statistics for the diagnostics page (since the gate started).</summary>
 public sealed class GateCounters
 {
-    private long _passedUp, _passedDown, _dropped, _resets, _redirected, _dnsQueries, _dnsBlocked, _freeAccess, _injectErrors;
+    private long _passedUp, _passedDown, _dropped, _resets, _redirected, _dnsQueries, _dnsBlocked, _freeAccess, _injectErrors, _shaped, _shapedDrops;
 
     public long PassedUp => Interlocked.Read(ref _passedUp);
     public long PassedDown => Interlocked.Read(ref _passedDown);
@@ -14,6 +14,8 @@ public sealed class GateCounters
     public long DnsBlocked => Interlocked.Read(ref _dnsBlocked);
     public long FreeAccess => Interlocked.Read(ref _freeAccess);
     public long InjectErrors => Interlocked.Read(ref _injectErrors);
+    public long ShapedPackets => Interlocked.Read(ref _shaped);
+    public long ShapedDrops => Interlocked.Read(ref _shapedDrops);
 
     internal void PassUp() => Interlocked.Increment(ref _passedUp);
     internal void PassDown() => Interlocked.Increment(ref _passedDown);
@@ -24,12 +26,19 @@ public sealed class GateCounters
     internal void DnsBlock() => Interlocked.Increment(ref _dnsBlocked);
     internal void Free() => Interlocked.Increment(ref _freeAccess);
     public void InjectError() => Interlocked.Increment(ref _injectErrors);
+    internal void Shaped() => Interlocked.Increment(ref _shaped);
+    internal void ShapedDrop() => Interlocked.Increment(ref _shapedDrops);
 }
 
 /// <summary>Bytes of one authorised client IP since the engine last collected them.</summary>
 public sealed class ByteCounter
 {
-    private long _up, _down;
+    private long _up, _down, _lastActivity;
+
+    /// <summary>UTC ticks of the last packet (fair share counts devices active in the last seconds).</summary>
+    public long LastActivity => Interlocked.Read(ref _lastActivity);
+
+    internal void Touch(long utcTicks) => Interlocked.Exchange(ref _lastActivity, utcTicks);
 
     internal void AddUp(int bytes) => Interlocked.Add(ref _up, bytes);
     internal void AddDown(int bytes) => Interlocked.Add(ref _down, bytes);

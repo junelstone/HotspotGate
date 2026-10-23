@@ -1,0 +1,105 @@
+@page "/admin/filter"
+@model StonesHotspot.Web.Pages.Admin.FilterModel
+@using StonesHotspot.Core.Data.Entities
+@using StonesHotspot.Core.Services
+@{
+    ViewData["Title"] = Strings.Nav_Filter;
+    var lists = new[] { (FilterLists.SocialNetworks, Strings.Filter_List_Social, FilterLists.SocialNetworkDomains.Count),
+                        (FilterLists.Adult, Strings.Filter_List_Adult, FilterLists.AdultDomains.Count) };
+}
+<h1>@Strings.Nav_Filter</h1>
+<p class="muted">@Strings.Filter_Intro</p>
+
+<h2>@Strings.Filter_Blocked</h2>
+<div class="card">
+    <table>
+        @foreach (var (key, name, size) in lists)
+        {
+            var count = Model.CountInList(key);
+            <tr>
+                <td><strong>@name</strong><div class="muted">@string.Format(Strings.Filter_ListSize, size)</div></td>
+                <td>@(count > 0 ? string.Format(Strings.Filter_ListActive, count) : Strings.Tariff_Inactive)</td>
+                <td>
+                    <form method="post" asp-page-handler="AddList"><input type="hidden" name="list" value="@key"><button type="submit">@Strings.Filter_AddList</button></form>
+                    @if (count > 0)
+                    {
+                        <form method="post" asp-page-handler="RemoveList"><input type="hidden" name="list" value="@key"><button type="submit" class="secondary">@Strings.Filter_RemoveList</button></form>
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+    <form method="post" asp-page-handler="AddRule" style="margin-top:1rem">
+        <input type="hidden" name="kind" value="@WebFilterKind.Block">
+        <label for="blockPattern">@Strings.Gate_RulePattern</label>
+        <input id="blockPattern" name="pattern" type="text" placeholder="youtube.com, 31.13.0.0/16" autocapitalize="none">
+        <button type="submit">@Strings.Gate_AddRule</button>
+    </form>
+    <p class="muted">@Strings.Gate_RulesNote @Strings.Filter_HttpsNote</p>
+</div>
+@if (Model.Blocked.Count > 0)
+{
+    <details class="card">
+        <summary>@string.Format(Strings.Filter_RuleCount, Model.Blocked.Count)</summary>
+        <table>
+            @foreach (var r in Model.Blocked)
+            {
+                <tr><td><code>@r.Pattern</code></td><td class="muted">@r.Category</td>
+                    <td><form method="post" asp-page-handler="RemoveRule"><input type="hidden" name="id" value="@r.Id"><button type="submit" class="link">@Strings.Common_Delete</button></form></td></tr>
+            }
+        </table>
+    </details>
+}
+
+<h2>@Strings.Filter_FamilyDns</h2>
+<form method="post" asp-page-handler="FamilyDns" class="card">
+    <p>@Strings.Filter_FamilyDnsHelp</p>
+    <p><strong>@(Model.FamilyDns ? Strings.Tariff_Active : Strings.Tariff_Inactive)</strong></p>
+    <input type="hidden" name="enabled" value="@(!Model.FamilyDns)">
+    <button type="submit" class="@(Model.FamilyDns ? "secondary" : "")">@(Model.FamilyDns ? Strings.Staff_Disable : Strings.Staff_Enable)</button>
+</form>
+
+<h2>@Strings.Filter_Free</h2>
+<div class="card">
+    <p class="muted">@Strings.Filter_FreeHelp</p>
+    <form method="post" asp-page-handler="AddRule">
+        <input type="hidden" name="kind" value="@WebFilterKind.FreeAccess">
+        <label for="freePattern">@Strings.Gate_RulePattern</label>
+        <input id="freePattern" name="pattern" type="text" placeholder="mtn.cg" autocapitalize="none">
+        <button type="submit">@Strings.Gate_AddRule</button>
+    </form>
+    <table style="margin-top:.8rem">
+        @foreach (var r in Model.Free)
+        {
+            <tr><td><code>@r.Pattern</code></td>
+                <td><form method="post" asp-page-handler="RemoveRule"><input type="hidden" name="id" value="@r.Id"><button type="submit" class="link">@Strings.Common_Delete</button></form></td></tr>
+        }
+    </table>
+</div>
+
+@foreach (var (handler, title, help, list) in new[] {
+    ("Whitelist", Strings.Filter_Whitelist, Strings.Filter_WhitelistHelp, Model.Whitelist),
+    ("Blacklist", Strings.Filter_Blacklist, Strings.Filter_BlacklistHelp, Model.Blacklist) })
+{
+    <h2>@title</h2>
+    <div class="card">
+        <p class="muted">@help</p>
+        <form method="post" asp-page-handler="@handler">
+            <input type="hidden" name="add" value="true">
+            <div class="row">
+                <div><label>@Strings.Col_Mac</label><input name="mac" type="text" placeholder="AA:BB:CC:DD:EE:FF" autocapitalize="characters"></div>
+                <div><label>@Strings.Filter_Note</label><input name="note" type="text"></div>
+            </div>
+            <button type="submit">@Strings.Gate_AddRule</button>
+        </form>
+        <table style="margin-top:.8rem">
+            @foreach (var d in list)
+            {
+                <tr><td><code>@d.Mac</code></td><td>@d.Note @(d.Hostname is null ? "" : $"({d.Hostname})")</td>
+                    <td><form method="post" asp-page-handler="@handler"><input type="hidden" name="mac" value="@d.Mac"><input type="hidden" name="add" value="false">
+                        <button type="submit" class="link">@Strings.Common_Delete</button></form></td></tr>
+            }
+        </table>
+    </div>
+}
+<p class="muted">@Strings.Devices_RandomMacNote</p>

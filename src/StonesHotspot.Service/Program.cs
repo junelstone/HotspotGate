@@ -57,7 +57,9 @@ try
     builder.Services.AddSingleton(TimeProvider.System);
     builder.Services.AddSingleton<ILicenseService, TrialStubLicenseService>();
     builder.Services.AddHotspotCore(paths.DatabaseFile);
-    builder.Services.AddHotspotNetwork(new HotspotNetworkOptions { PortalPort = (ushort)ports.Portal });
+    builder.Services.AddHotspotNetwork(
+        new HotspotNetworkOptions { PortalPort = (ushort)ports.Portal },
+        builder.Configuration.GetSection("Bandwidth").Get<StonesHotspot.Network.Bandwidth.SpeedTestOptions>());
     builder.Services.AddHostedService<HotspotEngineService>();
     builder.Services.AddHostedService<DeviceDiscoveryService>();
     builder.Services.AddHotspotWeb();

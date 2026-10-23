@@ -65,6 +65,14 @@ not cut the customer off, and a revoked device is cut off at the next tick (≤ 
  /portal, which explains why (last session ended < 15 min ago)
 ```
 
+## Speed limits
+
+Per authorised device and direction, `PacketProcessor.Shape` runs a GCRA token bucket (theoretical arrival time,
+20 ms burst): within rate → pass; up to 400 ms over → verdict `Delay`, the WinDivert gate copies the packet into a
+`PacketDelayLine` (one thread, release-time order, 1 ms timer resolution) and re-injects it on its own handle; beyond
+→ drop. Limits come from the session's plan, lowered by `BandwidthPolicy` (fair share over devices active in the
+last 10 s). The engine rebuilds them every second, and at once when settings change (`AccessRefreshSignal`).
+
 ## Dashboard
 
 Razor Pages under `Web/Pages/Admin`, cookie sign-in (`Web/Auth`): every request re-checks that the staff account

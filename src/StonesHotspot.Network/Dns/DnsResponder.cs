@@ -65,7 +65,7 @@ public sealed class DnsResponder(PacketProcessor processor, IDnsUpstream upstrea
         }
         else
         {
-            var response = await upstream.QueryAsync(query, ct);
+            var response = await upstream.QueryAsync(query, rules.FamilyDns, ct);
             if (response is null)
             {
                 answer = DnsMessage.BuildError(query, question, DnsRcode.ServFail);

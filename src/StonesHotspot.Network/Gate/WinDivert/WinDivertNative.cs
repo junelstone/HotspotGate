@@ -83,6 +83,12 @@ internal static partial class WinDivertNative
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool WinDivertSetParam(IntPtr handle, int param, ulong value);
 
+    [LibraryImport("winmm.dll", EntryPoint = "timeBeginPeriod")]
+    public static partial uint TimeBeginPeriod(uint milliseconds);
+
+    [LibraryImport("winmm.dll", EntryPoint = "timeEndPeriod")]
+    public static partial uint TimeEndPeriod(uint milliseconds);
+
     /// <summary>Plain-language reason for a WinDivertOpen failure (shown on the dashboard).</summary>
     public static string DescribeOpenError(int error) => error switch
     {

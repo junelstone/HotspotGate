@@ -4,11 +4,15 @@ using StonesHotspot.Network.Dns;
 
 namespace StonesHotspot.Network.Gate;
 
-/// <summary>Why a device has internet: a running session, or a whitelisted MAC.</summary>
-public sealed record AccessEntry(string Mac, long? SessionId);
+/// <summary>
+/// Why a device has internet (a running session, or a whitelisted MAC) and its speed limits in kbit/s
+/// (null = no limit).
+/// </summary>
+public sealed record AccessEntry(string Mac, long? SessionId, int? DownKbps = null, int? UpKbps = null);
 
 /// <summary>The web-filter rules as the gate and DNS responder use them.</summary>
-public sealed record FilterRules(DomainSet BlockedDomains, DomainSet FreeDomains, IpRangeSet BlockedIps, IpRangeSet FreeIps)
+/// <param name="FamilyDns">Resolve through a family-safe DNS service (blocks adult and malware sites).</param>
+public sealed record FilterRules(DomainSet BlockedDomains, DomainSet FreeDomains, IpRangeSet BlockedIps, IpRangeSet FreeIps, bool FamilyDns = false)
 {
     public static FilterRules Empty { get; } = new(DomainSet.Empty, DomainSet.Empty, IpRangeSet.Empty, IpRangeSet.Empty);
 }

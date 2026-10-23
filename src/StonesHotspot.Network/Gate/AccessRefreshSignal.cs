@@ -7,6 +7,17 @@ namespace StonesHotspot.Network.Gate;
 public sealed class AccessRefreshSignal
 {
     private readonly SemaphoreSlim _signal = new(0, 1);
+    private int _rulesChanged;
+
+    /// <summary>Web-filter or bandwidth settings changed: reload them at the next (immediate) tick.</summary>
+    public void RequestRulesReload()
+    {
+        Interlocked.Exchange(ref _rulesChanged, 1);
+        Request();
+    }
+
+    /// <summary>True once after <see cref="RequestRulesReload"/>.</summary>
+    public bool TakeRulesReload() => Interlocked.Exchange(ref _rulesChanged, 0) == 1;
 
     public void Request()
     {

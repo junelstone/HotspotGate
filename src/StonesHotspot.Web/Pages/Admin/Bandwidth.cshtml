@@ -1,0 +1,54 @@
+@page "/admin/bandwidth"
+@model StonesHotspot.Web.Pages.Admin.BandwidthModel
+@using StonesHotspot.Core.Localization
+@using StonesHotspot.Web.Admin
+@{
+    ViewData["Title"] = Strings.Nav_Bandwidth;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+    string Limit(int? kbps) => kbps is { } k ? Units.SpeedLimit(k, culture) : Strings.Bandwidth_NoLimit;
+}
+<h1>@Strings.Nav_Bandwidth</h1>
+@if (Model.Error is not null)
+{
+    <div class="msg error">@Model.Error</div>
+}
+
+<h2>@Strings.Bandwidth_PlanLimits</h2>
+<div class="scroll">
+<table>
+    <tr><th>@Strings.Col_Tariff</th><th>↓ @Strings.Status_Down</th><th>↑ @Strings.Status_Up</th><th></th></tr>
+    @foreach (var t in Model.Tariffs)
+    {
+        <tr><td>@t.Name</td><td>@Limit(t.DownloadKbps)</td><td>@Limit(t.UploadKbps)</td><td><a href="/admin/tariff?id=@t.Id">@Strings.Common_Edit</a></td></tr>
+    }
+</table>
+</div>
+<p class="muted">@Strings.Bandwidth_PlanHelp</p>
+
+<h2>@Strings.Bandwidth_SpeedTest</h2>
+<div class="card">
+    <p class="muted">@Strings.Bandwidth_SpeedTestHelp</p>
+    @if (Model.LastTest is { } test && test.Error is null)
+    {
+        <p><strong>↓ @Units.SpeedLimit(test.DownKbps ?? 0, culture) · ↑ @Units.SpeedLimit(test.UpKbps ?? 0, culture)</strong>
+            <span class="muted">(@AdminText.Date(test.MeasuredAt, culture))</span></p>
+        <form method="post" asp-page-handler="UseTest"><button type="submit" class="secondary">@Strings.Bandwidth_UseTest</button></form>
+    }
+    <form method="post" asp-page-handler="Test"><button type="submit">@Strings.Bandwidth_RunTest</button></form>
+</div>
+
+<h2>@Strings.Bandwidth_FairShare</h2>
+<form method="post" asp-page-handler="Save" class="card">
+    <p class="muted">@Strings.Bandwidth_FairShareHelp</p>
+    <label style="font-weight:normal"><input asp-for="Enabled" type="checkbox"> @Strings.Bandwidth_FairShareOn</label>
+    <div class="row">
+        <div><label for="TotalDownKbps">@Strings.Bandwidth_TotalDown</label><input asp-for="TotalDownKbps" type="number" min="0"></div>
+        <div><label for="TotalUpKbps">@Strings.Bandwidth_TotalUp</label><input asp-for="TotalUpKbps" type="number" min="0"></div>
+    </div>
+    <div class="row">
+        <div><label for="MinKbps">@Strings.Bandwidth_Min</label><input asp-for="MinKbps" type="number" min="1"></div>
+        <div><label for="MaxKbps">@Strings.Bandwidth_Max</label><input asp-for="MaxKbps" type="number" min="0"></div>
+    </div>
+    <p class="muted">@string.Format(Strings.Bandwidth_Now, Model.ActiveDevices, Model.CurrentShareDown is { } share ? Units.SpeedLimit(share, culture) : "—")</p>
+    <button type="submit">@Strings.Common_Save</button>
+</form>

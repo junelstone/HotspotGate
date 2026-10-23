@@ -5,8 +5,8 @@ using StonesHotspot.Network.Neighbors;
 
 namespace StonesHotspot.Network.Gate;
 
-/// <summary>An active session as the gate needs it.</summary>
-public sealed record AccessSession(long SessionId, string Mac, string? LastIp);
+/// <summary>An active session as the gate needs it, with its plan's speed limits (kbit/s, null = none).</summary>
+public sealed record AccessSession(long SessionId, string Mac, string? LastIp, int? DownKbps = null, int? UpKbps = null);
 
 public sealed record AccessInputs(
     IReadOnlyList<AccessSession> Sessions,
@@ -38,25 +38,30 @@ public static class AccessTableBuilder
             foreach (var ip in ips)
                 macByIp[ip] = mac;
 
-        void Allow(string mac, long? sessionId, string? lastIp)
+        void Allow(string mac, AccessSession? session, string? lastIp)
         {
             if (blocked.Contains(mac))
                 return;
+            // A whitelisted device that also has a session keeps the session (and its plan's limits).
+            AccessEntry EntryFor(uint ip) => session is not null
+                ? new AccessEntry(mac, session.SessionId, session.DownKbps, session.UpKbps)
+                : table.GetValueOrDefault(ip) ?? new AccessEntry(mac, null);
+
             if (ipsByMac.TryGetValue(mac, out var ips))
                 foreach (var ip in ips)
-                    table[ip] = new AccessEntry(mac, sessionId ?? (table.TryGetValue(ip, out var e) ? e.SessionId : null));
+                    table[ip] = EntryFor(ip);
 
             if (lastIp is not null && IPAddress.TryParse(lastIp, out var parsed))
             {
                 var ip = Ipv4Subnet.ToUInt32(parsed);
                 var owner = macByIp.GetValueOrDefault(ip);
                 if (owner is null || string.Equals(owner, mac, StringComparison.OrdinalIgnoreCase))
-                    table.TryAdd(ip, new AccessEntry(mac, sessionId));
+                    table.TryAdd(ip, EntryFor(ip));
             }
         }
 
         foreach (var session in inputs.Sessions)
-            Allow(session.Mac, session.SessionId, session.LastIp);
+            Allow(session.Mac, session, session.LastIp);
         foreach (var mac in inputs.WhitelistedMacs)
             Allow(mac, null, null);
 

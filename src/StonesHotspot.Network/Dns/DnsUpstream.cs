@@ -6,8 +6,11 @@ namespace StonesHotspot.Network.Dns;
 
 public interface IDnsUpstream
 {
-    /// <summary>Sends a raw DNS query to a real resolver; null when no server answered in time.</summary>
-    Task<byte[]?> QueryAsync(byte[] query, CancellationToken ct);
+    /// <summary>
+    /// Sends a raw DNS query to a real resolver; null when no server answered in time. With
+    /// <paramref name="family"/>, a family-safe resolver is used (adult and malware sites answer 0.0.0.0).
+    /// </summary>
+    Task<byte[]?> QueryAsync(byte[] query, bool family, CancellationToken ct);
 }
 
 /// <summary>
@@ -17,15 +20,20 @@ public interface IDnsUpstream
 public sealed class UdpDnsUpstream(Func<IReadOnlyList<IPAddress>> serverProvider, ILogger<UdpDnsUpstream> logger) : IDnsUpstream
 {
     public static readonly IPAddress[] Fallbacks = [IPAddress.Parse("1.1.1.1"), IPAddress.Parse("8.8.8.8")];
+
+    /// <summary>Cloudflare for Families: blocks malware and adult content.</summary>
+    public static readonly IPAddress[] FamilyServers = [IPAddress.Parse("1.1.1.3"), IPAddress.Parse("1.0.0.3")];
     public static readonly TimeSpan Timeout = TimeSpan.FromSeconds(2);
 
-    public async Task<byte[]?> QueryAsync(byte[] query, CancellationToken ct)
+    public async Task<byte[]?> QueryAsync(byte[] query, bool family, CancellationToken ct)
     {
-        var servers = serverProvider()
-            .Where(s => !IPAddress.IsLoopback(s) && !s.Equals(IPAddress.Any))
-            .Concat(Fallbacks)
-            .Distinct()
-            .Take(3);
+        var servers = family
+            ? FamilyServers
+            : serverProvider()
+                .Where(s => !IPAddress.IsLoopback(s) && !s.Equals(IPAddress.Any))
+                .Concat(Fallbacks)
+                .Distinct()
+                .Take(3);
 
         foreach (var server in servers)
         {

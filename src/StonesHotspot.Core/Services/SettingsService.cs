@@ -16,6 +16,12 @@ public static class SettingKeys
     public const string PortalAccentColor = "Portal.AccentColor";
     public const string PortalTermsFr = "Portal.TermsFr";
     public const string PortalTermsEn = "Portal.TermsEn";
+    public const string FairShareEnabled = "Bandwidth.FairShare";
+    public const string FairShareTotalDownKbps = "Bandwidth.TotalDownKbps";
+    public const string FairShareTotalUpKbps = "Bandwidth.TotalUpKbps";
+    public const string FairShareMinKbps = "Bandwidth.MinKbps";
+    public const string FairShareMaxKbps = "Bandwidth.MaxKbps";
+    public const string FilterFamilyDns = "Filter.FamilyDns";
     public const string NetworkMode = "Network.Mode";
     public const string NetworkWanAdapterId = "Network.WanAdapterId";
     public const string NetworkLanAdapterId = "Network.LanAdapterId";
@@ -26,6 +32,10 @@ public static class SettingKeys
         [BusinessName] = "Stone's Hotspot",
         [DefaultLanguage] = "fr",
         [DefaultIdleTimeoutMinutes] = "10",
+        [FairShareEnabled] = "false",
+        [FairShareMinKbps] = "256",
+        [FairShareMaxKbps] = "4096",
+        [FilterFamilyDns] = "false",
     };
 }
 
@@ -37,6 +47,9 @@ public sealed class SettingsService(HotspotDbContext db, AuditService audit)
 
     public async Task<int> GetIntAsync(string key, int fallback, CancellationToken ct = default) =>
         int.TryParse(await GetAsync(key, ct), NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : fallback;
+
+    public async Task<bool> GetBoolAsync(string key, CancellationToken ct = default) =>
+        bool.TryParse(await GetAsync(key, ct), out var value) && value;
 
     public async Task SetAsync(string key, string value, Staff? actor, CancellationToken ct = default)
     {

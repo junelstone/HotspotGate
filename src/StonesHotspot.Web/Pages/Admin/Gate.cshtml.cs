@@ -23,7 +23,6 @@ public sealed class GateModel(
     HotspotDbContext db,
     DeviceService devices,
     SessionService sessions,
-    WebFilterService filters,
     TariffService tariffs,
     VoucherService vouchers) : PageModel
 {
@@ -33,17 +32,11 @@ public sealed class GateModel(
     public GateCounters Counters { get; private set; } = new();
     public PacketProcessor Processor => gate.Processor;
     public IReadOnlyList<GateDeviceRow> Devices { get; private set; } = [];
-    public IReadOnlyList<WebFilterRule> Rules { get; private set; } = [];
     public string? Error { get; private set; }
     public IReadOnlyList<Tariff> Tariffs { get; private set; } = [];
     public IReadOnlyList<Voucher> TestVouchers { get; private set; } = [];
     public string? CreatedCode { get; private set; }
 
-    [BindProperty]
-    public string? Pattern { get; set; }
-
-    [BindProperty]
-    public WebFilterKind Kind { get; set; } = WebFilterKind.Block;
 
     public Task OnGetAsync() => LoadAsync();
 
@@ -61,21 +54,6 @@ public sealed class GateModel(
         return RedirectToPage();
     }
 
-    public async Task<IActionResult> OnPostAddRuleAsync()
-    {
-        try
-        {
-            await filters.AddAsync(Pattern ?? "", Kind, null, null, HttpContext.RequestAborted);
-            return RedirectToPage();
-        }
-        catch (BusinessRuleException ex)
-        {
-            Error = ex.Code == ErrorCodes.DuplicateName ? Strings.Gate_Error_DuplicateRule : Strings.Gate_Error_InvalidRule;
-            await LoadAsync();
-            return Page();
-        }
-    }
-
     /// <summary>Creates one voucher so the portal can be tried before the dashboard exists (phase 5).</summary>
     public async Task OnPostCreateVoucherAsync(int tariffId)
     {
@@ -84,17 +62,10 @@ public sealed class GateModel(
         await LoadAsync();
     }
 
-    public async Task<IActionResult> OnPostRemoveRuleAsync(int id)
-    {
-        await filters.RemoveAsync(id, null, HttpContext.RequestAborted);
-        return RedirectToPage();
-    }
-
     private async Task LoadAsync()
     {
         Status = gate.Status;
         Counters = gate.Processor.Counters;
-        Rules = await filters.ListAsync(HttpContext.RequestAborted);
         Tariffs = await tariffs.ListAsync(ct: HttpContext.RequestAborted);
         TestVouchers = (await vouchers.ListBatchAsync(TestBatch, HttpContext.RequestAborted)).OrderByDescending(v => v.Id).Take(10).ToList();
 

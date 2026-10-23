@@ -23,6 +23,24 @@ public class WebFilterTests
         Assert.Equal(expected, WebFilterService.Normalize(input));
 
     [Fact]
+    public async Task Ready_made_lists_are_added_once_and_removed_together()
+    {
+        await using var host = await TestHost.CreateAsync();
+        await host.Run<WebFilterService, WebFilterRule>(s => s.AddAsync("tiktok.com", WebFilterKind.Block, null, null));
+
+        var added = await host.Run<WebFilterService, int>(s => s.AddListAsync(FilterLists.SocialNetworks, null));
+        Assert.Equal(FilterLists.SocialNetworkDomains.Count - 1, added);             // tiktok.com was already there
+        Assert.Equal(0, await host.Run<WebFilterService, int>(s => s.AddListAsync(FilterLists.SocialNetworks, null)));
+        Assert.DoesNotContain("whatsapp.com", FilterLists.SocialNetworkDomains);
+
+        var rules = HotspotEngineService.ToFilterRules(await host.Run<WebFilterService, List<WebFilterRule>>(s => s.ListEnabledAsync()));
+        Assert.True(rules.BlockedDomains.Matches("m.facebook.com"));
+
+        Assert.Equal(added, await host.Run<WebFilterService, int>(s => s.RemoveListAsync(FilterLists.SocialNetworks, null)));
+        Assert.Single(await host.Run<WebFilterService, List<WebFilterRule>>(s => s.ListAsync()));   // the hand-made rule stays
+    }
+
+    [Fact]
     public async Task Rules_are_stored_once_and_split_into_domains_and_ip_ranges()
     {
         await using var host = await TestHost.CreateAsync();

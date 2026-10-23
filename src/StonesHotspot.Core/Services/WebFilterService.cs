@@ -37,6 +37,33 @@ public sealed partial class WebFilterService(HotspotDbContext db, AuditService a
         return rule;
     }
 
+    /// <summary>Adds a ready-made list (see <see cref="FilterLists"/>) as blocked rules; entries already present are skipped.</summary>
+    public async Task<int> AddListAsync(string list, Staff? actor, CancellationToken ct = default)
+    {
+        var domains = FilterLists.Domains(list) ?? throw new BusinessRuleException(ErrorCodes.NotFound, $"Unknown list '{list}'.");
+        var existing = (await db.WebFilterRules.Where(r => r.Kind == WebFilterKind.Block).Select(r => r.Pattern).ToListAsync(ct)).ToHashSet();
+        var now = clock.GetUtcNow().UtcDateTime;
+        var added = 0;
+        foreach (var domain in domains.Where(d => !existing.Contains(d)))
+        {
+            db.WebFilterRules.Add(new WebFilterRule { Pattern = domain, Kind = WebFilterKind.Block, Category = list, CreatedAt = now });
+            added++;
+        }
+        audit.Record(actor, "WebFilter.ListAdded", $"{list}: {added} domain(s)");
+        await db.SaveChangesAsync(ct);
+        return added;
+    }
+
+    /// <summary>Removes every rule of a ready-made list.</summary>
+    public async Task<int> RemoveListAsync(string list, Staff? actor, CancellationToken ct = default)
+    {
+        var rules = await db.WebFilterRules.Where(r => r.Category == list).ToListAsync(ct);
+        db.WebFilterRules.RemoveRange(rules);
+        audit.Record(actor, "WebFilter.ListRemoved", $"{list}: {rules.Count} rule(s)");
+        await db.SaveChangesAsync(ct);
+        return rules.Count;
+    }
+
     public async Task RemoveAsync(int id, Staff? actor, CancellationToken ct = default)
     {
         var rule = await db.WebFilterRules.FirstOrDefaultAsync(r => r.Id == id, ct)

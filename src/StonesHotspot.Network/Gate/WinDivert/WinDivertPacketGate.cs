@@ -95,6 +95,10 @@ public sealed class WinDivertPacketGate(
         private readonly uint _gateway;
         private readonly List<Thread> _threads = [];
         private readonly CancellationTokenSource _stopping = new();
+        private PacketDelayLine<DelayedPacket>? _delayLine;
+
+        /// <summary>A shaped packet waiting for its turn, with the handle and address it came from.</summary>
+        private readonly record struct DelayedPacket(IntPtr Handle, byte[] Packet, WinDivertAddress Address);
 
         public GateConfig Config { get; }
 
@@ -137,6 +141,9 @@ public sealed class WinDivertPacketGate(
 
         public void StartLoops()
         {
+            // Shaping needs millisecond timers; Windows' default tick is ~15.6 ms.
+            TimeBeginPeriod(1);
+            _delayLine = new PacketDelayLine<DelayedPacket>(Release, TimeProvider.System, "Gate shaper");
             for (var i = 0; i < ForwardThreads; i++)
                 StartThread($"Gate forward {i + 1}", () => Loop(_forward, PacketSource.Forward));
             StartThread("Gate local", () => Loop(_local, PacketSource.Local));
@@ -168,9 +175,10 @@ public sealed class WinDivertPacketGate(
 
                     var span = new Span<byte>(packet, (int)length);
                     GateVerdict verdict;
+                    TimeSpan delay;
                     try
                     {
-                        verdict = _gate.Processor.Process(span, source, address.Outbound);
+                        verdict = _gate.Processor.Process(span, source, address.Outbound, out delay);
                     }
                     catch (Exception ex)
                     {
@@ -180,6 +188,10 @@ public sealed class WinDivertPacketGate(
 
                     switch (verdict)
                     {
+                        case GateVerdict.Delay:
+                            if (_delayLine is null || !_delayLine.Enqueue(new DelayedPacket(handle, span.ToArray(), address), delay))
+                                _gate.Processor.Counters.ShapedDrop(); // queue full: dropped like a full router buffer
+                            break;
                         case GateVerdict.Pass:
                             Send(handle, packet, length, address);
                             break;
@@ -202,6 +214,14 @@ public sealed class WinDivertPacketGate(
                     }
                 }
             }
+        }
+
+        private unsafe void Release(DelayedPacket delayed)
+        {
+            if (_stopping.IsCancellationRequested)
+                return;
+            fixed (byte* packet = delayed.Packet)
+                Send(delayed.Handle, packet, (uint)delayed.Packet.Length, delayed.Address);
         }
 
         private unsafe bool Send(IntPtr handle, byte* packet, uint length, in WinDivertAddress address)
@@ -239,6 +259,8 @@ public sealed class WinDivertPacketGate(
         public void Dispose()
         {
             _stopping.Cancel();
+            _delayLine?.Dispose();
+            TimeEndPeriod(1);
             WinDivertShutdown(_forward, ShutdownBoth);
             WinDivertShutdown(_local, ShutdownBoth);
             foreach (var thread in _threads)

@@ -15,10 +15,12 @@ public sealed class DnsResponderTests
     {
         public Func<byte[], byte[]?> Answer { get; set; } = _ => null;
         public int Calls { get; private set; }
+        public bool? LastFamily { get; private set; }
 
-        public Task<byte[]?> QueryAsync(byte[] query, CancellationToken ct)
+        public Task<byte[]?> QueryAsync(byte[] query, bool family, CancellationToken ct)
         {
             Calls++;
+            LastFamily = family;
             return Task.FromResult(Answer(query));
         }
     }
@@ -78,6 +80,18 @@ public sealed class DnsResponderTests
 
         Assert.Equal(2, _gate.LearnedFreeCount);
         Assert.Equal(GateVerdict.Pass, _gate.Process(Tcp("192.168.137.23", 50000, "41.202.1.2", 443, TcpFlags.Syn), PacketSource.Forward, false));
+    }
+
+    [Fact]
+    public async Task Family_dns_option_is_passed_to_the_resolver()
+    {
+        _upstream.Answer = q => DnsResponse(q, "x.example.net", ("93.184.216.34", 300));
+        await _dns.AnswerAsync(QueryPacket("example.com"), CancellationToken.None);
+        Assert.False(_upstream.LastFamily);
+
+        _gate.Update(_gate.Snapshot! with { Rules = _gate.Snapshot.Rules with { FamilyDns = true } });
+        await _dns.AnswerAsync(QueryPacket("example.com"), CancellationToken.None);
+        Assert.True(_upstream.LastFamily);
     }
 
     [Fact]
