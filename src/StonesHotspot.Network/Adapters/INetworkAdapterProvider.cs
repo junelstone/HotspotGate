@@ -45,7 +45,10 @@ public sealed class SystemNetworkAdapterProvider : INetworkAdapterProvider
                 props.GatewayAddresses
                     .Where(g => g.Address.AddressFamily == AddressFamily.InterNetwork)
                     .Select(g => g.Address)
-                    .ToList());
+                    .ToList())
+            {
+                DnsServers = props.DnsAddresses.Where(d => d.AddressFamily == AddressFamily.InterNetwork).ToList(),
+            };
         }
         catch (NetworkInformationException)
         {

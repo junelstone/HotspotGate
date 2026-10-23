@@ -1,0 +1,22 @@
+@page "/portal"
+@model StonesHotspot.Web.Pages.Portal.IndexModel
+@{
+    Layout = "_PortalLayout";
+    ViewData["Title"] = Strings.Portal_Title;
+}
+<h1>@string.Format(Strings.Portal_Welcome, Model.BusinessName)</h1>
+<div class="card">
+    @if (Model.IsAuthorized)
+    {
+        <p class="ok">@Strings.Portal_Connected</p>
+        @if (Model.OriginalUrl is not null)
+        {
+            <a class="button" href="@Model.OriginalUrl">@Strings.Portal_Continue</a>
+        }
+    }
+    else
+    {
+        <p>@Strings.Portal_LoginSoon</p>
+    }
+</div>
+<p class="muted">@Strings.Portal_Device : @(Model.Mac ?? "—") · @(Model.Ip ?? "—")</p>

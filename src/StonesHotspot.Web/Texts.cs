@@ -25,6 +25,14 @@ public static class Texts
         _ => Strings.Devices_State_Checking,
     };
 
+    public static string GateState(Network.Gate.GateState state) => state switch
+    {
+        Network.Gate.GateState.Running => Strings.Gate_State_Running,
+        Network.Gate.GateState.Failed => Strings.Gate_State_Failed,
+        Network.Gate.GateState.NotSupported => Strings.Gate_State_NotSupported,
+        _ => Strings.Gate_State_Stopped,
+    };
+
     public static string YesNo(bool value) => value ? Strings.Common_Yes : Strings.Common_No;
 
     public static string CssClass(ProblemSeverity severity) => severity switch

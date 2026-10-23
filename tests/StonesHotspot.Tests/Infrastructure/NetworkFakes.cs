@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.NetworkInformation;
 using StonesHotspot.Network.Adapters;
+using StonesHotspot.Network.Gate;
 using StonesHotspot.Network.Ics;
 using StonesHotspot.Network.Neighbors;
 using StonesHotspot.Network.Setup;
@@ -37,8 +38,10 @@ public sealed class FakeAdapterProvider(List<NetworkAdapterInfo> adapters) : INe
     public IReadOnlyList<NetworkAdapterInfo> GetAdapters() => Adapters;
 }
 
-public sealed class FakeIcsController : IIcsController
+public sealed class FakeIcsController(List<string>? calls = null) : IIcsController
 {
+    /// <summary>Shared with <see cref="FakePacketGate"/> to check the order of operations.</summary>
+    public List<string> Calls { get; } = calls ?? [];
     public List<IcsShare> Shares { get; } = [];
     public string? FailWith { get; set; }
     public int EnableCalls { get; private set; }
@@ -48,6 +51,7 @@ public sealed class FakeIcsController : IIcsController
     public void Enable(string wanId, string lanId)
     {
         EnableCalls++;
+        Calls.Add("ics-enable");
         if (FailWith is not null)
             throw new IcsException(FailWith);
         Shares.Clear();
@@ -55,7 +59,42 @@ public sealed class FakeIcsController : IIcsController
         Shares.Add(new IcsShare(lanId, "LAN", IcsRole.Private));
     }
 
-    public void Disable() => Shares.Clear();
+    public void Disable()
+    {
+        Calls.Add("ics-disable");
+        Shares.Clear();
+    }
+}
+
+public sealed class FakePacketGate(PacketProcessor processor, List<string>? calls = null) : IPacketGate
+{
+    public List<string> Calls { get; } = calls ?? [];
+    public string? FailWith { get; set; }
+    public GateStatus Status { get; private set; } = GateStatus.Stopped;
+    public PacketProcessor Processor { get; } = processor;
+
+    public bool Start(GateConfig config)
+    {
+        if (Status.IsRunning && Status.Config == config)
+            return true;
+        Calls.Add("gate-start");
+        if (FailWith is not null)
+        {
+            Status = new GateStatus(GateState.Failed, config, FailWith, null);
+            return false;
+        }
+        if (Status.Config?.Lan != config.Lan)
+            Processor.Reset(GateSnapshot.Closed(config.Lan, config.PortalPort));
+        Status = new GateStatus(GateState.Running, config, null, DateTime.UtcNow);
+        return true;
+    }
+
+    public void Stop()
+    {
+        if (Status.IsRunning)
+            Calls.Add("gate-stop");
+        Status = GateStatus.Stopped;
+    }
 }
 
 public sealed class FakePrivileges(bool admin = true, bool windows = true) : IPrivilegeChecker
@@ -64,8 +103,21 @@ public sealed class FakePrivileges(bool admin = true, bool windows = true) : IPr
     public bool IsWindows { get; set; } = windows;
 }
 
+/// <summary>Thread-safe: the service's background loops read it while tests change it.</summary>
 public sealed class FakeNeighborTable : INeighborTable
 {
-    public List<NeighborEntry> Entries { get; } = [];
-    public IReadOnlyList<NeighborEntry> GetIpv4Entries() => Entries;
+    private readonly object _lock = new();
+    private readonly List<NeighborEntry> _entries = [];
+
+    public void Add(NeighborEntry entry)
+    {
+        lock (_lock)
+            _entries.Add(entry);
+    }
+
+    public IReadOnlyList<NeighborEntry> GetIpv4Entries()
+    {
+        lock (_lock)
+            return _entries.ToList();
+    }
 }

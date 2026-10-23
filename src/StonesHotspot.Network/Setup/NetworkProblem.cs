@@ -21,6 +21,8 @@ public enum NetworkProblemCode
     IcsNotActive,
     GatewayIpConflict,
     DevicesOutsideSubnet,
+    GateFailed,
+    GateNotRunning,
 }
 
 /// <param name="Detail">Technical detail (adapter name, Windows error…), shown under the message.</param>

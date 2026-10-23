@@ -6,6 +6,7 @@ using Serilog;
 using StonesHotspot.Core;
 using StonesHotspot.Licensing;
 using StonesHotspot.Network;
+using StonesHotspot.Network.Setup;
 using StonesHotspot.Service;
 using StonesHotspot.Web;
 
@@ -25,6 +26,19 @@ builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, relo
 var paths = new AppPaths(builder.Configuration["StonesHotspot:DataDirectory"]).EnsureCreated();
 builder.Configuration.AddJsonFile(Path.Combine(paths.Root, "appsettings.Local.json"), optional: true, reloadOnChange: true);
 
+// Admin dashboard (8080) and captive portal (80) — the gate redirects customers' web requests to the portal port.
+var ports = ListenPorts.From(builder.Configuration);
+builder.WebHost.ConfigureKestrel(kestrel =>
+{
+    foreach (var port in ports.All)
+    {
+        if (ports.LocalhostOnly)
+            kestrel.ListenLocalhost(port);
+        else
+            kestrel.ListenAnyIP(port);
+    }
+});
+
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
@@ -42,8 +56,8 @@ try
     builder.Services.AddSingleton(TimeProvider.System);
     builder.Services.AddSingleton<ILicenseService, TrialStubLicenseService>();
     builder.Services.AddHotspotCore(paths.DatabaseFile);
-    builder.Services.AddHotspotNetwork();
-    builder.Services.AddHostedService<NetworkStartupService>();
+    builder.Services.AddHotspotNetwork(new HotspotNetworkOptions { PortalPort = (ushort)ports.Portal });
+    builder.Services.AddHostedService<HotspotEngineService>();
     builder.Services.AddHostedService<DeviceDiscoveryService>();
     builder.Services.AddRazorPages();
     // French text as plain UTF-8 instead of &#xE9; entities: lighter pages, same safety.
@@ -54,6 +68,8 @@ try
 
     app.UseSerilogRequestLogging();
     app.UseHotspotLocalization();
+    app.UseCaptivePortal();   // before routing: may send the request to the portal or the "site blocked" page
+    app.UseRouting();
     app.MapHotspotEndpoints();
     app.MapRazorPages();
 

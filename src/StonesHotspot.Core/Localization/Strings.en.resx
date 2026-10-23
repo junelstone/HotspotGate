@@ -34,7 +34,6 @@
   <data name="Admin_LocalOnly" xml:space="preserve"><value>This page is only available on the hotspot PC (http://localhost:8080) until staff login exists.</value></data>
   <data name="Network_Title" xml:space="preserve"><value>Network setup</value></data>
   <data name="Network_Intro" xml:space="preserve"><value>Choose the internet connection (WAN) and the adapter connected to the customers' Wi-Fi access point (LAN), then click "Share the internet".</value></data>
-  <data name="Network_StillOpen" xml:space="preserve"><value>Access control (captive portal) is not active yet: every device on the Wi-Fi has internet.</value></data>
   <data name="Network_Status" xml:space="preserve"><value>Status</value></data>
   <data name="Network_Mode" xml:space="preserve"><value>Mode</value></data>
   <data name="Network_Mode_None" xml:space="preserve"><value>Sharing off</value></data>
@@ -92,4 +91,58 @@
   <data name="Devices_State_Idle" xml:space="preserve"><value>Recently idle</value></data>
   <data name="Devices_State_Checking" xml:space="preserve"><value>Checking</value></data>
   <data name="Admin_Home_Title" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="Portal_Title" xml:space="preserve"><value>Wi-Fi login</value></data>
+  <data name="Portal_Welcome" xml:space="preserve"><value>Welcome to the {0} Wi-Fi</value></data>
+  <data name="Portal_LoginSoon" xml:space="preserve"><value>Log in to use the internet. Login with a code is coming to this page very soon.</value></data>
+  <data name="Portal_Connected" xml:space="preserve"><value>You are connected: the internet is available.</value></data>
+  <data name="Portal_Continue" xml:space="preserve"><value>Continue to the page you asked for</value></data>
+  <data name="Portal_Device" xml:space="preserve"><value>Your device</value></data>
+  <data name="Blocked_Title" xml:space="preserve"><value>Site blocked</value></data>
+  <data name="Blocked_Text" xml:space="preserve"><value>Access to {0} is blocked on this Wi-Fi network.</value></data>
+  <data name="Nav_Gate" xml:space="preserve"><value>Packet gate (test)</value></data>
+  <data name="Gate_Title" xml:space="preserve"><value>Packet gate — diagnostics</value></data>
+  <data name="Gate_Intro" xml:space="preserve"><value>Test page: authorise or revoke a device by hand, and watch the counters.</value></data>
+  <data name="Gate_State_Running" xml:space="preserve"><value>Running</value></data>
+  <data name="Gate_State_Stopped" xml:space="preserve"><value>Stopped</value></data>
+  <data name="Gate_State_Failed" xml:space="preserve"><value>Failed</value></data>
+  <data name="Gate_State_NotSupported" xml:space="preserve"><value>Not available on this system</value></data>
+  <data name="Gate_Network" xml:space="preserve"><value>Filtered network</value></data>
+  <data name="Gate_Interface" xml:space="preserve"><value>Interface</value></data>
+  <data name="Gate_Since" xml:space="preserve"><value>Since</value></data>
+  <data name="Gate_Counters" xml:space="preserve"><value>Counters</value></data>
+  <data name="Gate_PassedUp" xml:space="preserve"><value>Packets sent by authorised devices</value></data>
+  <data name="Gate_PassedDown" xml:space="preserve"><value>Packets received by authorised devices</value></data>
+  <data name="Gate_Redirected" xml:space="preserve"><value>Web connections redirected to the portal</value></data>
+  <data name="Gate_Resets" xml:space="preserve"><value>Connections refused</value></data>
+  <data name="Gate_Dropped" xml:space="preserve"><value>Packets dropped</value></data>
+  <data name="Gate_DnsQueries" xml:space="preserve"><value>DNS queries</value></data>
+  <data name="Gate_DnsBlocked" xml:space="preserve"><value>DNS queries for blocked sites</value></data>
+  <data name="Gate_FreeAccess" xml:space="preserve"><value>Free-access packets</value></data>
+  <data name="Gate_InjectErrors" xml:space="preserve"><value>Packet sending errors</value></data>
+  <data name="Gate_RedirectFlows" xml:space="preserve"><value>Redirects in progress</value></data>
+  <data name="Gate_LearnedIps" xml:space="preserve"><value>Free-access addresses learnt</value></data>
+  <data name="Gate_Devices" xml:space="preserve"><value>Devices</value></data>
+  <data name="Gate_Access" xml:space="preserve"><value>Access</value></data>
+  <data name="Gate_Access_Session" xml:space="preserve"><value>Logged in (session)</value></data>
+  <data name="Gate_Access_Whitelist" xml:space="preserve"><value>Whitelisted</value></data>
+  <data name="Gate_Access_None" xml:space="preserve"><value>Not logged in</value></data>
+  <data name="Gate_Access_Blocked" xml:space="preserve"><value>Blocked</value></data>
+  <data name="Gate_Authorize" xml:space="preserve"><value>Authorise</value></data>
+  <data name="Gate_Revoke" xml:space="preserve"><value>Revoke</value></data>
+  <data name="Gate_AuthorizeNote" xml:space="preserve"><value>"Authorise" whitelists the device (permanent free access). "Revoke" removes it from the whitelist and ends its session. The effect shows within 1–2 seconds.</value></data>
+  <data name="Gate_Rules" xml:space="preserve"><value>Web filter rules</value></data>
+  <data name="Gate_RulePattern" xml:space="preserve"><value>Domain or IP address</value></data>
+  <data name="Gate_RuleKind" xml:space="preserve"><value>Type</value></data>
+  <data name="Gate_Kind_Block" xml:space="preserve"><value>Blocked</value></data>
+  <data name="Gate_Kind_FreeAccess" xml:space="preserve"><value>Free access (no login)</value></data>
+  <data name="Gate_AddRule" xml:space="preserve"><value>Add</value></data>
+  <data name="Gate_RemoveRule" xml:space="preserve"><value>Remove</value></data>
+  <data name="Gate_NoRules" xml:space="preserve"><value>No rules.</value></data>
+  <data name="Gate_RulesNote" xml:space="preserve"><value>Changes apply within about 10 seconds. A domain includes its subdomains (facebook.com also blocks m.facebook.com).</value></data>
+  <data name="Gate_Error_InvalidRule" xml:space="preserve"><value>This is neither a valid domain name nor an IP address.</value></data>
+  <data name="Gate_Error_DuplicateRule" xml:space="preserve"><value>This rule already exists.</value></data>
+  <data name="Gate_NoDevices" xml:space="preserve"><value>No device detected. First set up the network under "Network".</value></data>
+  <data name="Network_Gate" xml:space="preserve"><value>Packet filter</value></data>
+  <data name="Network_Problem_GateFailed" xml:space="preserve"><value>The packet filter (WinDivert) could not start: connection sharing stays off so the Wi-Fi is not left open.</value></data>
+  <data name="Network_Problem_GateNotRunning" xml:space="preserve"><value>The packet filter is not running yet.</value></data>
 </root>

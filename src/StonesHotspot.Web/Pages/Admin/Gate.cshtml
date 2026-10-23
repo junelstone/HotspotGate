@@ -1,0 +1,111 @@
+@page
+@model StonesHotspot.Web.Pages.Admin.GateModel
+@using StonesHotspot.Core.Data.Entities
+@{
+    ViewData["Title"] = Strings.Gate_Title;
+    var s = Model.Status;
+    var c = Model.Counters;
+}
+<h1>@Strings.Gate_Title</h1>
+<p class="muted">@Strings.Gate_Intro</p>
+
+<div class="card">
+    <table>
+        <tr><th>@Strings.Network_Status</th><td><strong>@Texts.GateState(s.State)</strong>@if (s.Error is not null) {<div class="msg error">@s.Error</div>}</td></tr>
+        <tr><th>@Strings.Gate_Network</th><td>@(s.Config?.Lan.ToString() ?? "—")</td></tr>
+        <tr><th>@Strings.Gate_Interface</th><td>@(s.Config?.LanInterfaceIndex.ToString() ?? "—")</td></tr>
+        <tr><th>@Strings.Gate_Since</th><td>@(s.Since?.ToLocalTime().ToString("g") ?? "—")</td></tr>
+    </table>
+</div>
+
+<h2>@Strings.Gate_Devices</h2>
+<p class="muted">@Strings.Gate_AuthorizeNote</p>
+@if (Model.Devices.Count == 0)
+{
+    <div class="card muted">@Strings.Gate_NoDevices</div>
+}
+else
+{
+    <div class="scroll">
+    <table>
+        <tr><th>@Strings.Col_Mac</th><th>@Strings.Col_Ip</th><th>@Strings.Col_Hostname</th><th>@Strings.Gate_Access</th><th></th></tr>
+        @foreach (var row in Model.Devices)
+        {
+            <tr>
+                <td><code>@row.Device.Mac</code></td>
+                <td>@row.Device.Ip</td>
+                <td>@(row.Device.Hostname ?? "—")</td>
+                <td>@StonesHotspot.Web.Pages.Admin.GateModel.AccessText(row.Access)</td>
+                <td>
+                    <form method="post" style="display:inline">
+                        <input type="hidden" name="mac" value="@row.Device.Mac">
+                        @if (row.Access is DeviceAccess.None)
+                        {
+                            <button type="submit" asp-page-handler="Authorize">@Strings.Gate_Authorize</button>
+                        }
+                        else if (row.Access is DeviceAccess.Session or DeviceAccess.Whitelist)
+                        {
+                            <button type="submit" class="secondary" asp-page-handler="Revoke">@Strings.Gate_Revoke</button>
+                        }
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+    </div>
+}
+
+<h2>@Strings.Gate_Counters</h2>
+<table>
+    <tr><th>@Strings.Gate_PassedUp</th><td>@c.PassedUp</td></tr>
+    <tr><th>@Strings.Gate_PassedDown</th><td>@c.PassedDown</td></tr>
+    <tr><th>@Strings.Gate_Redirected</th><td>@c.Redirected</td></tr>
+    <tr><th>@Strings.Gate_Resets</th><td>@c.Resets</td></tr>
+    <tr><th>@Strings.Gate_Dropped</th><td>@c.Dropped</td></tr>
+    <tr><th>@Strings.Gate_DnsQueries</th><td>@c.DnsQueries</td></tr>
+    <tr><th>@Strings.Gate_DnsBlocked</th><td>@c.DnsBlocked</td></tr>
+    <tr><th>@Strings.Gate_FreeAccess</th><td>@c.FreeAccess</td></tr>
+    <tr><th>@Strings.Gate_InjectErrors</th><td>@c.InjectErrors</td></tr>
+    <tr><th>@Strings.Gate_RedirectFlows</th><td>@Model.Processor.RedirectFlowCount</td></tr>
+    <tr><th>@Strings.Gate_LearnedIps</th><td>@Model.Processor.LearnedFreeCount</td></tr>
+</table>
+
+<h2>@Strings.Gate_Rules</h2>
+<p class="muted">@Strings.Gate_RulesNote</p>
+@if (Model.Error is not null)
+{
+    <div class="msg error">@Model.Error</div>
+}
+<div class="card">
+    <form method="post" asp-page-handler="AddRule">
+        <label for="Pattern">@Strings.Gate_RulePattern</label>
+        <input asp-for="Pattern" placeholder="facebook.com" style="width:100%;max-width:520px;padding:.45rem;font-size:1rem">
+        <label for="Kind">@Strings.Gate_RuleKind</label>
+        <select asp-for="Kind">
+            <option value="@WebFilterKind.Block">@Strings.Gate_Kind_Block</option>
+            <option value="@WebFilterKind.FreeAccess">@Strings.Gate_Kind_FreeAccess</option>
+        </select>
+        <button type="submit">@Strings.Gate_AddRule</button>
+    </form>
+</div>
+@if (Model.Rules.Count == 0)
+{
+    <p class="muted">@Strings.Gate_NoRules</p>
+}
+else
+{
+    <table>
+        @foreach (var rule in Model.Rules)
+        {
+            <tr>
+                <td><code>@rule.Pattern</code></td>
+                <td>@(rule.Kind == WebFilterKind.Block ? Strings.Gate_Kind_Block : Strings.Gate_Kind_FreeAccess)</td>
+                <td>
+                    <form method="post" asp-page-handler="RemoveRule" asp-route-id="@rule.Id" style="display:inline">
+                        <button type="submit" class="secondary">@Strings.Gate_RemoveRule</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+}

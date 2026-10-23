@@ -3,9 +3,9 @@
 Windows Wi-Fi hotspot manager (captive portal) by **Stone's IT Consulting**: turns a Windows 10/11 PC into a
 managed, paid Wi-Fi hotspot — vouchers, user accounts, tariffs, Mobile Money, admin dashboard.
 
-> **Status: Phase 2 — network setup.** The service shares the internet from the WAN adapter to the LAN
-> adapter with Windows Internet Connection Sharing and lists the devices on the customers' Wi-Fi. No access
-> control yet: every device on the Wi-Fi has internet. See [Build phases](#build-phases).
+> **Status: Phase 3 — packet gate and DNS.** Customers on the Wi-Fi have no internet until they are
+> authorised; their web requests land on the portal and phones show "Sign in to network" by themselves. The login
+> forms come in phase 4; for now devices are authorised by hand on a test page. See [Build phases](#build-phases).
 
 ## Requirements
 
@@ -33,7 +33,11 @@ dotnet run --project src\StonesHotspot.Service --launch-profile StonesHotspot.Se
 ```
 
 Then open <http://localhost:8080/admin> (add `?lang=en` for English) and <http://localhost:8080/health>.
-In Development the data folder is `src\StonesHotspot.Service\data\` instead of `%ProgramData%\StonesHotspot`.
+In Development the data folder is `src\StonesHotspot.Service\data\` instead of `%ProgramData%\StonesHotspot`,
+the service listens on **localhost only** and the portal uses port **8081**: fine for working on pages, but phones
+cannot reach it. For tests with real devices run the published service
+(`.\build.ps1 -Publish`, then `artifacts\publish\StonesHotspot.Service\StonesHotspot.Service.exe` as administrator),
+which listens on ports 80 and 8080 on all addresses.
 
 Tray app (Windows only): `dotnet run --project src\StonesHotspot.Tray`. It shows the state of the
 `StonesHotspot` Windows service, opens the dashboard, and starts/stops the service (needs admin rights).
@@ -56,7 +60,7 @@ later): `New-NetFirewallRule -DisplayName "Stone's Hotspot admin" -Direction Inb
 
 | File | Committed? | Purpose |
 |---|---|---|
-| `src/StonesHotspot.Service/appsettings.json` | yes | Defaults: ports, log levels, data folder (empty = `%ProgramData%\StonesHotspot`) |
+| `src/StonesHotspot.Service/appsettings.json` | yes | Defaults: `StonesHotspot:AdminPort` (8080), `PortalPort` (80), `LocalhostOnly`, `DataDirectory` (empty = `%ProgramData%\StonesHotspot`), log levels |
 | `appsettings.Local.json` | **no** (git-ignored) | Secrets (SMS, Mobile Money keys). Copy `appsettings.Local.example.json`. Read from the exe folder and from `%ProgramData%\StonesHotspot\` |
 
 Never put API keys or passwords in `appsettings.json`.
@@ -82,14 +86,34 @@ hotspot can reach the dashboard port.
 The PC needs two connections: **WAN** (the internet) and **LAN** (a second card cabled to a Wi-Fi access point in
 access point/bridge mode, or the PC's own Wi-Fi in Windows *Mobile hotspot* mode).
 
-1. Start the service with administrator rights (the Windows service always has them).
-2. On the PC, open <http://localhost:8080/admin/network>, choose WAN and LAN, click **Partager Internet**.
-   Windows Internet Connection Sharing (ICS) gives the LAN card **192.168.137.1** and hands out
-   192.168.137.x addresses to the customers.
-3. Connected devices: <http://localhost:8080/admin/devices>.
+1. Allow the portal and dashboard ports from the customer network (the installer will do this later):
+   `New-NetFirewallRule -DisplayName "Stone's Hotspot portal + dashboard" -Direction Inbound -Protocol TCP -LocalPort 80,8080 -Action Allow`
+2. Make sure nothing else listens on port 80 (IIS, Skype, another web server).
+3. Start the service with administrator rights (the Windows service always has them).
+4. On the PC, open <http://localhost:8080/admin/network>, choose WAN and LAN, click **Partager Internet**.
+   The packet gate starts first, then Windows Internet Connection Sharing gives the LAN card **192.168.137.1**
+   and hands out 192.168.137.x addresses.
+5. Connected devices: <http://localhost:8080/admin/devices>. Gate test page (authorise/revoke a device by hand,
+   counters, blocked/free-access domains): <http://localhost:8080/admin/gate>.
 
-These two pages only answer on the PC itself until staff login exists (phase 5). The service switches sharing
-back on at start if Windows dropped it. Full test list: [`docs/manual-tests/phase-2-network.md`](docs/manual-tests/phase-2-network.md).
+The setup pages only answer on the PC itself until staff login exists (phase 5). Customers see the portal at
+`http://192.168.137.1/portal`. Every 5 s the service makes the network match the saved setup (it switches
+sharing back on if Windows dropped it).
+
+### Packet gate (WinDivert)
+
+`build.ps1` downloads **WinDivert 2.2.2** from its official release (SHA-256 checked, see
+[`docs/third-party.md`](docs/third-party.md)) and copies `WinDivert.dll` + `WinDivert64.sys` next to the service.
+How the gate, DNS and redirect work: [`docs/architecture.md`](docs/architecture.md).
+
+**If the service stops or crashes:** a normal stop switches internet sharing off (customers lose internet, the
+Wi-Fi is never left open). If WinDivert cannot start, sharing stays off and the Network page says why. After a
+*crash* (process killed), sharing stays on **without filter** until the service starts again — phase 11 makes
+Windows restart it automatically. In Windows Mobile hotspot mode the service cannot switch the hotspot off. The
+PC's own internet is never filtered.
+
+Manual tests: [`phase-2-network.md`](docs/manual-tests/phase-2-network.md),
+[`phase-3-gate.md`](docs/manual-tests/phase-3-gate.md).
 
 ## Database
 
@@ -132,8 +156,8 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 |---|---|---|
 | 0 | Project skeleton | done |
 | 1 | Data layer and business rules | done |
-| 2 | Network setup (adapters, ICS, connected devices) | **done** — Mode B (own DHCP) pending a decision |
-| 3 | Packet gate (WinDivert) and DNS | — |
+| 2 | Network setup (adapters, ICS, connected devices) | done (Mode B dropped) |
+| 3 | Packet gate (WinDivert) and DNS | **done** — to be verified on Windows |
 | 4 | Captive portal | — |
 | 5 | Admin dashboard | — |
 | 6 | Bandwidth control and web filter | — |
@@ -156,6 +180,10 @@ Plans for each phase are in `docs/phase-N-plan.md`.
 | Network page: "not running with administrator rights" | Run the service as the Windows service, or start it from a PowerShell opened with "Run as administrator" |
 | Network page: "IP address conflict … 192.168.137.x" | Your internet box/modem uses the same network as Windows sharing. Change the box's LAN network (e.g. to 192.168.1.x) |
 | Phones get 192.168.0.x / 192.168.1.x instead of 192.168.137.x | The access point is in router mode or its DHCP is on: set it to access point/bridge mode |
+| Gate page: "WinDivert driver files … are missing" | Run `.\build.ps1` (it downloads WinDivert), or copy `WinDivert.dll` and `WinDivert64.sys` next to `StonesHotspot.Service.exe` |
+| Gate page: "driver was blocked" / "signature" | Antivirus or Secure Boot policy blocked WinDivert: allow it in the antivirus, then restart the service |
+| Service log: "address already in use" for port 80 | Another program uses port 80 (IIS, Skype…): stop it, or set `StonesHotspot:PortalPort` |
+| Phones never show "Sign in to network" | Check the firewall rule for port 80 above and the gate state on <http://localhost:8080/admin/gate> |
 | "database is locked" in the log | Another program (e.g. DB Browser for SQLite) has the database open for writing; close it |
 | Lost the admin password | Another admin can reset it; an offline reset tool for the last admin comes with the dashboard (phase 5) |
 | Tray "Start/Stop" shows an administrator message | Run the tray app as administrator (the installer will grant service rights later) |

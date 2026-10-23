@@ -1,0 +1,10 @@
+@page "/portal/blocked"
+@model StonesHotspot.Web.Pages.Portal.BlockedModel
+@{
+    Layout = "_PortalLayout";
+    ViewData["Title"] = Strings.Blocked_Title;
+}
+<h1>@Strings.Blocked_Title</h1>
+<div class="card">
+    <p>@string.Format(Strings.Blocked_Text, string.IsNullOrEmpty(Model.Host) ? "—" : Model.Host)</p>
+</div>

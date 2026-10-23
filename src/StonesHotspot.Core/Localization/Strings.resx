@@ -34,7 +34,6 @@
   <data name="Admin_LocalOnly" xml:space="preserve"><value>Cette page n'est accessible que sur le PC du hotspot (http://localhost:8080) tant que la connexion du personnel n'existe pas.</value></data>
   <data name="Network_Title" xml:space="preserve"><value>Configuration réseau</value></data>
   <data name="Network_Intro" xml:space="preserve"><value>Choisissez la connexion Internet (WAN) et la carte reliée au point d'accès Wi-Fi des clients (LAN), puis cliquez sur « Partager Internet ».</value></data>
-  <data name="Network_StillOpen" xml:space="preserve"><value>Le contrôle d'accès (portail captif) n'est pas encore actif : tout appareil connecté au Wi-Fi a Internet.</value></data>
   <data name="Network_Status" xml:space="preserve"><value>État</value></data>
   <data name="Network_Mode" xml:space="preserve"><value>Mode</value></data>
   <data name="Network_Mode_None" xml:space="preserve"><value>Partage désactivé</value></data>
@@ -92,4 +91,58 @@
   <data name="Devices_State_Idle" xml:space="preserve"><value>Inactif récemment</value></data>
   <data name="Devices_State_Checking" xml:space="preserve"><value>Vérification</value></data>
   <data name="Admin_Home_Title" xml:space="preserve"><value>Tableau de bord</value></data>
+  <data name="Portal_Title" xml:space="preserve"><value>Connexion Wi-Fi</value></data>
+  <data name="Portal_Welcome" xml:space="preserve"><value>Bienvenue sur le Wi-Fi de {0}</value></data>
+  <data name="Portal_LoginSoon" xml:space="preserve"><value>Connectez-vous pour accéder à Internet. La connexion avec un code arrive très bientôt sur cette page.</value></data>
+  <data name="Portal_Connected" xml:space="preserve"><value>Vous êtes connecté : Internet est disponible.</value></data>
+  <data name="Portal_Continue" xml:space="preserve"><value>Continuer vers la page demandée</value></data>
+  <data name="Portal_Device" xml:space="preserve"><value>Votre appareil</value></data>
+  <data name="Blocked_Title" xml:space="preserve"><value>Site bloqué</value></data>
+  <data name="Blocked_Text" xml:space="preserve"><value>L'accès à {0} est bloqué sur ce réseau Wi-Fi.</value></data>
+  <data name="Nav_Gate" xml:space="preserve"><value>Filtrage (test)</value></data>
+  <data name="Gate_Title" xml:space="preserve"><value>Filtrage des paquets — diagnostic</value></data>
+  <data name="Gate_Intro" xml:space="preserve"><value>Page de test : autorisez ou retirez l'accès d'un appareil à la main, et suivez les compteurs.</value></data>
+  <data name="Gate_State_Running" xml:space="preserve"><value>En marche</value></data>
+  <data name="Gate_State_Stopped" xml:space="preserve"><value>Arrêté</value></data>
+  <data name="Gate_State_Failed" xml:space="preserve"><value>En erreur</value></data>
+  <data name="Gate_State_NotSupported" xml:space="preserve"><value>Non disponible sur ce système</value></data>
+  <data name="Gate_Network" xml:space="preserve"><value>Réseau filtré</value></data>
+  <data name="Gate_Interface" xml:space="preserve"><value>Interface</value></data>
+  <data name="Gate_Since" xml:space="preserve"><value>Depuis</value></data>
+  <data name="Gate_Counters" xml:space="preserve"><value>Compteurs</value></data>
+  <data name="Gate_PassedUp" xml:space="preserve"><value>Paquets envoyés par les appareils autorisés</value></data>
+  <data name="Gate_PassedDown" xml:space="preserve"><value>Paquets reçus par les appareils autorisés</value></data>
+  <data name="Gate_Redirected" xml:space="preserve"><value>Connexions web redirigées vers le portail</value></data>
+  <data name="Gate_Resets" xml:space="preserve"><value>Connexions refusées</value></data>
+  <data name="Gate_Dropped" xml:space="preserve"><value>Paquets bloqués</value></data>
+  <data name="Gate_DnsQueries" xml:space="preserve"><value>Requêtes DNS</value></data>
+  <data name="Gate_DnsBlocked" xml:space="preserve"><value>Requêtes DNS de sites bloqués</value></data>
+  <data name="Gate_FreeAccess" xml:space="preserve"><value>Paquets en accès libre</value></data>
+  <data name="Gate_InjectErrors" xml:space="preserve"><value>Erreurs d'envoi de paquets</value></data>
+  <data name="Gate_RedirectFlows" xml:space="preserve"><value>Redirections en cours</value></data>
+  <data name="Gate_LearnedIps" xml:space="preserve"><value>Adresses en accès libre apprises</value></data>
+  <data name="Gate_Devices" xml:space="preserve"><value>Appareils</value></data>
+  <data name="Gate_Access" xml:space="preserve"><value>Accès</value></data>
+  <data name="Gate_Access_Session" xml:space="preserve"><value>Connecté (session)</value></data>
+  <data name="Gate_Access_Whitelist" xml:space="preserve"><value>Liste blanche</value></data>
+  <data name="Gate_Access_None" xml:space="preserve"><value>Non connecté</value></data>
+  <data name="Gate_Access_Blocked" xml:space="preserve"><value>Bloqué</value></data>
+  <data name="Gate_Authorize" xml:space="preserve"><value>Autoriser</value></data>
+  <data name="Gate_Revoke" xml:space="preserve"><value>Retirer l'accès</value></data>
+  <data name="Gate_AuthorizeNote" xml:space="preserve"><value>« Autoriser » met l'appareil en liste blanche (accès gratuit permanent). « Retirer l'accès » l'enlève de la liste blanche et termine sa session. L'effet est visible en 1 à 2 secondes.</value></data>
+  <data name="Gate_Rules" xml:space="preserve"><value>Règles du filtre web</value></data>
+  <data name="Gate_RulePattern" xml:space="preserve"><value>Domaine ou adresse IP</value></data>
+  <data name="Gate_RuleKind" xml:space="preserve"><value>Type</value></data>
+  <data name="Gate_Kind_Block" xml:space="preserve"><value>Bloqué</value></data>
+  <data name="Gate_Kind_FreeAccess" xml:space="preserve"><value>Accès libre (sans connexion)</value></data>
+  <data name="Gate_AddRule" xml:space="preserve"><value>Ajouter</value></data>
+  <data name="Gate_RemoveRule" xml:space="preserve"><value>Supprimer</value></data>
+  <data name="Gate_NoRules" xml:space="preserve"><value>Aucune règle.</value></data>
+  <data name="Gate_RulesNote" xml:space="preserve"><value>Les changements s'appliquent en 10 secondes environ. Un domaine inclut ses sous-domaines (facebook.com bloque aussi m.facebook.com).</value></data>
+  <data name="Gate_Error_InvalidRule" xml:space="preserve"><value>Ce n'est ni un nom de domaine ni une adresse IP valide.</value></data>
+  <data name="Gate_Error_DuplicateRule" xml:space="preserve"><value>Cette règle existe déjà.</value></data>
+  <data name="Gate_NoDevices" xml:space="preserve"><value>Aucun appareil détecté. Choisissez d'abord le réseau dans « Réseau ».</value></data>
+  <data name="Network_Gate" xml:space="preserve"><value>Filtrage des paquets</value></data>
+  <data name="Network_Problem_GateFailed" xml:space="preserve"><value>Le filtrage des paquets (WinDivert) n'a pas pu démarrer : le partage de connexion reste coupé pour ne pas laisser le Wi-Fi ouvert.</value></data>
+  <data name="Network_Problem_GateNotRunning" xml:space="preserve"><value>Le filtrage des paquets n'est pas encore actif.</value></data>
 </root>

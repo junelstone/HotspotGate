@@ -39,6 +39,7 @@ if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
 }
 
 Invoke-Step 'dotnet --version' { dotnet --version }
+Invoke-Step 'WinDivert (packet filter driver)' { & (Join-Path $root 'tools\Get-WinDivert.ps1'); $global:LASTEXITCODE = 0 }
 Invoke-Step 'Restore' { dotnet restore $solution }
 Invoke-Step "Build ($Configuration)" { dotnet build $solution --configuration $Configuration --no-restore }
 

@@ -26,6 +26,13 @@
     <InternalsVisibleTo Include="StonesHotspot.Tests" />
   </ItemGroup>
 
+  <!-- WinDivert driver next to the service (downloaded by tools/Get-WinDivert.ps1, not in Git). -->
+  <ItemGroup Condition="Exists('$(MSBuildThisFileDirectory)..\..\third_party\WinDivert\x64\WinDivert.dll')">
+    <None Include="$(MSBuildThisFileDirectory)..\..\third_party\WinDivert\x64\WinDivert.dll" Link="WinDivert.dll" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\third_party\WinDivert\x64\WinDivert64.sys" Link="WinDivert64.sys" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\third_party\WinDivert\LICENSE" Link="WinDivert-LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Update="appsettings.Local.example.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StonesHotspot.Core.Data;
 using StonesHotspot.Network.Adapters;
+using StonesHotspot.Network.Gate;
 using StonesHotspot.Network.Ics;
 using StonesHotspot.Network.Neighbors;
 using StonesHotspot.Network.Setup;
@@ -40,6 +41,7 @@ public sealed class ServiceSmokeTests : IClassFixture<ServiceSmokeTests.Factory>
                 services.AddSingleton<IIcsController>(Ics);
                 services.AddSingleton<INetworkAdapterProvider>(Adapters);
                 services.AddSingleton<INeighborTable>(Neighbors);
+                services.AddSingleton<IPacketGate>(sp => new FakePacketGate(sp.GetRequiredService<PacketProcessor>()));
                 services.AddSingleton<IPrivilegeChecker>(new FakePrivileges());
                 services.AddSingleton<IStartupFilter, RemoteIpStartupFilter>();
             });
@@ -166,7 +168,7 @@ public sealed class ServiceSmokeTests : IClassFixture<ServiceSmokeTests.Factory>
         var lan = _factory.Adapters.Adapters.Single(a => a.Id == FakeAdapters.LanId);
         _factory.Adapters.Adapters[_factory.Adapters.Adapters.IndexOf(lan)] =
             lan with { Addresses = [Ipv4Subnet.Parse("192.168.137.1/24")] };
-        _factory.Neighbors.Entries.Add(new NeighborEntry(lan.InterfaceIndex, IPAddress.Parse("192.168.137.42"), "DA:A1:19:00:00:42", NeighborState.Reachable));
+        _factory.Neighbors.Add(new NeighborEntry(lan.InterfaceIndex, IPAddress.Parse("192.168.137.42"), "DA:A1:19:00:00:42", NeighborState.Reachable));
 
         var discovery = _factory.Services.GetServices<IHostedService>().OfType<DeviceDiscoveryService>().Single();
         await discovery.ScanOnceAsync(CancellationToken.None);

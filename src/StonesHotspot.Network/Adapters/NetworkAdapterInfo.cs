@@ -46,6 +46,9 @@ public sealed record NetworkAdapterInfo(
     IReadOnlyList<Ipv4Subnet> Addresses,
     IReadOnlyList<IPAddress> Gateways)
 {
+    /// <summary>IPv4 DNS servers configured on this adapter (used as upstream for the customers' DNS).</summary>
+    public IReadOnlyList<IPAddress> DnsServers { get; init; } = [];
+
     public bool HasDefaultGateway => Gateways.Any(g => !g.Equals(IPAddress.Any));
 
     /// <summary>Windows "Mobile hotspot" creates this virtual adapter for the PC's own Wi-Fi access point.</summary>

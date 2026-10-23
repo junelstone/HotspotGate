@@ -30,3 +30,6 @@ logs/
 
 # Installer output
 installer/Output/
+
+# Downloaded by tools/Get-WinDivert.ps1 (checked against a pinned SHA-256)
+third_party/

@@ -8,7 +8,6 @@
 }
 <h1>@Strings.Network_Title</h1>
 <p class="muted">@Strings.Network_Intro</p>
-<div class="msg warning">@Strings.Network_StillOpen</div>
 
 @if (Model.SuccessMessage is not null)
 {
@@ -24,6 +23,7 @@
     <table>
         <tr><th>@Strings.Network_Mode</th><td>@Texts.Mode(o.Configuration.Mode)</td></tr>
         <tr><th>@Strings.Network_Admin</th><td>@Texts.YesNo(o.IsAdministrator)</td></tr>
+        <tr><th>@Strings.Network_Gate</th><td>@Texts.GateState(o.Gate.State)@if (o.Gate.Error is not null) {<div class="muted">@o.Gate.Error</div>}</td></tr>
         <tr><th>@Strings.Network_Wan</th><td>@(o.Wan?.Name ?? "—")</td></tr>
         <tr><th>@Strings.Network_Lan</th><td>@(o.Lan?.Name ?? "—")</td></tr>
         <tr><th>@Strings.Network_Gateway</th><td>@gateway</td></tr>
