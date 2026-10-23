@@ -50,10 +50,6 @@ else
         <div class="noprint">
             <a class="button secondary" href="/admin/shift?handler=Pdf&id=@s.Id">PDF</a>
             <button type="button" class="secondary" onclick="window.print()">@Strings.Print_Print</button>
-            @if (Model.HasPrinter)
-            {
-                <form method="post" asp-page-handler="Thermal" style="display:inline"><input type="hidden" name="shiftId" value="@s.Id"><button type="submit" class="secondary">@Strings.Receipt_PrintThermal</button></form>
-            }
         </div>
     </div>
 

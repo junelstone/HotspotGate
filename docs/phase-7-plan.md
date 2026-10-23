@@ -52,3 +52,9 @@ French accents) — no third-party PDF library and no licence to manage.
 ## Audit log viewer (admin)
 
 Who did what and when: filter by dates, staff member and text; CSV export.
+
+## Change after review
+
+The customer prints everything on **A4** with an ordinary printer: the thermal (ESC/POS) receipt printing, its
+settings page and transports were removed. Receipts are an A4 page (browser print or PDF) with the Wi-Fi codes as
+cards to cut out; voucher tickets are A4 cards only. Receipt header/footer texts moved to **Paramètres**.

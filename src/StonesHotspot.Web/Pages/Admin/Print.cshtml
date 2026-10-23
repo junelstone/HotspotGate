@@ -6,7 +6,6 @@
     Layout = null;
     var culture = System.Globalization.CultureInfo.CurrentUICulture;
     var lang = culture.TwoLetterISOLanguageName;
-    var query = Model.Receipt is not null ? $"receipt={Uri.EscapeDataString(Model.Receipt)}" : $"batch={Uri.EscapeDataString(Model.Batch ?? "")}";
 }
 <!doctype html>
 <html lang="@lang">
@@ -22,85 +21,48 @@
         .tools button.print { background:#0b6e4f; color:#fff; }
         .code { font-family:ui-monospace,Consolas,monospace; font-weight:700; letter-spacing:.08em; }
         .small { font-size:.75em; }
-        @if (Model.IsA4)
-        {
-            <text>
-            @@page { size:A4; margin:8mm; }
-            .sheet { display:grid; grid-template-columns:repeat(3, 1fr); gap:3mm; padding:8mm; }
-            .card { border:1px dashed #888; border-radius:2mm; padding:2.5mm; height:42mm; display:flex; gap:2mm; break-inside:avoid; overflow:hidden; }
-            .card .text { flex:1; min-width:0; font-size:8.5pt; line-height:1.25; }
-            .card .biz { font-weight:700; font-size:9.5pt; }
-            .card .plan { font-weight:700; margin-top:1mm; }
-            .card .code { font-size:12.5pt; margin-top:1.5mm; }
-            @@media print { .tools { display:none; } .sheet { padding:0; } }
-            </text>
-        }
-        else
-        {
-            <text>
-            @@page { size:@(Model.WidthMm + 8)mm auto; margin:4mm; }
-            .sheet { width:@(Model.WidthMm)mm; margin:0 auto; padding:2mm 0; font-size:10pt; }
-            .ticket { text-align:center; padding:3mm 0; border-bottom:1px dashed #000; break-inside:avoid; }
-            .ticket .biz { font-weight:700; font-size:12pt; }
-            .ticket .code { font-size:@(Model.WidthMm > 60 ? "17pt" : "14pt"); margin:2mm 0; }
-            .ticket svg { margin:1mm auto; display:block; }
-            .receipt { text-align:center; padding-top:3mm; }
-            @@media print { .tools { display:none; } }
-            </text>
-        }
+        @@page { size:A4; margin:8mm; }
+        .sheet { display:grid; grid-template-columns:repeat(3, 1fr); gap:3mm; padding:8mm; }
+        .card { border:1px dashed #888; border-radius:2mm; padding:2.5mm; height:42mm; display:flex; gap:2mm; break-inside:avoid; overflow:hidden; }
+        .card .text { flex:1; min-width:0; font-size:8.5pt; line-height:1.25; }
+        .card .biz { font-weight:700; font-size:9.5pt; }
+        .card .plan { font-weight:700; margin-top:1mm; }
+        .card .code { font-size:12.5pt; margin-top:1.5mm; }
+        .receipt { padding:0 8mm 8mm; font-size:10pt; }
+        @@media (max-width: 700px) { .sheet { grid-template-columns:1fr; } }
+        @@media print { .tools { display:none; } .sheet { padding:0; grid-template-columns:repeat(3, 1fr); } .receipt { padding:3mm 0 0; } }
     </style>
 </head>
 <body>
 <div class="tools">
     <button class="print" onclick="window.print()">@Strings.Print_Print</button>
-    <a href="?@query&format=80">80 mm</a>
-    <a href="?@query&format=58">58 mm</a>
-    <a href="?@query&format=a4">A4</a>
     <a href="@(Model.Receipt is not null ? "/admin/sell" : "/admin/vouchers")">@Strings.Portal_Back</a>
 </div>
 
 <div class="sheet">
 @foreach (var v in Model.Vouchers)
 {
-    var code = VoucherCodeGenerator.Format(v.Code);
-    if (Model.IsA4)
-    {
-        <div class="card">
-            <div class="text">
-                <div class="biz">@Model.BusinessName</div>
-                @if (!string.IsNullOrEmpty(Model.WifiName)) { <div class="small">Wi-Fi : @Model.WifiName</div> }
-                <div class="plan">@v.Tariff.Name — @v.Tariff.Price</div>
-                <div class="small">@AdminText.Describe(v.Tariff, culture)</div>
-                <div class="code">@code</div>
-                <div class="small">@Strings.Print_HowTo</div>
-            </div>
-            @Html.Raw(QrSvg.Render(Model.PortalLink(v), 24))
-        </div>
-    }
-    else
-    {
-        <div class="ticket">
+    <div class="card">
+        <div class="text">
             <div class="biz">@Model.BusinessName</div>
-            @if (!string.IsNullOrEmpty(Model.WifiName)) { <div>Wi-Fi : <strong>@Model.WifiName</strong></div> }
-            <div style="margin-top:2mm"><strong>@v.Tariff.Name</strong> — @v.Tariff.Price</div>
+            @if (!string.IsNullOrEmpty(Model.WifiName)) { <div class="small">Wi-Fi : @Model.WifiName</div> }
+            <div class="plan">@v.Tariff.Name — @v.Tariff.Price</div>
             <div class="small">@AdminText.Describe(v.Tariff, culture)</div>
-            <div class="code">@code</div>
-            @Html.Raw(QrSvg.Render(Model.PortalLink(v), Model.WidthMm > 60 ? 30 : 26))
+            <div class="code">@VoucherCodeGenerator.Format(v.Code)</div>
             <div class="small">@Strings.Print_HowTo</div>
             <div class="small">@Model.PortalAddress</div>
         </div>
-    }
+        @Html.Raw(QrSvg.Render(Model.PortalLink(v), 24))
+    </div>
 }
 </div>
 
-@if (Model.Sale is not null && !Model.IsA4)
+@if (Model.Sale is not null)
 {
-    <div class="sheet receipt">
-        <div>@Strings.Print_Receipt @Model.Sale.ReceiptNumber</div>
-        <div>@AdminText.Date(Model.Sale.Timestamp, culture) · @AdminText.Payment(Model.Sale.PaymentMethod)</div>
-        <div><strong>@Strings.Print_Total : @Model.Total</strong></div>
-        @if (Model.Seller is not null) { <div class="small">@Strings.Print_Seller : @Model.Seller</div> }
-        <div class="small" style="margin-top:2mm">@Strings.Print_Thanks</div>
+    <div class="receipt">
+        @Strings.Print_Receipt @Model.Sale.ReceiptNumber · @AdminText.Date(Model.Sale.Timestamp, culture) · @AdminText.Payment(Model.Sale.PaymentMethod)
+        · <strong>@Strings.Print_Total : @Model.Total</strong>
+        @if (Model.Seller is not null) { <span> · @Strings.Print_Seller : @Model.Seller</span> }
     </div>
 }
 </body>

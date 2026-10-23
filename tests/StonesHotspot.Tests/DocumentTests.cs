@@ -1,12 +1,9 @@
 using System.Globalization;
 using System.IO.Compression;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using StonesHotspot.Core.Documents;
 using StonesHotspot.Core.Money;
-using StonesHotspot.Core.Printing;
 
 namespace StonesHotspot.Tests;
 
@@ -110,94 +107,12 @@ public class DocumentTests
     }
 
     [Fact]
-    public void Escpos_uses_pc850_or_plain_ascii()
+    public void Pdf_text_wraps_between_words()
     {
-        var pc850 = new EscPosBuilder(48, PrinterCharset.Pc850);
-        Assert.Equal(new byte[] { 0x1B, (byte)'@', 0x1B, (byte)'t', 2 }, pc850.ToBytes());
-        Assert.Equal(new byte[] { 0x82, 0x85, 0x87, (byte)' ', (byte)'o', (byte)'e', (byte)' ', 0xFA }, pc850.Encode("éàç œ ·"));
-        Assert.Equal("1 000 FCFA", Encoding.ASCII.GetString(pc850.Encode(new Xaf(1000).ToString())));
-
-        var ascii = new EscPosBuilder(32, PrinterCharset.Ascii);
-        Assert.Equal(new byte[] { 0x1B, (byte)'@', 0x1B, (byte)'t', 0 }, ascii.ToBytes());
-        Assert.Equal("Recu no - Electricite oe \"a\" ...", Encoding.ASCII.GetString(ascii.Encode("Reçu n° · Électricité œ «a» …")));
-    }
-
-    [Fact]
-    public void Escpos_lines_fit_the_paper()
-    {
-        var p = new EscPosBuilder(32, PrinterCharset.Ascii);
-        var start = p.ToBytes().Length;
-        p.Columns2("Coca-Cola 33 cl", "1 500 FCFA");
-        p.Columns2("Un nom de produit vraiment beaucoup trop long", "500 FCFA");
-        var lines = Encoding.ASCII.GetString(p.ToBytes()[start..]).TrimEnd('\n').Split('\n');
-        Assert.Equal(["Coca-Cola 33 cl       1 500 FCFA", "Un nom de produit", "vraiment beaucoup trop", "long                    500 FCFA"], lines);
-        Assert.All(lines, l => Assert.True(l.Length <= 32));
-        Assert.Equal(["abc", "defghij", "klmnopqrst", "uvw"], EscPosBuilder.Wrap("abc defghij klmnopqrstuvw", 10));
-    }
-
-    [Fact]
-    public void Escpos_qr_and_cut_commands()
-    {
-        var p = new EscPosBuilder(48, PrinterCharset.Pc850);
-        var start = p.ToBytes().Length;
-        const string url = "http://192.168.137.1/portal?code=ABCD-EFGH";
-        p.Qr(url, 6).Cut();
-        var b = p.ToBytes()[start..];
-
-        byte[] Fn(params byte[] x) => [0x1D, (byte)'(', (byte)'k', .. x];
-        byte[] expected =
-        [
-            .. Fn(4, 0, 49, 65, 50, 0), .. Fn(3, 0, 49, 67, 6), .. Fn(3, 0, 49, 69, 49),
-            .. Fn((byte)(url.Length + 3), 0, 49, 80, 48), .. Encoding.ASCII.GetBytes(url), .. Fn(3, 0, 49, 81, 48),
-            0x1D, (byte)'V', 66, 3,
-        ];
-        Assert.Equal(expected, b);
-    }
-
-    [Theory]
-    [InlineData("", PrinterConnectionKind.None, "", 0)]
-    [InlineData("192.168.137.50", PrinterConnectionKind.Network, "192.168.137.50", 9100)]
-    [InlineData(" 10.0.0.7:9101 ", PrinterConnectionKind.Network, "10.0.0.7", 9101)]
-    [InlineData("com3", PrinterConnectionKind.Serial, "COM3", 9600)]
-    [InlineData("COM12:115200", PrinterConnectionKind.Serial, "COM12", 115200)]
-    [InlineData("POS-80 Printer", PrinterConnectionKind.WindowsPrinter, "POS-80 Printer", 0)]
-    [InlineData("999.1.1.1:9100", PrinterConnectionKind.WindowsPrinter, "999.1.1.1:9100", 0)]
-    public void Printer_connection_is_read_from_the_setting(string text, PrinterConnectionKind kind, string target, int port)
-    {
-        var c = PrinterConnection.Parse(text);
-        Assert.Equal((kind, target, port), (c.Kind, c.Target, c.Port));
-        Assert.Equal(c, PrinterConnection.Parse(c.ToString()));
-    }
-
-    [Fact]
-    public async Task Tcp_printer_receives_the_whole_job()
-    {
-        using var listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        var port = ((IPEndPoint)listener.LocalEndpoint).Port;
-        var job = Enumerable.Range(0, 100_000).Select(i => (byte)i).ToArray();
-        var receive = Task.Run(async () =>
-        {
-            using var client = await listener.AcceptTcpClientAsync();
-            var buffer = new MemoryStream();
-            await client.GetStream().CopyToAsync(buffer);
-            return buffer.ToArray();
-        });
-
-        await new TcpPrinterTransport("127.0.0.1", port).SendAsync(job, CancellationToken.None);
-
-        Assert.Equal(job, await receive);
-    }
-
-    [Fact]
-    public async Task Unreachable_printer_gives_a_clear_error()
-    {
-        using var listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        var port = ((IPEndPoint)listener.LocalEndpoint).Port;
-        listener.Stop();   // nothing listens there now
-
-        var ex = await Assert.ThrowsAsync<PrinterException>(() => new TcpPrinterTransport("127.0.0.1", port).SendAsync([1, 2, 3], CancellationToken.None));
-        Assert.Contains($"127.0.0.1:{port}", ex.Message);
+        var lines = PdfMetrics.Wrap("Connectez-vous au Wi-Fi, ouvrez une page web\net entrez ce code", 10, 120);
+        Assert.Equal("et entrez ce code", lines[^1]);   // the explicit line break is kept
+        Assert.All(lines, l => Assert.True(PdfMetrics.Measure(l, 10) <= 120));
+        Assert.Equal("Connectez-vous au Wi-Fi, ouvrez une page web et entrez ce code", string.Join(" ", lines).Replace("  ", " "));
+        Assert.All(PdfMetrics.Wrap(new string('M', 50), 10, 60), l => Assert.True(PdfMetrics.Measure(l, 10) <= 60));
     }
 }

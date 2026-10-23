@@ -113,4 +113,35 @@ public static class PdfMetrics
 {
     /// <summary>Width in points of <paramref name="text"/> in Helvetica (or Helvetica-Bold).</summary>
     public static float Measure(string text, float size, bool bold = false) => PdfText.Measure(text, size, bold);
+
+    /// <summary>Breaks text into lines no wider than <paramref name="maxWidth"/>, between words when possible.</summary>
+    public static List<string> Wrap(string text, float size, float maxWidth, bool bold = false)
+    {
+        var lines = new List<string>();
+        foreach (var paragraph in text.Replace("\r", "").Split('\n'))
+        {
+            var line = "";
+            foreach (var word in paragraph.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var candidate = line.Length == 0 ? word : line + " " + word;
+                if (line.Length > 0 && Measure(candidate, size, bold) > maxWidth)
+                {
+                    lines.Add(line);
+                    candidate = word;
+                }
+                // A single word wider than the line is cut.
+                while (Measure(candidate, size, bold) > maxWidth && candidate.Length > 1)
+                {
+                    var cut = candidate.Length - 1;
+                    while (cut > 1 && Measure(candidate[..cut], size, bold) > maxWidth)
+                        cut--;
+                    lines.Add(candidate[..cut]);
+                    candidate = candidate[cut..];
+                }
+                line = candidate;
+            }
+            lines.Add(line);
+        }
+        return lines;
+    }
 }

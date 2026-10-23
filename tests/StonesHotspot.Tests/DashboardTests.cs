@@ -187,7 +187,7 @@ public sealed class DashboardTests : IClassFixture<ServiceSmokeTests.Factory>, I
             new() { ["TariffId"] = (await TariffIdAsync("1 heure")).ToString(), ["Count"] = "3", ["Name"] = "Lot test" });
         Assert.Equal("/admin/batch?name=Lot%20test", create.Headers.Location!.OriginalString);
 
-        var a4 = await Html(await admin.Http.GetAsync("/admin/print?batch=Lot%20test&format=a4"));
+        var a4 = await Html(await admin.Http.GetAsync("/admin/print?batch=Lot%20test"));
         Assert.Equal(3, Regex.Matches(a4, "<svg").Count);
         Assert.Contains("size:A4", a4);
 

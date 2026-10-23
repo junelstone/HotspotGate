@@ -15,7 +15,7 @@ using StonesHotspot.Web.Documents;
 namespace StonesHotspot.Web.Pages.Admin;
 
 /// <summary>The cash drawer of the signed-in staff member (Pro). Admins can look at any shift.</summary>
-public sealed class ShiftModel(CurrentStaff current, CashService cash, ReceiptPrinter printer, ILicenseService licence, TimeProvider clock) : PageModel
+public sealed class ShiftModel(CurrentStaff current, CashService cash, ReceiptBrandingProvider branding, ILicenseService licence, TimeProvider clock) : PageModel
 {
     [BindProperty(SupportsGet = true)] public int? Id { get; set; }
     [BindProperty] public string? Amount { get; set; }
@@ -28,7 +28,6 @@ public sealed class ShiftModel(CurrentStaff current, CashService cash, ReceiptPr
     public IReadOnlyList<Shift> History { get; private set; } = [];
     public bool IsMine => Report?.Shift.StaffId == Me.Id;
     public string? Error { get; private set; }
-    public bool HasPrinter { get; private set; }
 
     /// <summary>Receipt links go to the full receipt (Pro) or to the codes ticket.</summary>
     public string ReceiptLink(string number) => licence.IsAllowed(Feature.Receipts)
@@ -78,9 +77,6 @@ public sealed class ShiftModel(CurrentStaff current, CashService cash, ReceiptPr
         {
             var report = await cash.CloseShiftAsync(shiftId, counted, Me, Note, HttpContext.RequestAborted);
             TempData.Success(string.Format(Strings.Shift_Closed, report.Difference));
-            var settings = await printer.SettingsAsync(HttpContext.RequestAborted);
-            if (settings.HasPrinter && settings.AutoPrintShift && await printer.PrintShiftAsync(shiftId, HttpContext.RequestAborted) is { } printError)
-                TempData.Error(printError);
             return RedirectToPage(new { id = shiftId });
         }
         catch (BusinessRuleException)
@@ -99,23 +95,9 @@ public sealed class ShiftModel(CurrentStaff current, CashService cash, ReceiptPr
         var culture = CultureInfo.CurrentUICulture;
         var now = TimeZoneInfo.ConvertTimeFromUtc(clock.GetUtcNow().UtcDateTime, clock.LocalTimeZone);
         var footer = string.Format(culture, Strings.Report_Footer, now.ToString("g", culture), Me.DisplayName ?? Me.Username);
-        var document = ReceiptLayouts.ShiftReportDocument(Report, Transactions, await printer.BrandingAsync(HttpContext.RequestAborted), footer, culture);
+        var document = ReceiptLayouts.ShiftReportDocument(Report, Transactions, await branding.GetAsync(HttpContext.RequestAborted), footer, culture);
         return File(ReportExport.Pdf(document), "application/pdf",
             string.Create(CultureInfo.InvariantCulture, $"caisse-{Report.Shift.Id}-{Report.Shift.OpenedAt.ToLocalTime():yyyy-MM-dd}.pdf"));
-    }
-
-    public async Task<IActionResult> OnPostThermalAsync(int shiftId)
-    {
-        Id = shiftId;
-        await LoadAsync();
-        if (Report is null)
-            return NotFound();
-        var error = await printer.PrintShiftAsync(shiftId, HttpContext.RequestAborted);
-        if (error is null)
-            TempData.Success(Strings.Printer_Sent);
-        else
-            TempData.Error(error);
-        return RedirectToPage(new { id = shiftId });
     }
 
     private async Task LoadAsync()
@@ -125,7 +107,6 @@ public sealed class ShiftModel(CurrentStaff current, CashService cash, ReceiptPr
         Enabled = licence.IsAllowed(Feature.Shifts);
         if (!Enabled)
             return;
-        HasPrinter = (await printer.SettingsAsync(ct)).HasPrinter;
 
         var admin = Me.Role == StaffRole.Admin;
         Shift? shift = Id is { } id ? await cash.FindShiftAsync(id, ct) : await cash.GetOpenShiftAsync(Me.Id, ct);

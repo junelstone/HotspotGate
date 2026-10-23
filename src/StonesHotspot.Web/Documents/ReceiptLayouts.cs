@@ -3,9 +3,9 @@ using StonesHotspot.Core.Data.Entities;
 using StonesHotspot.Core.Documents;
 using StonesHotspot.Core.Localization;
 using StonesHotspot.Core.Money;
-using StonesHotspot.Core.Printing;
 using StonesHotspot.Core.Rules;
 using StonesHotspot.Core.Services;
+using StonesHotspot.Network.Gate;
 using StonesHotspot.Web.Admin;
 
 namespace StonesHotspot.Web.Documents;
@@ -14,185 +14,138 @@ namespace StonesHotspot.Web.Documents;
 /// <param name="PortalAddress">http://192.168.137.1/portal, printed under the Wi-Fi codes.</param>
 public sealed record ReceiptBranding(string BusinessName, string? WifiName, string Header, string Footer, string PortalAddress, Func<string, string> CodeLink);
 
-/// <summary>Receipts, shift reports and the printer test page, for the thermal printer (ESC/POS) and as PDF.</summary>
+public sealed class ReceiptBrandingProvider(SettingsService settings, PortalLocation portal)
+{
+    public async Task<ReceiptBranding> GetAsync(CancellationToken ct = default) => new(
+        await settings.GetAsync(SettingKeys.BusinessName, ct) ?? "",
+        await settings.GetAsync(SettingKeys.WifiName, ct),
+        await settings.GetAsync(SettingKeys.ReceiptHeader, ct) ?? "",
+        await settings.GetAsync(SettingKeys.ReceiptFooter, ct) ?? "",
+        PortalLinks.Address(portal),
+        code => PortalLinks.ForCode(portal, code));
+}
+
+/// <summary>Receipts and shift reports as A4 PDF documents.</summary>
 public static class ReceiptLayouts
 {
-    public static byte[] ReceiptEscPos(Receipt receipt, ReceiptBranding brand, PrinterSettings printer, CultureInfo culture)
-    {
-        var p = new EscPosBuilder(printer.Columns, printer.Charset);
-        Heading(p, brand);
-        p.Line($"{Strings.Print_Receipt} {receipt.Number}")
-            .Line(AdminText.Date(receipt.Timestamp, culture));
-        if (receipt.Seller is not null)
-            p.Line($"{Strings.Print_Seller} : {receipt.Seller}");
-        p.Separator();
-
-        foreach (var line in receipt.Lines)
-        {
-            p.Columns2(LineLabel(line), Money(line.Amount));
-            if (line.Quantity > 1)
-                p.Line($"  {line.Quantity} x {Money(line.UnitPrice)}");
-        }
-        p.Separator()
-            .Bold(true).Size(false, true).Columns2(Strings.Print_Total.ToUpper(culture), Money(receipt.Total)).Size(false, false).Bold(false)
-            .Line($"{Strings.Sell_Payment} : {AdminText.Payment(receipt.Method)}");
-        foreach (var vat in receipt.Vat)
-            p.Columns2(string.Format(culture, Strings.Receipt_VatIncluded, Percent(vat.Rate, culture)), Money(vat.Vat));
-
-        foreach (var voucher in receipt.Vouchers)
-        {
-            p.Separator('=').Align(EscPosAlign.Center);
-            if (!string.IsNullOrEmpty(brand.WifiName))
-                p.Line($"Wi-Fi : {brand.WifiName}");
-            p.Bold(true).Line(voucher.Tariff.Name).Bold(false)
-                .Line(AdminText.Describe(voucher.Tariff, culture))
-                .Feed(1)
-                .Bold(true).Size(true, true).Line(VoucherCodeGenerator.Format(voucher.Code)).Size(false, false).Bold(false)
-                .Feed(1);
-            if (printer.PrintQr)
-                p.Qr(brand.CodeLink(voucher.Code), printer.Columns > 40 ? 6 : 5).Feed(1);
-            p.Wrapped(Strings.Print_HowTo).Line(brand.PortalAddress).Align(EscPosAlign.Left);
-        }
-
-        Ending(p, brand, Strings.Print_Thanks);
-        return p.ToBytes();
-    }
-
-    public static byte[] ShiftEscPos(ShiftReport report, IReadOnlyList<Transaction> transactions, ReceiptBranding brand, PrinterSettings printer, CultureInfo culture)
-    {
-        var p = new EscPosBuilder(printer.Columns, printer.Charset);
-        var s = report.Shift;
-        Heading(p, brand);
-        p.Align(EscPosAlign.Center).Bold(true).Line(Strings.ShiftReport_Title).Bold(false).Align(EscPosAlign.Left)
-            .Line($"{Strings.Col_Staff} : {s.Staff?.DisplayName ?? s.Staff?.Username}")
-            .Line($"{Strings.Shift_OpenedAt} {AdminText.Date(s.OpenedAt, culture)}");
-        if (s.ClosedAt is { } closed)
-            p.Line($"{Strings.Shift_ClosedAt} {AdminText.Date(closed, culture)}");
-        p.Separator();
-        foreach (var (label, value) in SummaryLines(report))
-            p.Columns2(label, value);
-        p.Separator();
-        foreach (var (type, total) in report.TotalsByType.OrderBy(t => t.Key))
-            p.Columns2(AdminText.TransactionType(type), Money(total));
-        p.Separator().Line(string.Format(culture, Strings.Home_Transactions, report.TransactionCount));
-        foreach (var receipt in transactions.GroupBy(t => t.ReceiptNumber).OrderBy(g => g.Min(t => t.Timestamp)))
-        {
-            var first = receipt.First();
-            p.Columns2($"{first.Timestamp.ToLocalTime():HH:mm} {receipt.Key} {PaymentShort(first.PaymentMethod)}", Money(Xaf.Sum(receipt.Select(t => t.Amount))));
-        }
-        Ending(p, brand, null);
-        return p.ToBytes();
-    }
-
-    public static byte[] TestPageEscPos(ReceiptBranding brand, PrinterSettings printer, CultureInfo culture)
-    {
-        var p = new EscPosBuilder(printer.Columns, printer.Charset);
-        Heading(p, brand);
-        p.Align(EscPosAlign.Center).Bold(true).Line(Strings.Printer_TestTitle).Bold(false).Align(EscPosAlign.Left)
-            .Line(AdminText.Date(DateTime.UtcNow, culture))
-            .Line(string.Format(culture, Strings.Printer_TestPaper, printer.PaperWidthMm, printer.Columns))
-            .Line(new string('1', 10) + new string('2', 10) + new string('3', 10) + new string('4', Math.Max(0, printer.Columns - 30)))
-            .Line("àâçéèêëîïôùûü ÀÇÉÈ œ « » 1 000 FCFA")
-            .Columns2(Strings.Col_Name, Money(new Xaf(1000)))
-            .Bold(true).Line(Strings.Printer_TestBold).Bold(false)
-            .Size(true, true).Line("ABCD-1234").Size(false, false);
-        if (printer.PrintQr)
-            p.Align(EscPosAlign.Center).Qr(brand.PortalAddress, 5).Line(brand.PortalAddress).Align(EscPosAlign.Left);
-        Ending(p, brand, Strings.Printer_TestEnd);
-        return p.ToBytes();
-    }
-
-    /// <summary>A receipt as a PDF ticket 80 mm wide, for sending by WhatsApp or e-mail.</summary>
+    /// <summary>
+    /// A receipt on one A4 page (more if it has many lines or codes): business, receipt number, the lines, totals and
+    /// VAT, then each Wi-Fi code as a card to cut out, with its QR code.
+    /// </summary>
     public static byte[] ReceiptPdf(Receipt receipt, ReceiptBranding brand, CultureInfo culture)
     {
-        const float width = 80 * PdfDocument.PointsPerMm, margin = 12, size = 8.5f, lineHeight = 11.5f;
+        const float margin = 48, size = 10, row = 16;
+        const float width = PdfDocument.A4Width, bottom = PdfDocument.A4Height - margin;
         var right = width - margin;
-        var usable = width - 2 * margin;
+        var pdf = new PdfDocument { Title = $"{Strings.Print_Receipt} {receipt.Number}" };
+        var page = pdf.AddPage();
+        var y = margin + 10f;
 
-        // Height: drawn once on a very long page to measure, then again at the right height.
-        float Draw(PdfPage page)
+        void Room(float needed)
         {
-            var y = margin + 12f;
-            void Center(string text, float s = size, bool bold = false)
-            {
-                foreach (var line in EscPosBuilder.Wrap(text, Math.Max(10, (int)(usable / (s * 0.5f)))))
-                {
-                    page.TextFit(width / 2, y, line, s, usable, bold, PdfAlign.Center);
-                    y += s + 3.5f;
-                }
-            }
-            void Pair(string left, string amount, bool bold = false, float s = size)
-            {
-                var amountWidth = PdfTextWidth(amount, s, bold);
-                page.TextFit(margin, y, left, s, usable - amountWidth - 6, bold);
-                page.Text(right, y, amount, s, bold, PdfAlign.Right);
-                y += lineHeight;
-            }
-            void Rule()
-            {
-                y += 2;
-                page.Line(margin, y - 7, right, y - 7, 0.4f, 0.4f);
-                y += 4;
-            }
-
-            Center(brand.BusinessName, 12, bold: true);
-            if (!string.IsNullOrWhiteSpace(brand.Header))
-                Center(brand.Header);
-            y += 4;
-            page.Text(margin, y, $"{Strings.Print_Receipt} {receipt.Number}", size, bold: true);
-            y += lineHeight;
-            page.Text(margin, y, AdminText.Date(receipt.Timestamp, culture), size);
-            y += lineHeight;
-            if (receipt.Seller is not null)
-            {
-                page.Text(margin, y, $"{Strings.Print_Seller} : {receipt.Seller}", size);
-                y += lineHeight;
-            }
-            Rule();
-            foreach (var line in receipt.Lines)
-            {
-                Pair(LineLabel(line), line.Amount.ToString());
-                if (line.Quantity > 1)
-                {
-                    page.Text(margin + 8, y - 2, $"{line.Quantity} × {line.UnitPrice}", size - 1.5f);
-                    y += lineHeight - 2;
-                }
-            }
-            Rule();
-            Pair(Strings.Print_Total.ToUpper(culture), receipt.Total.ToString(), bold: true, s: 11);
-            page.Text(margin, y, $"{Strings.Sell_Payment} : {AdminText.Payment(receipt.Method)}", size);
-            y += lineHeight;
-            foreach (var vat in receipt.Vat)
-                Pair(string.Format(culture, Strings.Receipt_VatIncluded, Percent(vat.Rate, culture)), vat.Vat.ToString());
-
-            foreach (var voucher in receipt.Vouchers)
-            {
-                y += 4;
-                Rule();
-                if (!string.IsNullOrEmpty(brand.WifiName))
-                    Center($"Wi-Fi : {brand.WifiName}");
-                Center($"{voucher.Tariff.Name} — {AdminText.Describe(voucher.Tariff, culture)}", bold: true);
-                y += 6;
-                Center(VoucherCodeGenerator.Format(voucher.Code), 16, bold: true);
-                var matrix = QrSvg.Matrix(brand.CodeLink(voucher.Code));
-                var module = 90f / matrix.GetLength(0);
-                page.Modules((width - 90) / 2, y - 12, matrix, module);
-                y += 86;
-                Center(Strings.Print_HowTo, size - 1);
-                Center(brand.PortalAddress, size - 1);
-            }
-
-            y += 6;
-            if (!string.IsNullOrWhiteSpace(brand.Footer))
-                Center(brand.Footer);
-            Center(Strings.Print_Thanks);
-            return y + margin;
+            if (y + needed <= bottom)
+                return;
+            page = pdf.AddPage();
+            y = margin + 10;
         }
 
-        var measure = new PdfDocument();
-        var height = Draw(measure.AddPage(width, 20_000));
-        var pdf = new PdfDocument { Title = $"{Strings.Print_Receipt} {receipt.Number}" };
-        Draw(pdf.AddPage(width, height));
+        // Header: business on the left, receipt details on the right.
+        page.Text(margin, y + 6, brand.BusinessName, 18, bold: true);
+        page.Text(right, y, $"{Strings.Print_Receipt} {receipt.Number}", 12, bold: true, align: PdfAlign.Right);
+        page.Text(right, y + 15, AdminText.Date(receipt.Timestamp, culture), size, align: PdfAlign.Right);
+        if (receipt.Seller is not null)
+            page.Text(right, y + 29, $"{Strings.Print_Seller} : {receipt.Seller}", size, align: PdfAlign.Right);
+        y += 26;
+        foreach (var line in PdfMetrics.Wrap(brand.Header, size, 300))
+        {
+            page.Text(margin, y, line, size);
+            y += 13;
+        }
+        y = Math.Max(y, margin + 50) + 14;
+
+        // Lines.
+        float[] columns = [margin + 4, right - 190, right - 95, right - 4];   // item, qty (right edge), unit price, amount
+        page.FillRect(margin, y - 12, right - margin, row + 2, 0.92f);
+        page.Text(columns[0], y, Strings.Col_Description, size, bold: true);
+        page.Text(columns[1], y, Strings.Receipt_Quantity, size, bold: true, align: PdfAlign.Right);
+        page.Text(columns[2], y, Strings.Receipt_UnitPrice, size, bold: true, align: PdfAlign.Right);
+        page.Text(columns[3], y, Strings.Col_Amount, size, bold: true, align: PdfAlign.Right);
+        y += row + 2;
+        foreach (var line in receipt.Lines)
+        {
+            Room(row);
+            page.TextFit(columns[0], y, LineLabel(line), size, columns[1] - columns[0] - 50);
+            page.Text(columns[1], y, line.Quantity.ToString(culture), size, align: PdfAlign.Right);
+            page.Text(columns[2], y, line.UnitPrice.ToString(), size, align: PdfAlign.Right);
+            page.Text(columns[3], y, line.Amount.ToString(), size, align: PdfAlign.Right);
+            page.Line(margin, y + 5, right, y + 5, 0.3f, 0.8f);
+            y += row;
+        }
+
+        // Totals.
+        Room(row * (3 + receipt.Vat.Count));
+        y += 6;
+        page.Text(columns[2], y, Strings.Print_Total.ToUpper(culture), 13, bold: true, align: PdfAlign.Right);
+        page.Text(columns[3], y, receipt.Total.ToString(), 13, bold: true, align: PdfAlign.Right);
+        y += row + 2;
+        page.Text(columns[3], y, $"{Strings.Sell_Payment} : {AdminText.Payment(receipt.Method)}", size, align: PdfAlign.Right);
+        foreach (var vat in receipt.Vat)
+        {
+            y += row - 2;
+            page.Text(columns[3], y, $"{string.Format(culture, Strings.Receipt_VatIncluded, Percent(vat.Rate, culture))} : {vat.Vat}", size - 1, align: PdfAlign.Right);
+        }
+        y += row + 8;
+
+        // Wi-Fi codes: cards of 2 per row, dashed so they can be cut out.
+        const float cardHeight = 150, gap = 12;
+        var cardWidth = (right - margin - gap) / 2;
+        for (var i = 0; i < receipt.Vouchers.Count; i++)
+        {
+            var voucher = receipt.Vouchers[i];
+            var column = i % 2;
+            if (column == 0)
+                Room(cardHeight + gap);
+            var x = margin + column * (cardWidth + gap);
+            DashedBox(page, x, y, cardWidth, cardHeight);
+
+            var tx = x + 10;
+            var ty = y + 18;
+            var textWidth = cardWidth - 120;
+            if (!string.IsNullOrEmpty(brand.WifiName))
+            {
+                page.TextFit(tx, ty, $"Wi-Fi : {brand.WifiName}", size - 1, textWidth);
+                ty += 13;
+            }
+            page.TextFit(tx, ty, voucher.Tariff.Name, size + 1, textWidth, bold: true);
+            ty += 13;
+            page.TextFit(tx, ty, AdminText.Describe(voucher.Tariff, culture), size - 1.5f, textWidth);
+            ty += 26;
+            page.Text(tx, ty, VoucherCodeGenerator.Format(voucher.Code), 17, bold: true);
+            ty += 18;
+            foreach (var line in PdfMetrics.Wrap(Strings.Print_HowTo, 7.5f, textWidth))
+            {
+                page.Text(tx, ty, line, 7.5f);
+                ty += 9.5f;
+            }
+            page.TextFit(tx, ty, brand.PortalAddress, 7.5f, textWidth);
+
+            var matrix = QrSvg.Matrix(brand.CodeLink(voucher.Code));
+            const float qrSize = 100;
+            page.Modules(x + cardWidth - qrSize - 10, y + (cardHeight - qrSize) / 2, matrix, qrSize / matrix.GetLength(0));
+
+            if (column == 1 || i == receipt.Vouchers.Count - 1)
+                y += cardHeight + gap;
+        }
+
+        // Footer.
+        Room(40);
+        y += 8;
+        foreach (var line in PdfMetrics.Wrap(brand.Footer, size, right - margin))
+        {
+            page.Text(width / 2, y, line, size, align: PdfAlign.Center);
+            y += 13;
+        }
+        page.Text(width / 2, y + 4, Strings.Print_Thanks, size, bold: true, align: PdfAlign.Center);
         return pdf.ToBytes();
     }
 
@@ -202,7 +155,7 @@ public static class ReceiptLayouts
         var s = report.Shift;
         var summary = new ReportTable(Strings.ShiftReport_Summary, new ReportColumn(""), new ReportColumn("", Numeric: true));
         foreach (var (label, value) in SummaryLines(report))
-            summary.Add(label, value);
+            summary.Add(label, ReportCell.Money(value));
 
         var byType = new ReportTable(Strings.ShiftReport_ByType, new ReportColumn(Strings.Col_Type), new ReportColumn(Strings.Col_Amount, Numeric: true));
         foreach (var (type, total) in report.TotalsByType.OrderBy(t => t.Key))
@@ -223,7 +176,7 @@ public static class ReceiptLayouts
         return new ReportDocument($"{Strings.ShiftReport_Title} #{s.Id}", subtitle, brand.BusinessName, footer, [summary, byType, lines], Strings.Report_Continued);
     }
 
-    /// <summary>"Coca 33 cl" or "1 heure (code Wi-Fi)"; the quantity is printed on its own line ("3 x 500 FCFA").</summary>
+    /// <summary>"Coca 33 cl" or "1 heure (code Wi-Fi)".</summary>
     public static string LineLabel(ReceiptLine line) =>
         line.Type == TransactionType.VoucherSale ? $"{line.Description} ({Strings.Receipt_WifiCode})" : line.Description;
 
@@ -234,47 +187,32 @@ public static class ReceiptLayouts
 
     public static string Percent(decimal rate, CultureInfo culture) => (rate * 100).ToString("0.##", culture) + " %";
 
-    private static IEnumerable<(string Label, string Value)> SummaryLines(ShiftReport report)
+    private static IEnumerable<(string Label, Xaf Value)> SummaryLines(ShiftReport report)
     {
-        yield return (Strings.Shift_OpeningCash, Money(report.OpeningCash));
-        yield return (Strings.Shift_CashIn, Money(report.CashTransactionsTotal));
-        yield return (Strings.Shift_Expected, Money(report.ExpectedCash));
+        yield return (Strings.Shift_OpeningCash, report.OpeningCash);
+        yield return (Strings.Shift_CashIn, report.CashTransactionsTotal);
+        yield return (Strings.Shift_Expected, report.ExpectedCash);
         if (report.CountedCash is { } counted)
         {
-            yield return (Strings.Shift_Counted, Money(counted));
-            yield return (Strings.Shift_Difference, Money(report.Difference ?? Xaf.Zero));
+            yield return (Strings.Shift_Counted, counted);
+            yield return (Strings.Shift_Difference, report.Difference ?? Xaf.Zero);
         }
         foreach (var (method, total) in report.TotalsByPaymentMethod.Where(t => t.Key != PaymentMethod.Cash).OrderBy(t => t.Key))
-            yield return (AdminText.Payment(method), Money(total));
+            yield return (AdminText.Payment(method), total);
     }
 
-    private static void Heading(EscPosBuilder p, ReceiptBranding brand)
+    private static void DashedBox(PdfPage page, float x, float y, float w, float h)
     {
-        p.Align(EscPosAlign.Center).Bold(true).Size(true, true).Wrapped(brand.BusinessName, p.Columns / 2).Size(false, false).Bold(false);
-        if (!string.IsNullOrWhiteSpace(brand.Header))
-            p.Wrapped(brand.Header);
-        p.Align(EscPosAlign.Left).Feed(1);
+        const float dash = 4;
+        for (var d = 0f; d < w; d += 2 * dash)
+        {
+            page.Line(x + d, y, x + Math.Min(d + dash, w), y, 0.5f, 0.5f);
+            page.Line(x + d, y + h, x + Math.Min(d + dash, w), y + h, 0.5f, 0.5f);
+        }
+        for (var d = 0f; d < h; d += 2 * dash)
+        {
+            page.Line(x, y + d, x, y + Math.Min(d + dash, h), 0.5f, 0.5f);
+            page.Line(x + w, y + d, x + w, y + Math.Min(d + dash, h), 0.5f, 0.5f);
+        }
     }
-
-    private static void Ending(EscPosBuilder p, ReceiptBranding brand, string? thanks)
-    {
-        p.Separator().Align(EscPosAlign.Center);
-        if (!string.IsNullOrWhiteSpace(brand.Footer))
-            p.Wrapped(brand.Footer);
-        if (thanks is not null)
-            p.Line(thanks);
-        p.Align(EscPosAlign.Left).Feed(4).Cut();
-    }
-
-    private static string PaymentShort(PaymentMethod method) => method switch
-    {
-        PaymentMethod.Cash => "",
-        PaymentMethod.MtnMoMo => "MTN",
-        PaymentMethod.AirtelMoney => "Airtel",
-        _ => "Cpt",
-    };
-
-    private static string Money(Xaf amount) => amount.ToString(XafStyle.Ascii);
-
-    private static float PdfTextWidth(string text, float size, bool bold) => PdfMetrics.Measure(text, size, bold);
 }

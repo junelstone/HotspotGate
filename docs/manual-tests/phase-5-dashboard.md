@@ -16,7 +16,7 @@ Have ready: the PC, one phone for the cashier, one phone as a customer, and (opt
 | 6 | On the **cashier phone** (connected to the hotspot Wi-Fi) open `http://192.168.137.1:8080/admin`, sign in as the cashier | Must change password first; the menu shows only Accueil, Vendre, Ma caisse, Comptes; opening `/admin/live` shows "Accès refusé" |
 | 7 | Cashier: **Vendre** | Warning "Ouvrez d'abord votre caisse"; the sell button is disabled |
 | 8 | Cashier: **Ma caisse** → starting cash 5 000 → **Ouvrir la caisse** | "Caisse ouverte" |
-| 9 | Cashier: **Vendre** → "Test 3 min", quantity 2, Espèces → **Vendre et imprimer** | Ticket page with 2 codes, QR codes, receipt number, total 100 FCFA. On a PC with a printer: **Imprimer** prints it (80 mm / 58 mm / A4 buttons switch the layout) |
+| 9 | Cashier: **Vendre** → "Test 3 min", quantity 2, Espèces → **Vendre et imprimer** | Ticket page with 2 codes, QR codes, receipt number, total 100 FCFA. On a PC with a printer: **Imprimer** prints the codes as A4 cards |
 | 10 | Cashier: **Ma caisse** | The 2 sales are listed; expected cash 5 100 FCFA |
 | 11 | **Customer phone**: scan one QR (or type the code) on the portal | Logged in; internet works |
 | 12 | Admin: **En direct** | The customer phone is listed with time left counting down and its speed; **+15 min** adds 15 minutes (visible on the customer's status page); **Déconnecter** logs it out; **Bloquer l'appareil** stops it logging in again (unblock later on the gate page) |

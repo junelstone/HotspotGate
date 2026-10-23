@@ -7,8 +7,6 @@ using StonesHotspot.Network.Gate;
 using StonesHotspot.Network.Gate.WinDivert;
 using StonesHotspot.Network.Ics;
 using StonesHotspot.Network.Neighbors;
-using StonesHotspot.Network.Printing;
-using StonesHotspot.Core.Printing;
 using StonesHotspot.Network.Setup;
 
 namespace StonesHotspot.Network;
@@ -31,7 +29,6 @@ public static class NetworkServiceCollectionExtensions
         services.AddSingleton<PortalLocation>();
         services.AddSingleton<LiveTrafficMonitor>();
         services.AddSingleton<AccessRefreshSignal>();
-        services.AddSingleton<IPrinterTransportFactory, PrinterTransportFactory>();
         services.AddSingleton<ClientIdentityResolver>();
         services.AddSingleton<DnsResponder>();
         services.AddSingleton<IDnsUpstream>(sp => new UdpDnsUpstream(() => WanDnsServers(sp), sp.GetRequiredService<ILogger<UdpDnsUpstream>>()));

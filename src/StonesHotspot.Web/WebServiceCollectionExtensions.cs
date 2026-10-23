@@ -20,7 +20,7 @@ public static class WebServiceCollectionExtensions
             options.Conventions.ConfigureFilter(new ForcePasswordChangeFilter());
         });
         services.AddSingleton<PortalClient>();
-        services.AddScoped<Admin.ReceiptPrinter>();
+        services.AddScoped<Documents.ReceiptBrandingProvider>();
         return services;
     }
 }

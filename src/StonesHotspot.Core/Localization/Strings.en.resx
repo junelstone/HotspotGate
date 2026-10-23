@@ -420,7 +420,6 @@ The business may cut off access in case of abuse. The service is provided withou
   <data name="Vouchers_NewBatch" xml:space="preserve"><value>New batch of codes to print</value></data>
   <data name="Vouchers_PrintA4" xml:space="preserve"><value>Print as A4 cards</value></data>
   <data name="Vouchers_PrintNote" xml:space="preserve"><value>Only new or sold codes (not used yet) are printed.</value></data>
-  <data name="Vouchers_PrintThermal" xml:space="preserve"><value>Ticket</value></data>
   <data name="Vouchers_SingleUse" xml:space="preserve"><value>Single use (the code ends at log out)</value></data>
   <data name="Vouchers_SoldAt" xml:space="preserve"><value>Sold</value></data>
   <data name="Vouchers_Total" xml:space="preserve"><value>Total</value></data>
@@ -476,37 +475,9 @@ The business may cut off access in case of abuse. The service is provided withou
   <data name="Common_Add" xml:space="preserve"><value>Add</value></data>
   <data name="Common_InvalidValue" xml:space="preserve"><value>Invalid value. Please check the fields.</value></data>
   <data name="Nav_Audit" xml:space="preserve"><value>Audit log</value></data>
-  <data name="Nav_Printer" xml:space="preserve"><value>Printer</value></data>
   <data name="Nav_Products" xml:space="preserve"><value>Products</value></data>
   <data name="Nav_Reports" xml:space="preserve"><value>Reports</value></data>
   <data name="Nav_Till" xml:space="preserve"><value>Till</value></data>
-  <data name="Printer_AutoSale" xml:space="preserve"><value>Print the receipt automatically after each till sale</value></data>
-  <data name="Printer_AutoShift" xml:space="preserve"><value>Print the report automatically when a shift is closed</value></data>
-  <data name="Printer_Characters" xml:space="preserve"><value>characters</value></data>
-  <data name="Printer_Charset" xml:space="preserve"><value>Character set</value></data>
-  <data name="Printer_CharsetHelp" xml:space="preserve"><value>If accents print wrong (odd signs instead of "é"), choose ASCII: accents will be removed.</value></data>
-  <data name="Printer_Connection" xml:space="preserve"><value>Receipt printer</value></data>
-  <data name="Printer_ConnectionHelp" xml:space="preserve"><value>Network printer: its IP address and port, e.g. 192.168.137.50:9100. Serial or Bluetooth printer: the COM port, e.g. COM3:9600 (Bluetooth: the "outgoing" COM port Windows created). USB printer: its name in Windows (Settings › Printers), installed with its driver or "Generic / Text Only". Leave empty to print from the browser only.</value></data>
-  <data name="Printer_Failed" xml:space="preserve"><value>Could not print: {0}</value></data>
-  <data name="Printer_Footer" xml:space="preserve"><value>Receipt footer (thanks, conditions…)</value></data>
-  <data name="Printer_Header" xml:space="preserve"><value>Receipt header (address, phone, tax number…)</value></data>
-  <data name="Printer_Installed" xml:space="preserve"><value>Printers installed in Windows</value></data>
-  <data name="Printer_Intro" xml:space="preserve"><value>Receipts and shift reports can always be printed from the browser or downloaded as PDF. A receipt printer (ESC/POS) prints in one click, without a dialog.</value></data>
-  <data name="Printer_KindNetwork" xml:space="preserve"><value>Network printer {0}, port {1}</value></data>
-  <data name="Printer_KindNone" xml:space="preserve"><value>No receipt printer: printing from the browser.</value></data>
-  <data name="Printer_KindSerial" xml:space="preserve"><value>Serial port {0} at {1} baud</value></data>
-  <data name="Printer_KindWindows" xml:space="preserve"><value>Windows printer "{0}"</value></data>
-  <data name="Printer_NoAccents" xml:space="preserve"><value>no accents</value></data>
-  <data name="Printer_NotConfigured" xml:space="preserve"><value>No receipt printer is configured (Printer).</value></data>
-  <data name="Printer_Paper" xml:space="preserve"><value>Paper width</value></data>
-  <data name="Printer_Qr" xml:space="preserve"><value>Print a QR code for each Wi-Fi code (untick if the printer prints garbage instead)</value></data>
-  <data name="Printer_Sent" xml:space="preserve"><value>Sent to the printer.</value></data>
-  <data name="Printer_Test" xml:space="preserve"><value>Print a test page</value></data>
-  <data name="Printer_TestBold" xml:space="preserve"><value>Bold text</value></data>
-  <data name="Printer_TestEnd" xml:space="preserve"><value>End of the test page</value></data>
-  <data name="Printer_TestHelp" xml:space="preserve"><value>Save first. The test page shows the width, accents, bold, large size and the QR code: if a line overflows or accents are wrong, change the width or the character set.</value></data>
-  <data name="Printer_TestPaper" xml:space="preserve"><value>Paper {0} mm, {1} characters per line:</value></data>
-  <data name="Printer_TestTitle" xml:space="preserve"><value>TEST PAGE</value></data>
   <data name="Products_ActiveLabel" xml:space="preserve"><value>On sale (untick to hide it from the till without losing history)</value></data>
   <data name="Products_Count" xml:space="preserve"><value>Count</value></data>
   <data name="Products_DeleteConfirm" xml:space="preserve"><value>Delete this product?</value></data>
@@ -535,7 +506,6 @@ The business may cut off access in case of abuse. The service is provided withou
   <data name="Products_TrackStockNote" xml:space="preserve"><value>Untick for services (printing, photocopies, charging…): never "out of stock".</value></data>
   <data name="Products_Vat" xml:space="preserve"><value>VAT</value></data>
   <data name="Receipt_NotFound" xml:space="preserve"><value>Receipt not found.</value></data>
-  <data name="Receipt_PrintThermal" xml:space="preserve"><value>Print on the receipt printer</value></data>
   <data name="Receipt_VatIncluded" xml:space="preserve"><value>incl. VAT {0}</value></data>
   <data name="Receipt_WifiCode" xml:space="preserve"><value>Wi-Fi code</value></data>
   <data name="Report_ActiveSessions" xml:space="preserve"><value>Active sessions (daily average)</value></data>
@@ -589,4 +559,8 @@ The business may cut off access in case of abuse. The service is provided withou
   <data name="Till_Plans" xml:space="preserve"><value>Wi-Fi codes</value></data>
   <data name="Till_Received" xml:space="preserve"><value>Amount received</value></data>
   <data name="Report_Receipts" xml:space="preserve"><value>Receipts</value></data>
+  <data name="Receipt_Quantity" xml:space="preserve"><value>Qty</value></data>
+  <data name="Receipt_UnitPrice" xml:space="preserve"><value>Unit price</value></data>
+  <data name="Settings_ReceiptHeader" xml:space="preserve"><value>Receipt header (address, phone, tax number…)</value></data>
+  <data name="Settings_ReceiptFooter" xml:space="preserve"><value>Receipt footer (thanks, conditions…)</value></data>
 </root>

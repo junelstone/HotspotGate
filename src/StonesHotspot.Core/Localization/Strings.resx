@@ -420,7 +420,6 @@ L'établissement peut couper un accès en cas d'abus. Le service est fourni sans
   <data name="Vouchers_NewBatch" xml:space="preserve"><value>Nouveau lot de codes à imprimer</value></data>
   <data name="Vouchers_PrintA4" xml:space="preserve"><value>Imprimer en cartes A4</value></data>
   <data name="Vouchers_PrintNote" xml:space="preserve"><value>Seuls les codes nouveaux ou vendus (pas encore utilisés) sont imprimés.</value></data>
-  <data name="Vouchers_PrintThermal" xml:space="preserve"><value>Ticket</value></data>
   <data name="Vouchers_SingleUse" xml:space="preserve"><value>Usage unique (le code est terminé dès la déconnexion)</value></data>
   <data name="Vouchers_SoldAt" xml:space="preserve"><value>Vendu le</value></data>
   <data name="Vouchers_Total" xml:space="preserve"><value>Total</value></data>
@@ -476,37 +475,9 @@ L'établissement peut couper un accès en cas d'abus. Le service est fourni sans
   <data name="Common_Add" xml:space="preserve"><value>Ajouter</value></data>
   <data name="Common_InvalidValue" xml:space="preserve"><value>Valeur invalide. Vérifiez les champs.</value></data>
   <data name="Nav_Audit" xml:space="preserve"><value>Journal</value></data>
-  <data name="Nav_Printer" xml:space="preserve"><value>Imprimante</value></data>
   <data name="Nav_Products" xml:space="preserve"><value>Produits</value></data>
   <data name="Nav_Reports" xml:space="preserve"><value>Rapports</value></data>
   <data name="Nav_Till" xml:space="preserve"><value>Caisse</value></data>
-  <data name="Printer_AutoSale" xml:space="preserve"><value>Imprimer le reçu automatiquement après chaque vente à la caisse</value></data>
-  <data name="Printer_AutoShift" xml:space="preserve"><value>Imprimer le rapport automatiquement à la fermeture de caisse</value></data>
-  <data name="Printer_Characters" xml:space="preserve"><value>caractères</value></data>
-  <data name="Printer_Charset" xml:space="preserve"><value>Jeu de caractères</value></data>
-  <data name="Printer_CharsetHelp" xml:space="preserve"><value>Si les accents s'impriment mal (signes bizarres à la place de « é »), choisissez ASCII : les accents seront retirés.</value></data>
-  <data name="Printer_Connection" xml:space="preserve"><value>Imprimante à tickets</value></data>
-  <data name="Printer_ConnectionHelp" xml:space="preserve"><value>Imprimante réseau : son adresse IP et le port, par ex. 192.168.137.50:9100. Imprimante série ou Bluetooth : le port COM, par ex. COM3:9600 (Bluetooth : le port COM « sortant » créé par Windows). Imprimante USB : son nom dans Windows (Paramètres › Imprimantes), installée avec son pilote ou « Générique / Texte seul ». Laissez vide pour imprimer seulement depuis le navigateur.</value></data>
-  <data name="Printer_Failed" xml:space="preserve"><value>Impression impossible : {0}</value></data>
-  <data name="Printer_Footer" xml:space="preserve"><value>Bas du reçu (remerciements, conditions…)</value></data>
-  <data name="Printer_Header" xml:space="preserve"><value>Haut du reçu (adresse, téléphone, NIU…)</value></data>
-  <data name="Printer_Installed" xml:space="preserve"><value>Imprimantes installées dans Windows</value></data>
-  <data name="Printer_Intro" xml:space="preserve"><value>Les reçus et rapports de caisse peuvent toujours être imprimés depuis le navigateur ou téléchargés en PDF. Une imprimante à tickets (ESC/POS) imprime en un clic, sans boîte de dialogue.</value></data>
-  <data name="Printer_KindNetwork" xml:space="preserve"><value>Imprimante réseau {0}, port {1}</value></data>
-  <data name="Printer_KindNone" xml:space="preserve"><value>Pas d'imprimante à tickets : impression depuis le navigateur.</value></data>
-  <data name="Printer_KindSerial" xml:space="preserve"><value>Port série {0} à {1} bauds</value></data>
-  <data name="Printer_KindWindows" xml:space="preserve"><value>Imprimante Windows « {0} »</value></data>
-  <data name="Printer_NoAccents" xml:space="preserve"><value>sans accents</value></data>
-  <data name="Printer_NotConfigured" xml:space="preserve"><value>Aucune imprimante à tickets n'est configurée (Imprimante).</value></data>
-  <data name="Printer_Paper" xml:space="preserve"><value>Largeur du papier</value></data>
-  <data name="Printer_Qr" xml:space="preserve"><value>Imprimer un QR code pour chaque code Wi-Fi (décochez si l'imprimante imprime des signes à la place)</value></data>
-  <data name="Printer_Sent" xml:space="preserve"><value>Envoyé à l'imprimante.</value></data>
-  <data name="Printer_Test" xml:space="preserve"><value>Imprimer une page de test</value></data>
-  <data name="Printer_TestBold" xml:space="preserve"><value>Texte en gras</value></data>
-  <data name="Printer_TestEnd" xml:space="preserve"><value>Fin de la page de test</value></data>
-  <data name="Printer_TestHelp" xml:space="preserve"><value>Enregistrez d'abord. La page de test montre la largeur, les accents, le gras, la grande taille et le QR code : si une ligne dépasse ou si les accents sont faux, changez la largeur ou le jeu de caractères.</value></data>
-  <data name="Printer_TestPaper" xml:space="preserve"><value>Papier {0} mm, {1} caractères par ligne :</value></data>
-  <data name="Printer_TestTitle" xml:space="preserve"><value>PAGE DE TEST</value></data>
   <data name="Products_ActiveLabel" xml:space="preserve"><value>En vente (décochez pour le cacher de la caisse sans perdre l'historique)</value></data>
   <data name="Products_Count" xml:space="preserve"><value>Inventaire</value></data>
   <data name="Products_DeleteConfirm" xml:space="preserve"><value>Supprimer ce produit ?</value></data>
@@ -535,7 +506,6 @@ L'établissement peut couper un accès en cas d'abus. Le service est fourni sans
   <data name="Products_TrackStockNote" xml:space="preserve"><value>Décochez pour les services (impression, photocopie, recharge…) : jamais « épuisé ».</value></data>
   <data name="Products_Vat" xml:space="preserve"><value>TVA</value></data>
   <data name="Receipt_NotFound" xml:space="preserve"><value>Reçu introuvable.</value></data>
-  <data name="Receipt_PrintThermal" xml:space="preserve"><value>Imprimer sur l'imprimante à tickets</value></data>
   <data name="Receipt_VatIncluded" xml:space="preserve"><value>dont TVA {0}</value></data>
   <data name="Receipt_WifiCode" xml:space="preserve"><value>code Wi-Fi</value></data>
   <data name="Report_ActiveSessions" xml:space="preserve"><value>Sessions actives (moyenne par jour)</value></data>
@@ -589,4 +559,8 @@ L'établissement peut couper un accès en cas d'abus. Le service est fourni sans
   <data name="Till_Plans" xml:space="preserve"><value>Codes Wi-Fi</value></data>
   <data name="Till_Received" xml:space="preserve"><value>Montant reçu</value></data>
   <data name="Report_Receipts" xml:space="preserve"><value>Reçus</value></data>
+  <data name="Receipt_Quantity" xml:space="preserve"><value>Qté</value></data>
+  <data name="Receipt_UnitPrice" xml:space="preserve"><value>Prix unitaire</value></data>
+  <data name="Settings_ReceiptHeader" xml:space="preserve"><value>Haut des reçus (adresse, téléphone, NIU…)</value></data>
+  <data name="Settings_ReceiptFooter" xml:space="preserve"><value>Bas des reçus (remerciements, conditions…)</value></data>
 </root>

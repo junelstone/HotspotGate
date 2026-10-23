@@ -36,7 +36,7 @@ public sealed class SellModel(CurrentStaff current, TariffService tariffs, Vouch
         try
         {
             var (receipt, _) = await vouchers.SellNewAsync(TariffId, Quantity, Method, await current.GetAsync(), HttpContext.RequestAborted);
-            return Redirect($"/admin/print?receipt={Uri.EscapeDataString(receipt)}&format=80");
+            return Redirect($"/admin/print?receipt={Uri.EscapeDataString(receipt)}");
         }
         catch (BusinessRuleException)
         {

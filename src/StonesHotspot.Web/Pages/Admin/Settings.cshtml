@@ -35,6 +35,10 @@
     <textarea asp-for="TermsFr" placeholder="@Strings.Settings_TermsHelp"></textarea>
     <label for="TermsEn">@Strings.Settings_TermsEn</label>
     <textarea asp-for="TermsEn" placeholder="@Strings.Settings_TermsHelp"></textarea>
+    <label for="ReceiptHeader">@Strings.Settings_ReceiptHeader</label>
+    <textarea asp-for="ReceiptHeader" maxlength="300" style="min-height:4.5rem" placeholder="Avenue de la Paix, Brazzaville · Tél. 06 000 00 00 · NIU …"></textarea>
+    <label for="ReceiptFooter">@Strings.Settings_ReceiptFooter</label>
+    <textarea asp-for="ReceiptFooter" maxlength="300" style="min-height:3.5rem"></textarea>
     <button type="submit">@Strings.Common_Save</button>
     <a class="button secondary" href="/portal" target="_blank">@Strings.Settings_Preview</a>
 </form>

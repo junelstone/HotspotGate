@@ -16,6 +16,7 @@ namespace StonesHotspot.Web.Pages.Admin;
 public sealed partial class SettingsModel(SettingsService settings, AppPaths paths, CurrentStaff current) : PageModel
 {
     public const long MaxLogoBytes = 512 * 1024;
+    public const int MaxReceiptText = 300;
     private static readonly string[] LogoExtensions = [".png", ".jpg", ".jpeg", ".svg", ".webp"];
 
     [BindProperty] public string? BusinessName { get; set; }
@@ -26,6 +27,8 @@ public sealed partial class SettingsModel(SettingsService settings, AppPaths pat
     [BindProperty] public string? TermsEn { get; set; }
     [BindProperty] public string DefaultLanguage { get; set; } = Languages.French;
     [BindProperty] public int IdleTimeout { get; set; } = 10;
+    [BindProperty] public string? ReceiptHeader { get; set; }
+    [BindProperty] public string? ReceiptFooter { get; set; }
     [BindProperty] public IFormFile? Logo { get; set; }
 
     public bool HasLogo { get; private set; }
@@ -42,6 +45,8 @@ public sealed partial class SettingsModel(SettingsService settings, AppPaths pat
         TermsEn = await settings.GetAsync(SettingKeys.PortalTermsEn, ct);
         DefaultLanguage = await settings.GetAsync(SettingKeys.DefaultLanguage, ct) ?? Languages.French;
         IdleTimeout = await settings.GetIntAsync(SettingKeys.DefaultIdleTimeoutMinutes, 10, ct);
+        ReceiptHeader = await settings.GetAsync(SettingKeys.ReceiptHeader, ct);
+        ReceiptFooter = await settings.GetAsync(SettingKeys.ReceiptFooter, ct);
         HasLogo = PortalBranding.FindLogo(paths) is not null;
     }
 
@@ -58,6 +63,8 @@ public sealed partial class SettingsModel(SettingsService settings, AppPaths pat
             Error = Strings.Settings_InvalidIdle;
         else if (DefaultLanguage is not (Languages.French or Languages.English))
             Error = Strings.Settings_InvalidLanguage;
+        else if (ReceiptHeader?.Length > MaxReceiptText || ReceiptFooter?.Length > MaxReceiptText)
+            Error = Strings.Common_InvalidValue;
         else if (Logo is not null && !LogoExtensions.Contains(Path.GetExtension(Logo.FileName).ToLowerInvariant()))
             Error = Strings.Settings_InvalidLogo;
         else if (Logo is { Length: > MaxLogoBytes })
@@ -81,6 +88,8 @@ public sealed partial class SettingsModel(SettingsService settings, AppPaths pat
         await Save(SettingKeys.PortalTermsFr, TermsFr);
         await Save(SettingKeys.PortalTermsEn, TermsEn);
         await Save(SettingKeys.DefaultLanguage, DefaultLanguage);
+        await Save(SettingKeys.ReceiptHeader, ReceiptHeader?.Replace("\r", ""));
+        await Save(SettingKeys.ReceiptFooter, ReceiptFooter?.Replace("\r", ""));
         await Save(SettingKeys.DefaultIdleTimeoutMinutes, IdleTimeout.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
         if (Logo is not null)

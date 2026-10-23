@@ -15,7 +15,7 @@ namespace StonesHotspot.Web.Pages.Admin;
 /// <summary>The till (Pro): Wi-Fi plans and products in one cart, one receipt.</summary>
 public sealed class TillModel(
     CurrentStaff current, TariffService tariffs, ProductService products, SalesService sales, CashService cash,
-    ReceiptPrinter printer, ILicenseService licence) : PageModel
+    ILicenseService licence) : PageModel
 {
     public bool Enabled => licence.IsAllowed(Feature.PointOfSale);
     public IReadOnlyList<Tariff> Plans { get; private set; } = [];
@@ -66,10 +66,6 @@ public sealed class TillModel(
         if (Method == PaymentMethod.Cash && Xaf.TryParse(Received, out var received) && received >= total)
             message += " " + string.Format(CultureInfo.CurrentUICulture, Strings.Till_Change, received - total);
         TempData.Success(message);
-
-        var settings = await printer.SettingsAsync(ct);
-        if (settings.HasPrinter && settings.AutoPrintSale && await printer.PrintReceiptAsync(receipt, ct) is { } printError)
-            TempData.Error(printError);
         return Redirect($"/admin/receipt?n={Uri.EscapeDataString(receipt)}");
     }
 

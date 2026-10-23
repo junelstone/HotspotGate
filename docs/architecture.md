@@ -86,17 +86,15 @@ Windows. Printing is HTML + print CSS with inline-SVG QR codes (QRCoder).
 ```
  till cart ─► SalesService.CheckoutAsync (one DB transaction: stock −, codes created + sold, one receipt number)
  receipt number ─► SalesService.GetReceiptAsync ─► Receipt (lines merged, VAT included per rate, Wi-Fi codes)
-     ├─ Receipt page (HTML)          ├─ ReceiptLayouts.ReceiptPdf (80 mm PDF)
-     └─ ReceiptLayouts.ReceiptEscPos ─► ReceiptPrinter ─► IPrinterTransport: TCP 9100 │ COM port │ Windows spooler (RAW)
+     ├─ Receipt page (HTML, A4 print CSS)
+     └─ ReceiptLayouts.ReceiptPdf (A4 PDF)
  reports ─► ReportService (typed rows, local days) ─► ReportTable (display + raw CSV value per cell)
      ─► HTML table │ ReportExport.Csv (";", UTF-8 BOM) │ ReportExport.Pdf (Core/Documents/PdfDocument)
 ```
 
 - `Core/Documents/PdfDocument` writes PDF 1.4 itself: standard Helvetica fonts with WinAnsi encoding (French
   accents), Flate-compressed pages, text/lines/rectangles; no third-party PDF library.
-- `Core/Printing/EscPosBuilder` makes the ESC/POS bytes (PC850 or ASCII, bold, double size, native QR `GS ( k`,
-  cut). Transports: `TcpPrinterTransport` (Core), `SerialPrinterTransport` and `WindowsSpoolerTransport` (Network,
-  `winspool.drv` RAW jobs). Printing failures are shown to staff and logged; they never undo a sale.
+- All printing is A4 (decided with the customer): browser print or PDF, no receipt-printer driver to support.
 
 ## Fail-closed rules
 
@@ -110,8 +108,8 @@ Windows. Printing is HTML + print CSS with inline-SVG QR codes (QRCoder).
 
 | Project | Main parts |
 |---|---|
-| Core | entities + EF Core (`Data`), rules (`Rules`), services (`Services`: sessions, vouchers, accounts, cash, sales, products, reports, web filter…), PDF/CSV (`Documents`), ESC/POS (`Printing`) |
-| Network | adapters, ICS, neighbour table, setup/reconcile, gate (`Gate`), DNS (`Dns`), printer transports (`Printing`) |
+| Core | entities + EF Core (`Data`), rules (`Rules`), services (`Services`: sessions, vouchers, accounts, cash, sales, products, reports, web filter…), PDF/CSV (`Documents`) |
+| Network | adapters, ICS, neighbour table, setup/reconcile, gate (`Gate`), DNS (`Dns`) |
 | Web | Razor Pages: portal (`Pages/Portal`), dashboard (`Pages/Admin`), captive-portal middleware, receipt/report layouts (`Documents`) |
 | Service | host, `HotspotEngineService`, `DeviceDiscoveryService`, Kestrel ports, logging |
 | Licensing | `ILicenseService` (stub until phase 10) |

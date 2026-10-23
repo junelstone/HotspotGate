@@ -11,63 +11,72 @@
 }
 @section Head {
 <style>
-    .receipt { max-width:80mm; margin:1rem auto; background:#fff; border:1px solid var(--line); padding:5mm 4mm; font-size:10pt; color:#000; }
-    .receipt .c { text-align:center; } .receipt .biz { font-weight:700; font-size:13pt; }
-    .receipt table { background:none; } .receipt td { padding:.15rem 0; border:0; }
-    .receipt hr { border:0; border-top:1px dashed #000; margin:2mm 0; }
-    .receipt .code { font-size:16pt; font-weight:700; margin:1mm 0; }
-    .receipt svg { display:block; margin:1mm auto; }
-    @@media print { @@page { size:88mm auto; margin:3mm; } body { background:#fff; } main { padding:0; } .receipt { border:0; margin:0; } }
+    .receipt { max-width:210mm; margin:1rem auto; background:#fff; border:1px solid var(--line); padding:12mm; color:#000; font-size:10.5pt; }
+    .receipt .top { display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+    .receipt .biz { font-weight:700; font-size:18pt; } .receipt .meta { text-align:right; }
+    .receipt table { background:none; margin-top:6mm; } .receipt th { background:#eceef1; color:#000; }
+    .receipt .totals td { border:0; padding:.15rem .5rem; }
+    .codes { display:grid; grid-template-columns:repeat(auto-fill,minmax(85mm,1fr)); gap:4mm; margin-top:6mm; }
+    .codes .card { margin:0; border:1px dashed #777; border-radius:2mm; padding:3mm; display:flex; gap:3mm; align-items:center; break-inside:avoid; }
+    .codes .card > div { flex:1; min-width:0; font-size:9pt; }
+    .codes .code { font-size:16pt; font-weight:700; margin:1.5mm 0; }
+    .receipt .end { text-align:center; margin-top:6mm; }
+    @@media print { @@page { size:A4; margin:10mm; } body { background:#fff; } main { padding:0; max-width:none; } .receipt { border:0; margin:0; padding:0; max-width:none; } }
 </style>
 }
 <div class="noprint">
     <h1>@ViewData["Title"]</h1>
     <button type="button" onclick="window.print()">@Strings.Print_Print</button>
-    @if (Model.HasPrinter)
-    {
-        <form method="post" asp-page-handler="Thermal" asp-route-n="@r.Number" style="display:inline"><button type="submit">@Strings.Receipt_PrintThermal</button></form>
-    }
     <a class="button secondary" href="/admin/receipt?handler=Pdf&n=@n">PDF</a>
     <a class="button secondary" href="/admin/till">@Strings.Nav_Till</a>
 </div>
 
 <div class="receipt">
-    <div class="c biz">@Model.Brand.BusinessName</div>
-    @if (!string.IsNullOrWhiteSpace(Model.Brand.Header)) { <div class="c" style="white-space:pre-line">@Model.Brand.Header</div> }
-    <hr>
-    <div><strong>@Strings.Print_Receipt @r.Number</strong></div>
-    <div>@AdminText.Date(r.Timestamp, culture)</div>
-    @if (r.Seller is not null) { <div>@Strings.Print_Seller : @r.Seller</div> }
-    <hr>
+    <div class="top">
+        <div>
+            <div class="biz">@Model.Brand.BusinessName</div>
+            @if (!string.IsNullOrWhiteSpace(Model.Brand.Header)) { <div style="white-space:pre-line">@Model.Brand.Header</div> }
+        </div>
+        <div class="meta">
+            <div><strong>@Strings.Print_Receipt @r.Number</strong></div>
+            <div>@AdminText.Date(r.Timestamp, culture)</div>
+            @if (r.Seller is not null) { <div>@Strings.Print_Seller : @r.Seller</div> }
+        </div>
+    </div>
     <table>
+        <tr><th>@Strings.Col_Description</th><th class="num">@Strings.Receipt_Quantity</th><th class="num">@Strings.Receipt_UnitPrice</th><th class="num">@Strings.Col_Amount</th></tr>
         @foreach (var line in r.Lines)
         {
-            <tr><td>@ReceiptLayouts.LineLabel(line)
-                    @if (line.Quantity > 1) { <br><small>@line.Quantity × @line.UnitPrice</small> }</td>
-                <td class="num">@line.Amount</td></tr>
+            <tr><td>@ReceiptLayouts.LineLabel(line)</td><td class="num">@line.Quantity</td><td class="num">@line.UnitPrice</td><td class="num">@line.Amount</td></tr>
         }
     </table>
-    <hr>
-    <table>
-        <tr><td><strong>@Strings.Print_Total.ToUpper(culture)</strong></td><td class="num"><strong style="font-size:12pt">@r.Total</strong></td></tr>
-        <tr><td colspan="2">@Strings.Sell_Payment : @AdminText.Payment(r.Method)</td></tr>
+    <table class="totals">
+        <tr><td class="num"><strong style="font-size:13pt">@Strings.Print_Total.ToUpper(culture) : @r.Total</strong></td></tr>
+        <tr><td class="num">@Strings.Sell_Payment : @AdminText.Payment(r.Method)</td></tr>
         @foreach (var vat in r.Vat)
         {
-            <tr><td><small>@string.Format(culture, Strings.Receipt_VatIncluded, ReceiptLayouts.Percent(vat.Rate, culture))</small></td><td class="num"><small>@vat.Vat</small></td></tr>
+            <tr><td class="num"><small>@string.Format(culture, Strings.Receipt_VatIncluded, ReceiptLayouts.Percent(vat.Rate, culture)) : @vat.Vat</small></td></tr>
         }
     </table>
-    @foreach (var v in r.Vouchers)
+    @if (r.Vouchers.Count > 0)
     {
-        <hr>
-        <div class="c">
-            @if (!string.IsNullOrEmpty(Model.Brand.WifiName)) { <div>Wi-Fi : <strong>@Model.Brand.WifiName</strong></div> }
-            <div><strong>@v.Tariff.Name</strong> — @AdminText.Describe(v.Tariff, culture)</div>
-            <div class="code">@VoucherCodeGenerator.Format(v.Code)</div>
-            @Html.Raw(QrSvg.Render(Model.Brand.CodeLink(v.Code), 28))
-            <small>@Strings.Print_HowTo<br>@Model.Brand.PortalAddress</small>
+        <div class="codes">
+            @foreach (var v in r.Vouchers)
+            {
+                <div class="card">
+                    <div>
+                        @if (!string.IsNullOrEmpty(Model.Brand.WifiName)) { <div>Wi-Fi : <strong>@Model.Brand.WifiName</strong></div> }
+                        <div><strong>@v.Tariff.Name</strong> — @AdminText.Describe(v.Tariff, culture)</div>
+                        <div class="code">@VoucherCodeGenerator.Format(v.Code)</div>
+                        <small>@Strings.Print_HowTo<br>@Model.Brand.PortalAddress</small>
+                    </div>
+                    @Html.Raw(QrSvg.Render(Model.Brand.CodeLink(v.Code), 30))
+                </div>
+            }
         </div>
     }
-    <hr>
-    @if (!string.IsNullOrWhiteSpace(Model.Brand.Footer)) { <div class="c" style="white-space:pre-line">@Model.Brand.Footer</div> }
-    <div class="c">@Strings.Print_Thanks</div>
+    <div class="end">
+        @if (!string.IsNullOrWhiteSpace(Model.Brand.Footer)) { <div style="white-space:pre-line">@Model.Brand.Footer</div> }
+        <strong>@Strings.Print_Thanks</strong>
+    </div>
 </div>

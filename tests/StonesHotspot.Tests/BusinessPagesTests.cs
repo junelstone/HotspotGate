@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,79 +33,35 @@ public sealed class BusinessPagesTests(ServiceSmokeTests.Factory factory) : ICla
     private Task<Tariff> PlanAsync() =>
         InScope(async sp => (await sp.GetRequiredService<TariffService>().ListAsync()).First(t => t.Name == "1 heure"));
 
-    /// <summary>A one-job "printer" on a free loopback port; returns the port and the bytes it will receive.</summary>
-    private static (int Port, Task<byte[]> Job) FakePrinter()
-    {
-        var listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        var port = ((IPEndPoint)listener.LocalEndpoint).Port;
-        var job = Task.Run(async () =>
-        {
-            try
-            {
-                using var client = await listener.AcceptTcpClientAsync().WaitAsync(TimeSpan.FromSeconds(10));
-                var buffer = new MemoryStream();
-                await client.GetStream().CopyToAsync(buffer);
-                return buffer.ToArray();
-            }
-            finally
-            {
-                listener.Stop();
-            }
-        });
-        return (port, job);
-    }
-
-    private Task SetPrinterAsync(string connection, bool autoSale = false) =>
-        InScope(async sp =>
-        {
-            var settings = sp.GetRequiredService<SettingsService>();
-            await settings.SetAsync(SettingKeys.PrinterConnection, connection, null);
-            await settings.SetAsync(SettingKeys.PrinterAutoSale, autoSale ? "true" : "false", null);
-            return 0;
-        });
-
     [Fact]
-    public async Task Till_sale_prints_the_receipt_and_offers_a_pdf()
+    public async Task Till_sale_shows_the_receipt_and_offers_an_a4_pdf()
     {
         var admin = await AsAsync(factory);
         var juice = await ProductAsync($"Jus {Guid.NewGuid():N}"[..12], 400, 5);
         var plan = await PlanAsync();
-        var (port, job) = FakePrinter();
-        await SetPrinterAsync($"127.0.0.1:{port}", autoSale: true);
-        try
+
+        var sale = await PostFormAsync(admin.Http, "/admin/till", "/admin/till", new()
         {
-            var sale = await PostFormAsync(admin.Http, "/admin/till", "/admin/till", new()
-            {
-                ["Cart"] = $"p{juice.Id}x2,t{plan.Id}x1", ["Method"] = "Cash", ["Received"] = "2 000",
-            });
-            Assert.Equal(HttpStatusCode.Redirect, sale.StatusCode);
-            var receiptUrl = sale.Headers.Location!.OriginalString;
-            Assert.StartsWith("/admin/receipt?n=", receiptUrl);
+            ["Cart"] = $"p{juice.Id}x2,t{plan.Id}x1", ["Method"] = "Cash", ["Received"] = "2 000",
+        });
+        Assert.Equal(HttpStatusCode.Redirect, sale.StatusCode);
+        var receiptUrl = sale.Headers.Location!.OriginalString;
+        Assert.StartsWith("/admin/receipt?n=", receiptUrl);
 
-            var printed = Encoding.Latin1.GetString(await job);
-            Assert.StartsWith("\u001b@\u001bt\u0002", printed);
-            Assert.Contains(juice.Name, printed);
-            Assert.Contains("1 000 FCFA", printed);                // 2 × 400 + 200 for the plan
-            Assert.EndsWith("\u001dVB\u0003", printed);
+        var page = await Html(await admin.Http.GetAsync(receiptUrl));
+        Assert.Contains("Vente enregistrée", page);
+        Assert.Contains("Monnaie à rendre : 1 000 FCFA", page.Replace('\u00a0', ' '));   // 2 000 − (2 × 400 + 200)
+        Assert.Contains(juice.Name, page);
+        var voucher = await InScope(sp => sp.GetRequiredService<HotspotDbContext>().Vouchers.OrderByDescending(v => v.Id).FirstAsync());
+        Assert.Equal(VoucherStatus.Sold, voucher.Status);
+        Assert.Contains(StonesHotspot.Core.Rules.VoucherCodeGenerator.Format(voucher.Code), page);
+        Assert.Equal(3, await InScope(sp => sp.GetRequiredService<HotspotDbContext>().Products.Where(p => p.Id == juice.Id).Select(p => p.Stock).SingleAsync()));
 
-            var page = await Html(await admin.Http.GetAsync(receiptUrl));
-            Assert.Contains("Vente enregistrée", page);
-            Assert.Contains("Monnaie à rendre : 1 000 FCFA", page.Replace(' ', ' '));
-            Assert.Contains(juice.Name, page);
-            var voucher = await InScope(sp => sp.GetRequiredService<HotspotDbContext>().Vouchers.OrderByDescending(v => v.Id).FirstAsync());
-            Assert.Equal(VoucherStatus.Sold, voucher.Status);
-            Assert.Contains(StonesHotspot.Core.Rules.VoucherCodeGenerator.Format(voucher.Code), page);
-            Assert.Equal(3, await InScope(sp => sp.GetRequiredService<HotspotDbContext>().Products.Where(p => p.Id == juice.Id).Select(p => p.Stock).SingleAsync()));
-
-            var pdf = await admin.Http.GetAsync(receiptUrl.Replace("?n=", "?handler=Pdf&n="));
-            Assert.Equal("application/pdf", pdf.Content.Headers.ContentType?.MediaType);
-            Assert.StartsWith("%PDF-1.4", Encoding.ASCII.GetString(await pdf.Content.ReadAsByteArrayAsync())[..8]);
-        }
-        finally
-        {
-            await SetPrinterAsync("");
-        }
+        var pdf = await admin.Http.GetAsync(receiptUrl.Replace("?n=", "?handler=Pdf&n="));
+        Assert.Equal("application/pdf", pdf.Content.Headers.ContentType?.MediaType);
+        var bytes = Encoding.Latin1.GetString(await pdf.Content.ReadAsByteArrayAsync());
+        Assert.StartsWith("%PDF-1.4", bytes);
+        Assert.Contains("/MediaBox [0 0 595.28 841.89]", bytes);   // A4
     }
 
     [Fact]
@@ -185,39 +140,9 @@ public sealed class BusinessPagesTests(ServiceSmokeTests.Factory factory) : ICla
         Assert.Contains("Product.StockAdded", await auditCsv.Content.ReadAsStringAsync());
 
         var cashier = await AsAsync(factory, StaffRole.Cashier);
-        foreach (var url in new[] { "/admin/products", "/admin/product", "/admin/reports", "/admin/audit", "/admin/printer" })
+        foreach (var url in new[] { "/admin/products", "/admin/product", "/admin/reports", "/admin/audit" })
             Assert.Contains("/admin/denied", (await cashier.Http.GetAsync(url)).Headers.Location?.OriginalString ?? "", StringComparison.OrdinalIgnoreCase);
         Assert.Equal(HttpStatusCode.OK, (await cashier.Http.GetAsync("/admin/till")).StatusCode);
-    }
-
-    [Fact]
-    public async Task Printer_page_saves_and_prints_a_test_page()
-    {
-        var admin = await AsAsync(factory);
-        var (port, job) = FakePrinter();
-        try
-        {
-            await PostFormAsync(admin.Http, "/admin/printer", "/admin/printer", new()
-            {
-                ["Connection"] = $"127.0.0.1:{port}", ["PaperWidth"] = "58", ["Charset"] = "ascii", ["Qr"] = "false", ["Header"] = "Tél. 06",
-            });
-            var test = await PostFormAsync(admin.Http, "/admin/printer", "/admin/printer?handler=Test", new());
-            Assert.Equal(HttpStatusCode.Redirect, test.StatusCode);
-            var printed = Encoding.ASCII.GetString(await job);
-            Assert.StartsWith("\u001b@\u001bt\u0000", printed);
-            Assert.Contains("Tel. 06", printed);                         // ASCII: accents removed
-            Assert.Contains(new string('1', 10) + new string('2', 10) + new string('3', 10) + "44\n", printed);   // 32 columns
-            Assert.DoesNotContain("\u001d(k", printed);                   // no QR
-            Assert.Contains("Envoyé à l'imprimante", await Html(await admin.Http.GetAsync("/admin/printer")));
-
-            await SetPrinterAsync("127.0.0.1:1");                        // nothing listens on port 1
-            await PostFormAsync(admin.Http, "/admin/printer", "/admin/printer?handler=Test", new());
-            Assert.Contains("Impression impossible", await Html(await admin.Http.GetAsync("/admin/printer")));
-        }
-        finally
-        {
-            await SetPrinterAsync("");
-        }
     }
 
     [Fact]

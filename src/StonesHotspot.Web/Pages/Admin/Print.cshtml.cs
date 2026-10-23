@@ -14,15 +14,14 @@ using StonesHotspot.Web.Auth;
 namespace StonesHotspot.Web.Pages.Admin;
 
 /// <summary>
-/// Printable codes: the ticket of one sale (<c>?receipt=</c>, any staff) or a whole batch (<c>?batch=</c>, admins),
-/// as A4 cards or 80/58 mm thermal tickets. Each code has a QR that opens the portal with the code filled in.
+/// Printable codes on A4: the codes of one sale (<c>?receipt=</c>, any staff) or a whole batch (<c>?batch=</c>, admins),
+/// as cards to cut out. Each code has a QR that opens the portal with the code filled in.
 /// </summary>
 public sealed class PrintModel(
     VoucherService vouchers, HotspotDbContext db, SettingsService settings, PortalLocation portal, IAuthorizationService authorization) : PageModel
 {
     [BindProperty(SupportsGet = true)] public string? Receipt { get; set; }
     [BindProperty(SupportsGet = true)] public string? Batch { get; set; }
-    [BindProperty(SupportsGet = true)] public string Format { get; set; } = "80";
 
     public IReadOnlyList<Voucher> Vouchers { get; private set; } = [];
     public string BusinessName { get; private set; } = "";
@@ -31,15 +30,9 @@ public sealed class PrintModel(
     public Xaf Total { get; private set; }
     public string? Seller { get; private set; }
 
-    public bool IsA4 => Format == "a4";
-    public int WidthMm => Format == "58" ? 48 : 72;
-
     public async Task<IActionResult> OnGetAsync()
     {
         var ct = HttpContext.RequestAborted;
-        if (Format is not ("a4" or "80" or "58"))
-            Format = "80";
-
         if (!string.IsNullOrEmpty(Receipt))
         {
             Vouchers = await vouchers.ListByReceiptAsync(Receipt, ct);

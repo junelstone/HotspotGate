@@ -1,7 +1,7 @@
 # Manual test — Phase 7: products, till, receipts, printing, reports
 
-Run the **published** service on Windows and sign in to the dashboard as admin. Have a receipt printer ready if you
-can (any ESC/POS 58 or 80 mm model: network, USB or Bluetooth). Without one, do the browser and PDF steps only.
+Run the **published** service on Windows and sign in to the dashboard as admin. Have an ordinary A4 printer
+installed in Windows. All printing is on A4.
 
 ## Products and till
 
@@ -17,17 +17,17 @@ can (any ESC/POS 58 or 80 mm model: network, USB or Bluetooth). Without one, do 
 | 8 | Open the shift (1 000), sell 2 Coca paid with MTN MoMo, close the shift counting 1 000 | Shift report: cash expected 1 000, MTN MoMo 1 000, difference 0; the receipt is listed |
 | 9 | **PDF** on the receipt page and on the shift page | PDFs open in Edge/Acrobat; accents (é, ç) correct; the receipt PDF is a narrow ticket |
 
-## Receipt printer
+## A4 printing
 
 | # | Step | Expected |
 |---|------|----------|
-| 10 | Network printer: print its self-test page (hold FEED while powering on) to read its IP. **Imprimante** → `IP:9100`, save, **Imprimer une page de test** | Page prints: name, header, digit ruler fills exactly one line, accents, bold, big "ABCD-1234", QR code, then the paper is cut |
-| 11 | If the ruler wraps or is short, switch 58/80 mm. If accents print as odd signs, choose ASCII. If the QR prints as garbage or nothing, untick QR | Test page correct after the change |
-| 12 | USB printer: install its driver (or "Generic / Text Only" on its USB port). **Imprimante** → type its exact Windows name (the list under the field shows the installed printers) → test page | Prints as in 10 |
-| 13 | Bluetooth printer: pair it in Windows, then Bluetooth settings → More options → COM Ports: note the **Outgoing** port. **Imprimante** → `COM5:9600` (your port) → test page | Prints as in 10 (if nothing: try 115200 baud) |
-| 14 | Tick "Imprimer le reçu automatiquement", make a sale | The receipt prints by itself within 2 s; the receipt page still opens |
-| 15 | Switch the printer off and make a sale | The sale is saved; a red message says printing failed and why. Switch on, **Imprimer sur l'imprimante à tickets** → prints |
-| 16 | Tick "Imprimer le rapport automatiquement à la fermeture", close a shift | The shift report prints: totals, each receipt with time and amount |
+| 10 | **Paramètres** → receipt header "Avenue …, Brazzaville / Tél. …", footer "Merci !", save. Open a receipt | Header under the business name, footer at the bottom |
+| 11 | On the receipt page, **Imprimer** (Ctrl+P) → your A4 printer | One A4 page: header, lines table, total, VAT, each Wi-Fi code as a dashed card with its QR; no menu or buttons printed |
+| 12 | **PDF** on the receipt, open and print it | Same content; accents (é, ç) correct; the QR scans from the paper |
+| 13 | A sale of 6 Wi-Fi codes | Cards 2 per row; a page break never cuts a card |
+| 14 | **Vendre** (new codes) → ticket page → **Imprimer** | Codes as A4 cards, 3 per row, with the receipt summary under them |
+| 15 | **Tickets** → a batch → **Imprimer (A4)** | 21 cards per A4 page, cut lines visible |
+| 16 | **Ma caisse** → a closed shift → **PDF** and **Imprimer** | A4 report: summary, totals by type, every transaction |
 
 ## Reports and audit log
 
