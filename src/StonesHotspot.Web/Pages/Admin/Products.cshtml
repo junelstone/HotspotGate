@@ -1,0 +1,68 @@
+@page "/admin/products"
+@model StonesHotspot.Web.Pages.Admin.ProductsModel
+@{
+    ViewData["Title"] = Strings.Nav_Products;
+}
+<h1>@Strings.Nav_Products</h1>
+@if (!Model.Enabled)
+{
+    <div class="msg warning">@Strings.Common_ProFeature</div>
+    return;
+}
+<a class="button" href="/admin/product">@Strings.Products_New</a>
+<a class="button secondary" href="/admin/till">@Strings.Nav_Till</a>
+
+<div class="scroll" style="margin-top:1rem">
+<table>
+    <tr><th>@Strings.Col_Name</th><th>@Strings.Products_Group</th><th class="num">@Strings.Col_Price</th><th class="num">@Strings.Products_Vat</th>
+        <th class="num">@Strings.Products_Stock</th><th>@Strings.Products_StockActions</th><th>@Strings.Col_State</th><th></th></tr>
+    @foreach (var p in Model.Products)
+    {
+        <tr>
+            <td><strong>@p.Name</strong></td>
+            <td>@(p.Group?.Name ?? "—")</td>
+            <td class="num">@p.Price</td>
+            <td class="num">@(p.VatRate > 0 ? StonesHotspot.Web.Documents.ReceiptLayouts.Percent(p.VatRate, System.Globalization.CultureInfo.CurrentUICulture) : "—")</td>
+            @if (p.TrackStock)
+            {
+                <td class="num">@if (p.Stock == 0) { <span class="badge" style="background:var(--error-bg);color:var(--error)">@Strings.Products_OutOfStock</span> } else { @p.Stock }</td>
+                <td>
+                    <form method="post" asp-page-handler="AddStock"><input type="hidden" name="id" value="@p.Id">
+                        <input type="number" name="quantity" min="1" class="small" style="width:5.5rem" placeholder="+" required aria-label="@Strings.Products_Delivery"><button type="submit" class="secondary">@Strings.Products_Delivery</button></form>
+                    <form method="post" asp-page-handler="CountStock"><input type="hidden" name="id" value="@p.Id">
+                        <input type="number" name="counted" min="0" class="small" style="width:5.5rem" placeholder="@p.Stock" required aria-label="@Strings.Products_Count"><button type="submit" class="secondary">@Strings.Products_Count</button></form>
+                </td>
+            }
+            else
+            {
+                <td class="num">—</td><td class="muted">@Strings.Products_NoStock</td>
+            }
+            <td>@(p.IsActive ? Strings.Tariff_Active : Strings.Tariff_Inactive)</td>
+            <td><a href="/admin/product?id=@p.Id">@Strings.Common_Edit</a></td>
+        </tr>
+    }
+</table>
+</div>
+@if (Model.Products.Count == 0)
+{
+    <p class="muted">@Strings.Products_None</p>
+}
+<p class="muted">@Strings.Products_StockNote</p>
+
+<h2>@Strings.Products_Groups</h2>
+<div class="card">
+    @foreach (var g in Model.Groups)
+    {
+        <form method="post" asp-page-handler="RenameGroup" style="margin-bottom:.4rem">
+            <input type="hidden" name="id" value="@g.Id">
+            <input type="text" name="name" value="@g.Name" class="small" maxlength="100" required aria-label="@Strings.Col_Name">
+            <button type="submit" class="secondary">@Strings.Common_Save</button>
+            <button type="submit" class="danger" formaction="?handler=DeleteGroup" data-confirm="@Strings.Products_DeleteGroupConfirm">@Strings.Common_Delete</button>
+        </form>
+    }
+    <form method="post" asp-page-handler="AddGroup">
+        <label for="newGroup">@Strings.Products_NewGroup</label>
+        <input id="newGroup" type="text" name="name" class="small" maxlength="100" required placeholder="Boissons">
+        <button type="submit">@Strings.Common_Add</button>
+    </form>
+</div>

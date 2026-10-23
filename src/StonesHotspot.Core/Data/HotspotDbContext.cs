@@ -124,6 +124,7 @@ public class HotspotDbContext(DbContextOptions<HotspotDbContext> options) : DbCo
             e.HasIndex(x => x.Timestamp);
             e.Property(x => x.Description).HasMaxLength(200);
             e.Property(x => x.ExternalReference).HasMaxLength(100);
+            e.Property(x => x.VatRate).HasPrecision(5, 4);
             e.HasOne(x => x.Staff).WithMany().OnDelete(DeleteBehavior.Restrict);
             e.HasOne(x => x.Shift).WithMany().OnDelete(DeleteBehavior.Restrict);
             e.HasOne(x => x.Voucher).WithMany().OnDelete(DeleteBehavior.SetNull);

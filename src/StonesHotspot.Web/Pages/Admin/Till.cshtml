@@ -1,0 +1,166 @@
+@page "/admin/till"
+@model StonesHotspot.Web.Pages.Admin.TillModel
+@using StonesHotspot.Web.Admin
+@using StonesHotspot.Web.Auth
+@{
+    ViewData["Title"] = Strings.Nav_Till;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+}
+@section Head {
+<style>
+    .till { display:grid; grid-template-columns:minmax(0,3fr) minmax(280px,2fr); gap:1rem; align-items:start; }
+    .items { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:.5rem; margin:.5rem 0 1rem; }
+    .item { margin:0; text-align:left; background:#fff; color:var(--fg); border:1px solid var(--line); padding:.6rem; min-height:4.2rem; }
+    .item strong { display:block; } .item .price { color:var(--accent); font-weight:700; } .item.plan { border-left:4px solid var(--accent); }
+    .item:disabled { opacity:.45; cursor:not-allowed; }
+    .cart { position:sticky; top:.5rem; margin:0; }
+    .cart td { padding:.3rem .25rem; } .cart td button { margin:0; padding:.1rem .5rem; }
+    .total { font-size:1.5rem; font-weight:700; text-align:right; margin:.6rem 0; font-variant-numeric:tabular-nums; }
+    .methods label { display:inline-block; font-weight:normal; margin-right:.8rem; }
+    @@media (max-width: 760px) { .till { grid-template-columns:1fr; } .cart { position:static; } }
+</style>
+}
+<h1>@Strings.Nav_Till</h1>
+@if (!Model.Enabled)
+{
+    <div class="msg warning">@Strings.Common_ProFeature</div>
+    <p><a href="/admin/sell">@Strings.Nav_Sell</a></p>
+    return;
+}
+@if (Model.NeedsShift)
+{
+    <div class="msg warning">@Strings.Sell_OpenShiftFirst <a href="/admin/shift">@Strings.Shift_OpenAction</a></div>
+}
+@if (Model.Error is not null)
+{
+    <div class="msg error">@Model.Error</div>
+}
+<div class="till">
+    <div>
+        <h2 style="margin-top:0">@Strings.Till_Plans</h2>
+        <div class="items">
+            @foreach (var t in Model.Plans)
+            {
+                <button type="button" class="item plan" data-key="t@(t.Id)" data-name="@t.Name" data-price="@t.Price.Amount" data-stock="-1">
+                    <strong>@t.Name</strong><span class="muted">@AdminText.Describe(t, culture)</span><br><span class="price">@t.Price</span></button>
+            }
+        </div>
+        @foreach (var group in Model.Products.GroupBy(p => p.Group?.Name ?? Strings.Till_Other))
+        {
+            <h2>@group.Key</h2>
+            <div class="items">
+                @foreach (var p in group)
+                {
+                    var stock = p.TrackStock ? p.Stock : -1;
+                    <button type="button" class="item" data-key="p@(p.Id)" data-name="@p.Name" data-price="@p.Price.Amount" data-stock="@stock" disabled="@(stock == 0)">
+                        <strong>@p.Name</strong><span class="price">@p.Price</span>
+                        @if (p.TrackStock) { <span class="muted"> · @(p.Stock == 0 ? Strings.Products_OutOfStock : string.Format(Strings.Till_InStock, p.Stock))</span> }
+                    </button>
+                }
+            </div>
+        }
+        @if (Model.Products.Count == 0 && User.IsAdmin())
+        {
+            <p class="muted"><a href="/admin/products">@Strings.Till_AddProducts</a></p>
+        }
+    </div>
+
+    <form method="post" class="card cart" id="cartForm">
+        <h2 style="margin-top:0">@Strings.Till_Cart</h2>
+        <table id="cartTable"></table>
+        <p class="muted" id="cartEmpty">@Strings.Till_EmptyCart</p>
+        <div class="total"><span id="total">0</span> FCFA</div>
+        <div class="methods">
+            @foreach (var m in AdminText.CounterMethods)
+            {
+                <label><input type="radio" name="Method" value="@m" checked="@(m == Model.Method)"> @AdminText.Payment(m)</label>
+            }
+        </div>
+        <div id="cashBox">
+            <label for="Received">@Strings.Till_Received</label>
+            <input asp-for="Received" type="text" inputmode="numeric" class="small" autocomplete="off"> FCFA
+            <p><strong>@Strings.Till_ChangeLabel : <span id="change">—</span></strong></p>
+        </div>
+        <input type="hidden" asp-for="Cart">
+        <button type="submit" id="checkout" disabled>@Strings.Till_Checkout</button>
+        <button type="button" class="secondary" id="clear">@Strings.Till_Clear</button>
+    </form>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    var cart = [];   // {key, name, price, stock, qty}
+    var form = document.getElementById('cartForm');
+    var fmt = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); };
+    var parseAmount = function (s) { var d = (s || '').replace(/[^\d]/g, ''); return d ? parseInt(d, 10) : NaN; };
+    var shiftNeeded = @(Model.NeedsShift ? "true" : "false");
+
+    function find(key) { for (var i = 0; i < cart.length; i++) if (cart[i].key === key) return cart[i]; return null; }
+    function total() { return cart.reduce(function (t, l) { return t + l.price * l.qty; }, 0); }
+
+    function render() {
+        var table = document.getElementById('cartTable');
+        table.innerHTML = '';
+        cart.forEach(function (l) {
+            var tr = document.createElement('tr');
+            var name = document.createElement('td'); name.textContent = l.name;
+            var qty = document.createElement('td'); qty.className = 'num';
+            var minus = document.createElement('button'); minus.type = 'button'; minus.className = 'secondary'; minus.textContent = '−';
+            minus.onclick = function () { add(l.key, -1); };
+            var plus = document.createElement('button'); plus.type = 'button'; plus.className = 'secondary'; plus.textContent = '+';
+            plus.onclick = function () { add(l.key, 1); };
+            plus.disabled = l.stock >= 0 && l.qty >= l.stock;
+            qty.appendChild(minus); qty.appendChild(document.createTextNode(' ' + l.qty + ' ')); qty.appendChild(plus);
+            var amount = document.createElement('td'); amount.className = 'num'; amount.textContent = fmt(l.price * l.qty);
+            tr.appendChild(name); tr.appendChild(qty); tr.appendChild(amount);
+            table.appendChild(tr);
+        });
+        document.getElementById('cartEmpty').style.display = cart.length ? 'none' : '';
+        document.getElementById('total').textContent = fmt(total());
+        document.getElementById('Cart').value = cart.map(function (l) { return l.key + 'x' + l.qty; }).join(',');
+        document.getElementById('checkout').disabled = cart.length === 0 || shiftNeeded;
+        updateChange();
+    }
+
+    function add(key, delta, source) {
+        var line = find(key);
+        if (!line && delta > 0 && source) {
+            line = { key: key, name: source.dataset.name, price: parseInt(source.dataset.price, 10), stock: parseInt(source.dataset.stock, 10), qty: 0 };
+            cart.push(line);
+        }
+        if (!line) return;
+        line.qty += delta;
+        if (line.stock >= 0 && line.qty > line.stock) line.qty = line.stock;
+        if (line.qty <= 0) cart.splice(cart.indexOf(line), 1);
+        render();
+    }
+
+    function updateChange() {
+        var cash = form.querySelector('input[name=Method]:checked');
+        var isCash = !cash || cash.value === 'Cash';
+        document.getElementById('cashBox').style.display = isCash ? '' : 'none';
+        var received = parseAmount(document.getElementById('Received').value);
+        var change = received - total();
+        document.getElementById('change').textContent = isNaN(received) || cart.length === 0 ? '—'
+            : change < 0 ? @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Strings.Till_Missing)) + ' ' + fmt(-change) + ' FCFA' : fmt(change) + ' FCFA';
+    }
+
+    document.querySelectorAll('.item').forEach(function (b) {
+        b.addEventListener('click', function () { add(b.dataset.key, 1, b); });
+    });
+    form.querySelectorAll('input[name=Method]').forEach(function (r) { r.addEventListener('change', updateChange); });
+    document.getElementById('Received').addEventListener('input', updateChange);
+    document.getElementById('clear').addEventListener('click', function () { cart = []; render(); });
+    form.addEventListener('submit', function () { document.getElementById('checkout').disabled = true; });
+
+    // After a refused sale, put the cart back as it was.
+    (document.getElementById('Cart').value || '').split(',').forEach(function (part) {
+        var m = /^([tp]\d+)x(\d+)$/.exec(part);
+        var source = m && document.querySelector('.item[data-key="' + m[1] + '"]');
+        if (source) add(m[1], parseInt(m[2], 10), source);
+    });
+    render();
+})();
+</script>
+}

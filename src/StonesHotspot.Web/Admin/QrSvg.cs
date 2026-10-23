@@ -7,6 +7,21 @@ namespace StonesHotspot.Web.Admin;
 /// <summary>QR codes as inline SVG (sharp when printed, no image files).</summary>
 public static class QrSvg
 {
+    /// <summary>The modules of the QR code of <paramref name="text"/> (true = black), with the quiet zone.</summary>
+    public static bool[,] Matrix(string text)
+    {
+        using var generator = new QRCodeGenerator();
+        using var data = generator.CreateQrCode(text, QRCodeGenerator.ECCLevel.M);
+        var n = data.ModuleMatrix.Count;
+        var matrix = new bool[n, n];
+        for (var y = 0; y < n; y++)
+        {
+            for (var x = 0; x < n; x++)
+                matrix[y, x] = data.ModuleMatrix[y][x];
+        }
+        return matrix;
+    }
+
     public static string Render(string text, int sizeMm)
     {
         using var generator = new QRCodeGenerator();

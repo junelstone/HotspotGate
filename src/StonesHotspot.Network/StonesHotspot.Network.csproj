@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.IO.Ports" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\StonesHotspot.Core\StonesHotspot.Core.csproj" />
   </ItemGroup>
 

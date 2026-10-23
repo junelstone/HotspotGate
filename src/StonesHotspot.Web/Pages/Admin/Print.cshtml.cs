@@ -8,6 +8,7 @@ using StonesHotspot.Core.Money;
 using StonesHotspot.Core.Rules;
 using StonesHotspot.Core.Services;
 using StonesHotspot.Network.Gate;
+using StonesHotspot.Web.Admin;
 using StonesHotspot.Web.Auth;
 
 namespace StonesHotspot.Web.Pages.Admin;
@@ -19,8 +20,6 @@ namespace StonesHotspot.Web.Pages.Admin;
 public sealed class PrintModel(
     VoucherService vouchers, HotspotDbContext db, SettingsService settings, PortalLocation portal, IAuthorizationService authorization) : PageModel
 {
-    public const string FallbackGateway = "192.168.137.1";
-
     [BindProperty(SupportsGet = true)] public string? Receipt { get; set; }
     [BindProperty(SupportsGet = true)] public string? Batch { get; set; }
     [BindProperty(SupportsGet = true)] public string Format { get; set; } = "80";
@@ -65,15 +64,8 @@ public sealed class PrintModel(
     }
 
     /// <summary>The portal address, printed for customers whose phone cannot scan the QR.</summary>
-    public string PortalAddress
-    {
-        get
-        {
-            var gateway = portal.Gateway?.ToString() ?? FallbackGateway;
-            return portal.PortalPort == 80 ? $"http://{gateway}/portal" : $"http://{gateway}:{portal.PortalPort}/portal";
-        }
-    }
+    public string PortalAddress => PortalLinks.Address(portal);
 
     /// <summary>What the QR opens: the portal with the code filled in.</summary>
-    public string PortalLink(Voucher v) => $"{PortalAddress}?code={VoucherCodeGenerator.Format(v.Code)}";
+    public string PortalLink(Voucher v) => PortalLinks.ForCode(portal, v.Code);
 }

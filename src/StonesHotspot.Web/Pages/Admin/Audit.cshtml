@@ -1,0 +1,30 @@
+@page "/admin/audit"
+@model StonesHotspot.Web.Pages.Admin.AuditModel
+@using StonesHotspot.Web.Admin
+@{
+    ViewData["Title"] = Strings.Nav_Audit;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+}
+<h1>@Strings.Nav_Audit</h1>
+<p class="muted">@Strings.Audit_Intro</p>
+<form method="get" class="card row">
+    <div><label for="From">@Strings.Report_From</label><input asp-for="From" type="date"></div>
+    <div><label for="To">@Strings.Report_To</label><input asp-for="To" type="date"></div>
+    <div><label for="StaffId">@Strings.Col_Staff</label>
+        <select asp-for="StaffId"><option value="">@Strings.Report_All</option>
+            @foreach (var s in Model.StaffMembers) { <option value="@s.Id">@(s.DisplayName ?? s.Username)</option> }
+        </select></div>
+    <div><label for="Q">@Strings.Audit_Search</label><input asp-for="Q" type="text" placeholder="Shift, Tariff, 2026-000012…"></div>
+    <div><button type="submit">@Strings.Report_Show</button>
+        <a class="button secondary" href="/admin/audit?handler=Csv&@Model.Query">CSV</a></div>
+</form>
+<p class="muted">@string.Format(Strings.Audit_Count, Model.Entries.Count, StonesHotspot.Core.Services.AuditService.MaxQueryRows)</p>
+<div class="scroll">
+<table>
+    <tr><th>@Strings.Col_Time</th><th>@Strings.Col_Staff</th><th>@Strings.Audit_Action</th><th>@Strings.Audit_Details</th></tr>
+    @foreach (var e in Model.Entries)
+    {
+        <tr><td style="white-space:nowrap">@AdminText.Date(e.Timestamp, culture)</td><td>@e.Actor</td><td><code>@e.Action</code></td><td>@e.Details</td></tr>
+    }
+</table>
+</div>

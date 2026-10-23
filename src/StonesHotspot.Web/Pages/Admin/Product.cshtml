@@ -1,0 +1,55 @@
+@page "/admin/product"
+@model StonesHotspot.Web.Pages.Admin.ProductModel
+@{
+    ViewData["Title"] = Model.Id is null ? Strings.Products_New : Strings.Common_Edit;
+}
+<h1>@ViewData["Title"]</h1>
+@if (!Model.Enabled)
+{
+    <div class="msg warning">@Strings.Common_ProFeature</div>
+    return;
+}
+@if (Model.Error is not null)
+{
+    <div class="msg error">@Model.Error</div>
+}
+<form method="post" class="card">
+    <div class="row">
+        <div><label for="Input_Name">@Strings.Col_Name</label><input asp-for="Input.Name" type="text" required maxlength="100" placeholder="Coca-Cola 33 cl"></div>
+        <div>
+            <label for="Input_GroupId">@Strings.Products_Group</label>
+            <select asp-for="Input.GroupId">
+                <option value="">—</option>
+                @foreach (var g in Model.Groups)
+                {
+                    <option value="@g.Id">@g.Name</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div><label for="Input_Price">@Strings.Products_PriceVat (FCFA)</label><input asp-for="Input.Price" type="text" inputmode="numeric" required></div>
+        <div><label for="Input_Vat">@Strings.Products_Vat (%)</label><input asp-for="Input.Vat" type="text" inputmode="decimal" placeholder="0"></div>
+    </div>
+    <label><input asp-for="Input.TrackStock" type="checkbox"> @Strings.Products_TrackStock</label>
+    <p class="muted">@Strings.Products_TrackStockNote</p>
+    @if (Model.Id is null)
+    {
+        <label for="Input_Stock">@Strings.Products_InitialStock</label>
+        <input asp-for="Input.Stock" type="number" min="0" class="small">
+    }
+    else
+    {
+        <input type="hidden" asp-for="Input.Stock">
+    }
+    <label><input asp-for="Input.IsActive" type="checkbox"> @Strings.Products_ActiveLabel</label>
+    <button type="submit">@Strings.Common_Save</button>
+    <a class="button secondary" href="/admin/products">@Strings.Common_Cancel</a>
+</form>
+@if (Model.Id is not null)
+{
+    <form method="post" asp-page-handler="Delete">
+        <button type="submit" class="danger" data-confirm="@Strings.Products_DeleteConfirm">@Strings.Common_Delete</button>
+    </form>
+    <p class="muted">@Strings.Products_DeleteNote</p>
+}

@@ -467,4 +467,126 @@ The business may cut off access in case of abuse. The service is provided withou
   <data name="Filter_RuleCount" xml:space="preserve"><value>{0} block rule(s)</value></data>
   <data name="Filter_Whitelist" xml:space="preserve"><value>Always-free devices (whitelist)</value></data>
   <data name="Filter_WhitelistHelp" xml:space="preserve"><value>These devices get internet without a code: staff phones, the till PC, a printer…</value></data>
+  <data name="Audit_Action" xml:space="preserve"><value>Action</value></data>
+  <data name="Audit_Count" xml:space="preserve"><value>{0} entries (at most {1} shown; narrow the dates or search a word).</value></data>
+  <data name="Audit_Details" xml:space="preserve"><value>Details</value></data>
+  <data name="Audit_Intro" xml:space="preserve"><value>Who did what and when: sales, plans, staff, settings, stock, shifts… The log cannot be edited.</value></data>
+  <data name="Audit_Search" xml:space="preserve"><value>Search</value></data>
+  <data name="Col_Description" xml:space="preserve"><value>Item</value></data>
+  <data name="Common_Add" xml:space="preserve"><value>Add</value></data>
+  <data name="Common_InvalidValue" xml:space="preserve"><value>Invalid value. Please check the fields.</value></data>
+  <data name="Nav_Audit" xml:space="preserve"><value>Audit log</value></data>
+  <data name="Nav_Printer" xml:space="preserve"><value>Printer</value></data>
+  <data name="Nav_Products" xml:space="preserve"><value>Products</value></data>
+  <data name="Nav_Reports" xml:space="preserve"><value>Reports</value></data>
+  <data name="Nav_Till" xml:space="preserve"><value>Till</value></data>
+  <data name="Printer_AutoSale" xml:space="preserve"><value>Print the receipt automatically after each till sale</value></data>
+  <data name="Printer_AutoShift" xml:space="preserve"><value>Print the report automatically when a shift is closed</value></data>
+  <data name="Printer_Characters" xml:space="preserve"><value>characters</value></data>
+  <data name="Printer_Charset" xml:space="preserve"><value>Character set</value></data>
+  <data name="Printer_CharsetHelp" xml:space="preserve"><value>If accents print wrong (odd signs instead of "é"), choose ASCII: accents will be removed.</value></data>
+  <data name="Printer_Connection" xml:space="preserve"><value>Receipt printer</value></data>
+  <data name="Printer_ConnectionHelp" xml:space="preserve"><value>Network printer: its IP address and port, e.g. 192.168.137.50:9100. Serial or Bluetooth printer: the COM port, e.g. COM3:9600 (Bluetooth: the "outgoing" COM port Windows created). USB printer: its name in Windows (Settings › Printers), installed with its driver or "Generic / Text Only". Leave empty to print from the browser only.</value></data>
+  <data name="Printer_Failed" xml:space="preserve"><value>Could not print: {0}</value></data>
+  <data name="Printer_Footer" xml:space="preserve"><value>Receipt footer (thanks, conditions…)</value></data>
+  <data name="Printer_Header" xml:space="preserve"><value>Receipt header (address, phone, tax number…)</value></data>
+  <data name="Printer_Installed" xml:space="preserve"><value>Printers installed in Windows</value></data>
+  <data name="Printer_Intro" xml:space="preserve"><value>Receipts and shift reports can always be printed from the browser or downloaded as PDF. A receipt printer (ESC/POS) prints in one click, without a dialog.</value></data>
+  <data name="Printer_KindNetwork" xml:space="preserve"><value>Network printer {0}, port {1}</value></data>
+  <data name="Printer_KindNone" xml:space="preserve"><value>No receipt printer: printing from the browser.</value></data>
+  <data name="Printer_KindSerial" xml:space="preserve"><value>Serial port {0} at {1} baud</value></data>
+  <data name="Printer_KindWindows" xml:space="preserve"><value>Windows printer "{0}"</value></data>
+  <data name="Printer_NoAccents" xml:space="preserve"><value>no accents</value></data>
+  <data name="Printer_NotConfigured" xml:space="preserve"><value>No receipt printer is configured (Printer).</value></data>
+  <data name="Printer_Paper" xml:space="preserve"><value>Paper width</value></data>
+  <data name="Printer_Qr" xml:space="preserve"><value>Print a QR code for each Wi-Fi code (untick if the printer prints garbage instead)</value></data>
+  <data name="Printer_Sent" xml:space="preserve"><value>Sent to the printer.</value></data>
+  <data name="Printer_Test" xml:space="preserve"><value>Print a test page</value></data>
+  <data name="Printer_TestBold" xml:space="preserve"><value>Bold text</value></data>
+  <data name="Printer_TestEnd" xml:space="preserve"><value>End of the test page</value></data>
+  <data name="Printer_TestHelp" xml:space="preserve"><value>Save first. The test page shows the width, accents, bold, large size and the QR code: if a line overflows or accents are wrong, change the width or the character set.</value></data>
+  <data name="Printer_TestPaper" xml:space="preserve"><value>Paper {0} mm, {1} characters per line:</value></data>
+  <data name="Printer_TestTitle" xml:space="preserve"><value>TEST PAGE</value></data>
+  <data name="Products_ActiveLabel" xml:space="preserve"><value>On sale (untick to hide it from the till without losing history)</value></data>
+  <data name="Products_Count" xml:space="preserve"><value>Count</value></data>
+  <data name="Products_DeleteConfirm" xml:space="preserve"><value>Delete this product?</value></data>
+  <data name="Products_DeleteGroupConfirm" xml:space="preserve"><value>Delete this group? Its products stay, without a group.</value></data>
+  <data name="Products_DeleteNote" xml:space="preserve"><value>A product already sold cannot be deleted: untick "On sale".</value></data>
+  <data name="Products_Deleted" xml:space="preserve"><value>Product deleted.</value></data>
+  <data name="Products_Delivery" xml:space="preserve"><value>Delivery</value></data>
+  <data name="Products_DuplicateName" xml:space="preserve"><value>This name already exists.</value></data>
+  <data name="Products_Group" xml:space="preserve"><value>Group</value></data>
+  <data name="Products_GroupDeleted" xml:space="preserve"><value>Group deleted.</value></data>
+  <data name="Products_Groups" xml:space="preserve"><value>Product groups</value></data>
+  <data name="Products_InUse" xml:space="preserve"><value>This product has been sold: it cannot be deleted. Untick "On sale" instead.</value></data>
+  <data name="Products_InitialStock" xml:space="preserve"><value>Starting stock</value></data>
+  <data name="Products_InvalidVat" xml:space="preserve"><value>Invalid VAT: enter a percentage, e.g. 18.9 (or leave empty).</value></data>
+  <data name="Products_New" xml:space="preserve"><value>New product</value></data>
+  <data name="Products_NewGroup" xml:space="preserve"><value>New group</value></data>
+  <data name="Products_NoStock" xml:space="preserve"><value>Service, no stock</value></data>
+  <data name="Products_None" xml:space="preserve"><value>No products. Add your drinks, snacks and services (printing, photocopies…) to sell them at the till with Wi-Fi codes.</value></data>
+  <data name="Products_OutOfStock" xml:space="preserve"><value>Out of stock</value></data>
+  <data name="Products_PriceVat" xml:space="preserve"><value>Price incl. VAT</value></data>
+  <data name="Products_Stock" xml:space="preserve"><value>Stock</value></data>
+  <data name="Products_StockActions" xml:space="preserve"><value>Delivery (+ quantity) / count (quantity counted)</value></data>
+  <data name="Products_StockNote" xml:space="preserve"><value>Stock goes down at each sale. Every delivery and every count is written in the audit log.</value></data>
+  <data name="Products_StockNow" xml:space="preserve"><value>{0}: stock {1}.</value></data>
+  <data name="Products_TrackStock" xml:space="preserve"><value>Track stock</value></data>
+  <data name="Products_TrackStockNote" xml:space="preserve"><value>Untick for services (printing, photocopies, charging…): never "out of stock".</value></data>
+  <data name="Products_Vat" xml:space="preserve"><value>VAT</value></data>
+  <data name="Receipt_NotFound" xml:space="preserve"><value>Receipt not found.</value></data>
+  <data name="Receipt_PrintThermal" xml:space="preserve"><value>Print on the receipt printer</value></data>
+  <data name="Receipt_VatIncluded" xml:space="preserve"><value>incl. VAT {0}</value></data>
+  <data name="Receipt_WifiCode" xml:space="preserve"><value>Wi-Fi code</value></data>
+  <data name="Report_ActiveSessions" xml:space="preserve"><value>Active sessions (daily average)</value></data>
+  <data name="Report_All" xml:space="preserve"><value>All</value></data>
+  <data name="Report_AllMethods" xml:space="preserve"><value>Total (all payments)</value></data>
+  <data name="Report_AverageDuration" xml:space="preserve"><value>Average session length</value></data>
+  <data name="Report_ByMethod" xml:space="preserve"><value>By login method</value></data>
+  <data name="Report_ByMonth" xml:space="preserve"><value>By month</value></data>
+  <data name="Report_ByStaff" xml:space="preserve"><value>Sales per staff member</value></data>
+  <data name="Report_Continued" xml:space="preserve"><value>(continued)</value></data>
+  <data name="Report_Count" xml:space="preserve"><value>Count</value></data>
+  <data name="Report_DataDown" xml:space="preserve"><value>Data downloaded</value></data>
+  <data name="Report_DataUp" xml:space="preserve"><value>Data uploaded</value></data>
+  <data name="Report_Day" xml:space="preserve"><value>Day</value></data>
+  <data name="Report_DeviceCount" xml:space="preserve"><value>Distinct devices</value></data>
+  <data name="Report_Empty" xml:space="preserve"><value>Nothing in this period.</value></data>
+  <data name="Report_Footer" xml:space="preserve"><value>Printed on {0} by {1}</value></data>
+  <data name="Report_From" xml:space="preserve"><value>From</value></data>
+  <data name="Report_FromTo" xml:space="preserve"><value>from {0} to {1}</value></data>
+  <data name="Report_Hour" xml:space="preserve"><value>Hour</value></data>
+  <data name="Report_Method" xml:space="preserve"><value>Method</value></data>
+  <data name="Report_Month" xml:space="preserve"><value>Month</value></data>
+  <data name="Report_Online" xml:space="preserve"><value>Online (no cashier)</value></data>
+  <data name="Report_PeakHours" xml:space="preserve"><value>Peak hours</value></data>
+  <data name="Report_Plans" xml:space="preserve"><value>Code sales by plan</value></data>
+  <data name="Report_SessionCount" xml:space="preserve"><value>Sessions</value></data>
+  <data name="Report_Sessions" xml:space="preserve"><value>Sessions</value></data>
+  <data name="Report_Shifts" xml:space="preserve"><value>Shifts</value></data>
+  <data name="Report_Show" xml:space="preserve"><value>Show</value></data>
+  <data name="Report_To" xml:space="preserve"><value>To</value></data>
+  <data name="Report_Transactions" xml:space="preserve"><value>Transactions</value></data>
+  <data name="Report_TransactionsLimit" xml:space="preserve"><value>At most {0} transactions are shown, newest first.</value></data>
+  <data name="Report_Turnover" xml:space="preserve"><value>Turnover</value></data>
+  <data name="Report_TurnoverNote" xml:space="preserve"><value>Purchases paid from an account balance are not counted again: the money was counted when the account was topped up.</value></data>
+  <data name="ShiftReport_ByType" xml:space="preserve"><value>By transaction type</value></data>
+  <data name="ShiftReport_Summary" xml:space="preserve"><value>Summary</value></data>
+  <data name="ShiftReport_Title" xml:space="preserve"><value>Shift report</value></data>
+  <data name="Till_AddProducts" xml:space="preserve"><value>Add products (drinks, snacks, services…)</value></data>
+  <data name="Till_Cart" xml:space="preserve"><value>Cart</value></data>
+  <data name="Till_Change" xml:space="preserve"><value>Change to give: {0}.</value></data>
+  <data name="Till_ChangeLabel" xml:space="preserve"><value>Change</value></data>
+  <data name="Till_Checkout" xml:space="preserve"><value>Take payment</value></data>
+  <data name="Till_Clear" xml:space="preserve"><value>Clear</value></data>
+  <data name="Till_Done" xml:space="preserve"><value>Sale recorded, receipt {0}: {1}.</value></data>
+  <data name="Till_EmptyCart" xml:space="preserve"><value>The cart is empty: tap a plan or a product.</value></data>
+  <data name="Till_Error" xml:space="preserve"><value>The sale could not be recorded. Reload the page and try again.</value></data>
+  <data name="Till_InStock" xml:space="preserve"><value>{0} in stock</value></data>
+  <data name="Till_Missing" xml:space="preserve"><value>Missing</value></data>
+  <data name="Till_Other" xml:space="preserve"><value>Other</value></data>
+  <data name="Till_OutOfStock" xml:space="preserve"><value>Not enough stock of "{0}". Nothing was sold.</value></data>
+  <data name="Till_Plans" xml:space="preserve"><value>Wi-Fi codes</value></data>
+  <data name="Till_Received" xml:space="preserve"><value>Amount received</value></data>
+  <data name="Report_Receipts" xml:space="preserve"><value>Receipts</value></data>
 </root>

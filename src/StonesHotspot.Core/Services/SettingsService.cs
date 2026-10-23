@@ -25,6 +25,14 @@ public static class SettingKeys
     public const string NetworkMode = "Network.Mode";
     public const string NetworkWanAdapterId = "Network.WanAdapterId";
     public const string NetworkLanAdapterId = "Network.LanAdapterId";
+    public const string PrinterConnection = "Printer.Connection";
+    public const string PrinterPaperWidth = "Printer.PaperWidthMm";
+    public const string PrinterCharset = "Printer.Charset";
+    public const string PrinterQr = "Printer.Qr";
+    public const string PrinterAutoSale = "Printer.AutoPrintSale";
+    public const string PrinterAutoShift = "Printer.AutoPrintShift";
+    public const string ReceiptHeader = "Receipts.Header";
+    public const string ReceiptFooter = "Receipts.Footer";
 
     /// <summary>Values written on first start; existing values are never overwritten.</summary>
     public static IReadOnlyDictionary<string, string> Defaults { get; } = new Dictionary<string, string>
@@ -36,6 +44,11 @@ public static class SettingKeys
         [FairShareMinKbps] = "256",
         [FairShareMaxKbps] = "4096",
         [FilterFamilyDns] = "false",
+        [PrinterPaperWidth] = "80",
+        [PrinterCharset] = "pc850",
+        [PrinterQr] = "true",
+        [PrinterAutoSale] = "false",
+        [PrinterAutoShift] = "false",
     };
 }
 

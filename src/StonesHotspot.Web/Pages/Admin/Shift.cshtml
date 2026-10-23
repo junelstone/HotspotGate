@@ -47,11 +47,19 @@ else
                 <tr><th>@Strings.Shift_Difference</th><td class="num"><strong>@r.Difference</strong></td></tr>
             }
         </table>
+        <div class="noprint">
+            <a class="button secondary" href="/admin/shift?handler=Pdf&id=@s.Id">PDF</a>
+            <button type="button" class="secondary" onclick="window.print()">@Strings.Print_Print</button>
+            @if (Model.HasPrinter)
+            {
+                <form method="post" asp-page-handler="Thermal" style="display:inline"><input type="hidden" name="shiftId" value="@s.Id"><button type="submit" class="secondary">@Strings.Receipt_PrintThermal</button></form>
+            }
+        </div>
     </div>
 
     @if (s.ClosedAt is null && (Model.IsMine || Model.Me.Role == StonesHotspot.Core.Data.Entities.StaffRole.Admin))
     {
-        <form method="post" asp-page-handler="Close" class="card">
+        <form method="post" asp-page-handler="Close" class="card noprint">
             <input type="hidden" name="shiftId" value="@s.Id">
             <label for="Amount">@Strings.Shift_CountedPrompt</label>
             <input asp-for="Amount" type="text" inputmode="numeric" class="small"> FCFA
@@ -64,14 +72,14 @@ else
     <h2>@string.Format(Strings.Home_Transactions, r.TransactionCount)</h2>
     <div class="scroll">
     <table>
-        <tr><th>@Strings.Col_Time</th><th>@Strings.Col_Receipt</th><th>@Strings.Col_Type</th><th>@Strings.Col_Code</th><th>@Strings.Sell_Payment</th><th class="num">@Strings.Col_Amount</th></tr>
+        <tr><th>@Strings.Col_Time</th><th>@Strings.Col_Receipt</th><th>@Strings.Col_Type</th><th>@Strings.Col_Description</th><th>@Strings.Sell_Payment</th><th class="num">@Strings.Col_Amount</th></tr>
         @foreach (var t in Model.Transactions)
         {
             <tr>
                 <td>@AdminText.Date(t.Timestamp, culture)</td>
-                <td><a href="/admin/print?receipt=@t.ReceiptNumber">@t.ReceiptNumber</a></td>
+                <td><a href="@Model.ReceiptLink(t.ReceiptNumber)">@t.ReceiptNumber</a></td>
                 <td>@AdminText.TransactionType(t.Type)</td>
-                <td class="code">@(t.Voucher is null ? (t.Description ?? "") : VoucherCodeGenerator.Format(t.Voucher.Code))</td>
+                <td class="code">@StonesHotspot.Web.Documents.ReceiptLayouts.TransactionText(t)</td>
                 <td>@AdminText.Payment(t.PaymentMethod)</td>
                 <td class="num">@t.Amount</td>
             </tr>

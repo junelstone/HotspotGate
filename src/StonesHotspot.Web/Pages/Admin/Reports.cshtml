@@ -1,0 +1,104 @@
+@page "/admin/reports"
+@model StonesHotspot.Web.Pages.Admin.ReportsModel
+@using StonesHotspot.Core.Data.Entities
+@using StonesHotspot.Web.Admin
+@{
+    ViewData["Title"] = Strings.Nav_Reports;
+    var tabs = StonesHotspot.Web.Pages.Admin.ReportsModel.Kinds;
+}
+@section Head {
+<style>
+    .tabs { display:flex; flex-wrap:wrap; gap:.3rem; margin:.5rem 0 1rem; }
+    .tabs a { padding:.4rem .8rem; border:1px solid var(--accent); border-radius:6px; text-decoration:none; color:var(--accent); background:#fff; }
+    .tabs a.active { background:var(--accent); color:#fff; }
+    .filters { display:flex; flex-wrap:wrap; gap:.5rem 1rem; align-items:end; }
+    .filters label { margin-top:0; } .filters button { margin-top:0; }
+    .bar { font-family:ui-monospace,Consolas,monospace; color:var(--accent); letter-spacing:-.1em; }
+    tr.total td { font-weight:700; border-top:2px solid var(--fg); }
+</style>
+}
+<h1>@Strings.Nav_Reports</h1>
+<div class="tabs noprint">
+    @foreach (var kind in tabs)
+    {
+        <a class="@(kind == Model.R ? "active" : "")" href="/admin/reports?r=@kind&from=@Model.From?.ToString("yyyy-MM-dd")&to=@Model.To?.ToString("yyyy-MM-dd")">@StonesHotspot.Web.Pages.Admin.ReportsModel.Title(kind)@(StonesHotspot.Web.Pages.Admin.ReportsModel.IsPro(kind) ? " (Pro)" : "")</a>
+    }
+    <a href="/admin/audit">@Strings.Nav_Audit</a>
+</div>
+
+<form method="get" class="card filters noprint">
+    <input type="hidden" name="r" value="@Model.R">
+    <div><label for="From">@Strings.Report_From</label><input asp-for="From" type="date" class="small"></div>
+    <div><label for="To">@Strings.Report_To</label><input asp-for="To" type="date" class="small"></div>
+    @if (Model.R == "transactions")
+    {
+        <div><label for="Type">@Strings.Col_Type</label>
+            <select asp-for="Type" class="small"><option value="">@Strings.Report_All</option>
+                @foreach (var t in Enum.GetValues<TransactionType>()) { <option value="@t">@AdminText.TransactionType(t)</option> }
+            </select></div>
+        <div><label for="Method">@Strings.Sell_Payment</label>
+            <select asp-for="Method" class="small"><option value="">@Strings.Report_All</option>
+                @foreach (var m in Enum.GetValues<PaymentMethod>()) { <option value="@m">@AdminText.Payment(m)</option> }
+            </select></div>
+        <div><label for="StaffId">@Strings.Col_Staff</label>
+            <select asp-for="StaffId" class="small"><option value="">@Strings.Report_All</option>
+                @foreach (var s in Model.StaffMembers) { <option value="@s.Id">@(s.DisplayName ?? s.Username)</option> }
+            </select></div>
+    }
+    @if (Model.R == "turnover")
+    {
+        <div><label><input asp-for="Monthly" type="checkbox"> @Strings.Report_ByMonth</label></div>
+    }
+    <div><button type="submit">@Strings.Report_Show</button></div>
+</form>
+
+@if (!Model.Allowed)
+{
+    <div class="msg warning">@Strings.Common_ProFeature</div>
+    return;
+}
+@{ var report = Model.Report!; }
+<div class="noprint">
+    <a class="button secondary" href="/admin/reports?handler=Csv&@Model.Query">CSV (Excel)</a>
+    <a class="button secondary" href="/admin/reports?handler=Pdf&@Model.Query">PDF</a>
+    <button type="button" class="secondary" onclick="window.print()">@Strings.Print_Print</button>
+</div>
+<h2>@report.Title — @report.Subtitle</h2>
+@if (Model.R == "turnover" || Model.R == "shifts")
+{
+    <p class="muted">@Strings.Report_TurnoverNote</p>
+}
+@if (Model.R == "transactions")
+{
+    <p class="muted">@string.Format(Strings.Report_TransactionsLimit, StonesHotspot.Core.Services.ReportService.MaxTransactions)</p>
+}
+@foreach (var table in report.Tables)
+{
+    @if (report.Tables.Count > 1) { <h2>@table.Title</h2> }
+    <div class="scroll">
+    <table>
+        @if (table.Columns.Any(c => c.Header.Length > 0))
+        {
+            <tr>@foreach (var c in table.Columns) { <th class="@(c.Numeric ? "num" : "")">@c.Header</th> }</tr>
+        }
+        @foreach (var row in table.Rows)
+        {
+            <tr>
+                @for (var i = 0; i < row.Length; i++)
+                {
+                    var numeric = table.Columns[i].Numeric;
+                    <td class="@(numeric ? "num" : row[i].Csv.Length == 0 && row[i].Display.Length > 0 ? "bar" : "")">@row[i].Display</td>
+                }
+            </tr>
+        }
+        @if (table.Rows.Count == 0)
+        {
+            <tr><td colspan="@table.Columns.Count" class="muted">@Strings.Report_Empty</td></tr>
+        }
+        @if (table.Totals is { } totals)
+        {
+            <tr class="total">@for (var i = 0; i < totals.Length; i++) { <td class="@(table.Columns[i].Numeric ? "num" : "")">@totals[i].Display</td> }</tr>
+        }
+    </table>
+    </div>
+}

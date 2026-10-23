@@ -18,6 +18,9 @@ public class Product
     public Xaf Price { get; set; }
     public int Stock { get; set; }
 
+    /// <summary>False for services (printing, photocopies…): no stock counting, never "out of stock".</summary>
+    public bool TrackStock { get; set; } = true;
+
     /// <summary>VAT as a fraction, e.g. 0.189 for 18.9 %. Prices include VAT.</summary>
     public decimal VatRate { get; set; }
 

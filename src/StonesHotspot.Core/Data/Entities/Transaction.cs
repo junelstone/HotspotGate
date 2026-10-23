@@ -25,6 +25,9 @@ public class Transaction
     public Product? Product { get; set; }
     public int Quantity { get; set; } = 1;
 
+    /// <summary>VAT included in <see cref="Amount"/>, as a fraction (0.189 = 18.9 %), as it was at the sale.</summary>
+    public decimal VatRate { get; set; }
+
     public string? Description { get; set; }
 
     /// <summary>Mobile Money transaction ID or other outside reference.</summary>

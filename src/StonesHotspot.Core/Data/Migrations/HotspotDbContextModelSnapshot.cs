@@ -125,6 +125,9 @@ namespace StonesHotspot.Core.Data.Migrations
                     b.Property<int>("Stock")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("TrackStock")
+                        .HasColumnType("INTEGER");
+
                     b.Property<decimal>("VatRate")
                         .HasPrecision(5, 4)
                         .HasColumnType("TEXT");
@@ -422,6 +425,10 @@ namespace StonesHotspot.Core.Data.Migrations
 
                     b.Property<int?>("UserAccountId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("VatRate")
+                        .HasPrecision(5, 4)
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("VoucherId")
                         .HasColumnType("INTEGER");

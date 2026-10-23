@@ -3,9 +3,9 @@
 Windows Wi-Fi hotspot manager (captive portal) by **Stone's IT Consulting**: turns a Windows 10/11 PC into a
 managed, paid Wi-Fi hotspot — vouchers, user accounts, tariffs, Mobile Money, admin dashboard.
 
-> **Status: Phase 6 — bandwidth control and web filter.** Each plan's speed limits are enforced by the gate
-> (traffic shaping), the line can be shared fairly, the WAN speed can be measured, and staff manage blocked sites,
-> ready-made lists, family DNS, free-access sites and MAC white/black lists. See [Build phases](#build-phases).
+> **Status: Phase 7 — business tools.** Products and stock, a till that sells products and Wi-Fi codes on one
+> receipt, receipts on screen / PDF / thermal printer (ESC/POS), printed shift reports, business reports with CSV and
+> PDF export, and the audit log viewer. See [Build phases](#build-phases).
 
 ## Requirements
 
@@ -88,14 +88,15 @@ deliberately no default password: customers on the hotspot can reach the dashboa
 
 | Role | Can use |
 |---|---|
-| **Caissier / Cashier** | Home, **Vendre** (new codes printed on a ticket, or a pre-printed card), **Ma caisse** (open with starting cash, sales, close with counted cash), **Comptes** (search, top up) |
-| **Administrateur** | Everything: **En direct** (customers online: add time, log out, block, whitelist), **Forfaits**, **Filtrage web**, **Débit**, **Tickets** (batches, A4 cards / 58–80 mm tickets with QR, CSV, disable), **Comptes**, **Personnel**, **Paramètres** (name, Wi-Fi name, logo, colour, welcome page, terms, language, idle timeout), **Sauvegarde**, network and diagnostics pages |
+| **Caissier / Cashier** | Home, **Caisse** (till: products and Wi-Fi codes in one cart, change to give, receipt), **Vendre** (new codes printed on a ticket, or a pre-printed card), **Ma caisse** (open with starting cash, sales, close with counted cash), **Comptes** (search, top up) |
+| **Administrateur** | Everything: **En direct** (customers online: add time, log out, block, whitelist), **Forfaits**, **Filtrage web**, **Débit**, **Tickets** (batches, A4 cards / 58–80 mm tickets with QR, CSV, disable), **Produits** (groups, prices with VAT, stock deliveries and counts), **Rapports**, **Comptes**, **Personnel**, **Paramètres** (name, Wi-Fi name, logo, colour, welcome page, terms, language, idle timeout), **Imprimante**, **Journal** (audit log), **Sauvegarde**, network and diagnostics pages |
 
 - Sign-in ends after 2 hours without activity; 5 wrong passwords from one address → 5 minutes wait. New staff
   and reset passwords are temporary: they must be changed at first sign-in.
-- Shifts and extra staff accounts are Pro features (included in the trial).
-- Printing uses the browser's print dialog (Ctrl+P on the PC, Share → Print on a phone). Direct thermal printing
-  comes with receipts in phase 7.
+- Shifts, the till, products, receipts, the Pro reports and extra staff accounts are Pro features (included in the
+  trial). Basic keeps **Vendre**, sales by plan and the sessions report.
+- Printing uses the browser's print dialog (Ctrl+P on the PC, Share → Print on a phone), or the receipt printer —
+  see [Till, receipts and reports](#till-receipts-and-reports).
 - Backups: **Sauvegarde** downloads a copy of the database; restoring keeps a copy of the current database first.
   Copy backups to a USB stick regularly (automatic daily backups come in phase 11).
 
@@ -138,6 +139,26 @@ to the page they first asked for. Business name, accent colour (`Portal.AccentCo
   *Contenus adultes*, **family DNS** (Cloudflare for Families 1.1.1.3, blocks adult and malware sites),
   free-access sites (walled garden), MAC whitelist and blacklist. Changes apply immediately.
 
+### Till, receipts and reports
+
+- **Produits** (admin): groups (Boissons, Snacks, Services…), price including VAT, VAT rate, stock. "Track stock"
+  off for services (printing, photocopies). **Livraison** adds stock, **Inventaire** sets the counted stock; both go
+  to the audit log. A product already sold cannot be deleted (untick "En vente").
+- **Caisse**: tap Wi-Fi plans and products, choose cash / MTN MoMo / Airtel Money, type the cash received to see the
+  change, **Encaisser**. Everything is sold in one database transaction with one receipt number: if a product is
+  short, nothing is sold. Cashiers need an open shift (Pro).
+- **Receipt** page: browser print, **PDF** (80 mm ticket, to send by WhatsApp), or **thermal printer**. Wi-Fi codes
+  on the receipt have a QR code that opens the portal with the code filled in.
+- **Imprimante** (admin): `192.168.137.50:9100` (network), `COM3:9600` (serial, or Bluetooth through its COM port),
+  or the name of a printer installed in Windows (USB; "Generic / Text Only" driver works) — the job is sent as raw
+  ESC/POS. Paper 58/80 mm, character set PC850 (accents) or ASCII (accents removed), QR codes on/off, automatic
+  printing after a sale and at shift close, header/footer texts, **test page**.
+- **Ma caisse**: PDF and thermal print of the shift report (totals computed from the listed transactions).
+- **Rapports** (admin, dates from/to, CSV for Excel and PDF): sales by plan and sessions with peak hours (Basic);
+  shifts and sales per staff member, transactions with filters, turnover by day or month (Pro). Days are local time.
+  Account charges are left out of turnover (the money was counted at the top-up).
+- **Journal** (admin): audit log with dates, staff and text filters, CSV.
+
 ### Packet gate (WinDivert)
 
 `build.ps1` downloads **WinDivert 2.2.2** from its official release (SHA-256 checked, see
@@ -153,7 +174,8 @@ PC's own internet is never filtered.
 Manual tests: [`phase-2-network.md`](docs/manual-tests/phase-2-network.md),
 [`phase-3-gate.md`](docs/manual-tests/phase-3-gate.md), [`phase-4-portal.md`](docs/manual-tests/phase-4-portal.md),
 [`phase-5-dashboard.md`](docs/manual-tests/phase-5-dashboard.md),
-[`phase-6-bandwidth-filter.md`](docs/manual-tests/phase-6-bandwidth-filter.md).
+[`phase-6-bandwidth-filter.md`](docs/manual-tests/phase-6-bandwidth-filter.md),
+[`phase-7-business-tools.md`](docs/manual-tests/phase-7-business-tools.md).
 
 ## Database
 
@@ -200,8 +222,8 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 | 3 | Packet gate (WinDivert) and DNS | done — to be verified on Windows |
 | 4 | Captive portal | done — to be verified on Windows |
 | 5 | Admin dashboard | done |
-| 6 | Bandwidth control and web filter | **done** — speeds to be verified on Windows |
-| 7 | Business tools (shifts, POS, reports) | — |
+| 6 | Bandwidth control and web filter | done — speeds to be verified on Windows |
+| 7 | Business tools (products, till, receipts, printing, reports) | **done** — printers to be verified on Windows |
 | 8 | Free access and SMS login | — |
 | 9 | Mobile Money payments | — |
 | 10 | Licensing, trial and activation | — |

@@ -139,8 +139,17 @@ public sealed class VoucherService(HotspotDbContext db, CashService cash, AuditS
         if (vouchers.FirstOrDefault(v => v.Status != VoucherStatus.New) is { } notNew)
             throw new BusinessRuleException(ErrorCodes.VoucherNotSellable, $"Voucher {notNew.Code} is {notNew.Status}, not New.");
 
-        var now = clock.GetUtcNow().UtcDateTime;
         var receipt = await cash.NextReceiptNumberAsync(ct);
+        await AddSaleLinesAsync(vouchers, method, seller, receipt, ct);
+        audit.Record(seller, "Vouchers.Sold", $"{vouchers.Count} voucher(s), receipt {receipt}");
+        await db.SaveChangesAsync(ct);
+        return receipt;
+    }
+
+    /// <summary>Marks new vouchers (with their tariff loaded) as sold on <paramref name="receipt"/> and adds their transactions (not saved).</summary>
+    internal async Task AddSaleLinesAsync(IEnumerable<Voucher> vouchers, PaymentMethod method, Staff seller, string receipt, CancellationToken ct)
+    {
+        var now = clock.GetUtcNow().UtcDateTime;
         foreach (var voucher in vouchers)
         {
             voucher.Status = VoucherStatus.Sold;
@@ -149,10 +158,6 @@ public sealed class VoucherService(HotspotDbContext db, CashService cash, AuditS
             await cash.AddTransactionAsync(TransactionType.VoucherSale, voucher.Tariff.Price, method, seller, receipt, ct,
                 t => { t.VoucherId = voucher.Id; t.Description = voucher.Tariff.Name; });
         }
-
-        audit.Record(seller, "Vouchers.Sold", $"{vouchers.Count} voucher(s), receipt {receipt}");
-        await db.SaveChangesAsync(ct);
-        return receipt;
     }
 
     public async Task DisableAsync(int voucherId, Staff? actor, CancellationToken ct = default)
