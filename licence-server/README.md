@@ -9,7 +9,7 @@ change: only the address.
 |---|---|
 | Tables `licences`, `trials`, `checkins`, `update_manifest` + 2 SQL functions | `supabase/migrations/` |
 | Edge Function `licence` (Deno) | `supabase/functions/licence/index.ts` → logic in `supabase/functions/_shared/` |
-| Installer downloads | GitHub Releases of this repository (`.github/workflows/release.yml`) |
+| Installer downloads | GitHub Releases of the **public** repository `junelstone/stoneshotspot-releases` (the source repository is private), made by `.github/workflows/release.yml` |
 
 Address after deployment (no domain to buy): **`https://<project-ref>.supabase.co/functions/v1/licence/`**
 
@@ -60,13 +60,24 @@ supabase functions deploy licence --no-verify-jwt
 - LicenseManager → **Serveur**: the same address and the `MANAGER_TOKEN`. **Synchroniser** uploads licences,
   renewals and revocations.
 
-## 4. Daily use for the owner
+## 4. Downloads repository (once)
+
+The source repository `junelstone/HotspotGate` is **private** (GitHub → Settings → General → Danger Zone →
+Change visibility). Release files of a private repository need a GitHub login, so installers go to a small public one:
+
+1. GitHub → **New repository**: `stoneshotspot-releases`, **Public**, "Add a README". Nothing else goes in it.
+2. GitHub → Settings (your profile) → Developer settings → **Fine-grained tokens** → Generate: repository access
+   *Only* `stoneshotspot-releases`, permission **Contents: Read and write**, expiry 1 year (note the date).
+3. `HotspotGate` → Settings → Secrets and variables → Actions → **New repository secret** `RELEASES_TOKEN` = the
+   token. (Other name for the downloads repository: add the variable `RELEASES_REPO` = `owner/name`.)
+
+## 5. Daily use for the owner
 
 - **Supabase → Table Editor**: `licences` (with revocations), `trials` (first start of every PC), `checkins` (every
   contact: date, Machine ID, result, IP, version). Two PCs checking in with one licence show up as two Machine IDs on
   the same `licence_id`.
 - New version: push a tag `v1.2.3` (same as `<Version>` in `Directory.Build.props`). The **Release** workflow builds
-  `StonesHotspot-Setup-1.2.3.exe`, attaches it to a GitHub Release and writes its address and SHA-256 in the release
+  `StonesHotspot-Setup-1.2.3.exe`, attaches it to a release of `stoneshotspot-releases` and writes its address and SHA-256 in the release
   notes. Copy them into the single row of `update_manifest` (`version`, `url`, `sha256`, `notes`): within a day every
   hotspot shows the update. Empty `version` = no update offered.
 

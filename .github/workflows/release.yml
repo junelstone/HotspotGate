@@ -1,7 +1,10 @@
 name: Release
 
 # Push a tag "v1.2.3" (same version as <Version> in Directory.Build.props) to build the CUSTOMER installer and attach it
-# to a GitHub Release. The owner's LicenseManager installer is never built here: this repository is public.
+# to a GitHub Release of the PUBLIC downloads repository (this source repository is private, so its own release files
+# would need a GitHub login to download). The owner's LicenseManager installer is never built here.
+# Needs: repository secret RELEASES_TOKEN (fine-grained token, "Contents: read and write" on the downloads repository)
+# and optionally the variable RELEASES_REPO (default junelstone/stoneshotspot-releases).
 # The release check refuses the development keys, so the owner's public keys must be committed first
 # (docs/licensing.md → "Before the first release").
 
@@ -43,14 +46,16 @@ jobs:
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$env:VERSION" "/DPublishDir=$PWD\artifacts\publish" installer\StonesHotspot.iss
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed" }
 
-      - name: GitHub Release
+      - name: GitHub Release (public downloads repository)
         shell: pwsh
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.RELEASES_TOKEN }}
+          RELEASES_REPO: ${{ vars.RELEASES_REPO || 'junelstone/stoneshotspot-releases' }}
         run: |
           $file = "installer\Output\StonesHotspot-Setup-$env:VERSION.exe"
           $hash = (Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant()
-          $url = "https://github.com/$env:GITHUB_REPOSITORY/releases/download/$env:GITHUB_REF_NAME/StonesHotspot-Setup-$env:VERSION.exe"
+          if (-not $env:GH_TOKEN) { throw "Repository secret RELEASES_TOKEN is missing (see licence-server/README.md)" }
+          $url = "https://github.com/$env:RELEASES_REPO/releases/download/$env:GITHUB_REF_NAME/StonesHotspot-Setup-$env:VERSION.exe"
           $notes = @"
           Stone's Hotspot $env:VERSION
 
@@ -60,4 +65,4 @@ jobs:
           - sha256: ``$hash``
           - notes: what changed (shown to the shop)
           "@
-          gh release create $env:GITHUB_REF_NAME $file --title "Stone's Hotspot $env:VERSION" --notes $notes
+          gh release create $env:GITHUB_REF_NAME $file --repo $env:RELEASES_REPO --title "Stone's Hotspot $env:VERSION" --notes $notes

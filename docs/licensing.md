@@ -27,7 +27,7 @@ shipped (Phase 11 makes the release build fail).
 ## Publishing an update
 
 1. Raise `<Version>` in `Directory.Build.props`, commit, push a tag `vX.Y.Z`: the **Release** workflow builds the
-   customer installer, attaches it to a GitHub Release and writes its address and SHA-256 in the release notes.
+   customer installer, attaches it to a release of `stoneshotspot-releases` and writes its address and SHA-256 in the release notes.
 2. Supabase → Table Editor → `update_manifest`: fill `version`, `url`, `sha256`, `notes`. (C# server instead:
    `LicenceServer:Update` in `appsettings.Local.json`, then restart it.)
 3. That is all: hotspots see it within a day: admins get a banner, the tray offers
@@ -37,7 +37,8 @@ shipped (Phase 11 makes the release build fail).
 
 **Chosen hosting: Supabase** (Edge Function + Postgres, free plan to start) — step by step in
 [`licence-server/README.md`](../licence-server/README.md). Address: `https://<project-ref>.supabase.co/functions/v1/licence/`,
-no domain needed. Installer downloads for updates: GitHub Releases (`.github/workflows/release.yml`).
+no domain needed. Installer downloads for updates: GitHub Releases of the public repository
+`junelstone/stoneshotspot-releases` (`.github/workflows/release.yml`); the source repository is private.
 
 Alternative, same protocol: the ASP.NET Core app `src/StonesHotspot.LicenseServer` with its own SQLite database, on
 a small Linux VPS (or Windows) behind HTTPS (e.g. Caddy or nginx with a Let's Encrypt certificate). Settings in `appsettings.Local.json` (see the example file): server private

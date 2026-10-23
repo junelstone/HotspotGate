@@ -97,7 +97,7 @@ public sealed class SupabaseLicenceServerTests
             renewedCode,
             renewedUpload = JsonNode.Parse(JsonSerializer.Serialize(Upload(renewed, renewedCode, null), web)),
             revocationUpload = JsonNode.Parse(JsonSerializer.Serialize(Upload(renewed, renewedCode, new DateTimeOffset(2027, 6, 1, 0, 0, 0, TimeSpan.Zero)), web)),
-            manifest = new { version = "1.2.0", url = "https://github.com/junelstone/HotspotGate/releases/download/v1.2.0/StonesHotspot-Setup-1.2.0.exe", sha256 = installer, notes = "Corrections", publishedAt = "2026-10-23T10:00:00Z" },
+            manifest = new { version = "1.2.0", url = "https://github.com/junelstone/stoneshotspot-releases/releases/download/v1.2.0/StonesHotspot-Setup-1.2.0.exe", sha256 = installer, notes = "Corrections", publishedAt = "2026-10-23T10:00:00Z" },
         });
         var mid = machine.ToString();
 
