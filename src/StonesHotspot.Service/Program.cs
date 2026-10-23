@@ -28,7 +28,7 @@ builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, relo
 var paths = new AppPaths(builder.Configuration["StonesHotspot:DataDirectory"]).EnsureCreated();
 builder.Configuration.AddJsonFile(Path.Combine(paths.Root, "appsettings.Local.json"), optional: true, reloadOnChange: true);
 
-// Admin dashboard (8080) and captive portal (80) — the gate redirects customers' web requests to the portal port.
+// Admin dashboard (8080), captive portal (80) and HTTPS (443) — the gate redirects customers' web requests to the portal port.
 var ports = ListenPorts.From(builder.Configuration);
 builder.WebHost.ConfigureKestrel(kestrel =>
 {
@@ -38,6 +38,15 @@ builder.WebHost.ConfigureKestrel(kestrel =>
             kestrel.ListenLocalhost(port);
         else
             kestrel.ListenAnyIP(port);
+    }
+    if (ports.Https > 0)
+    {
+        // This installation's own self-signed certificate (created on the first start).
+        var certificate = HttpsCertificate.LoadOrCreate(paths, TimeProvider.System);
+        if (ports.LocalhostOnly)
+            kestrel.ListenLocalhost(ports.Https, listen => listen.UseHttps(certificate));
+        else
+            kestrel.ListenAnyIP(ports.Https, listen => listen.UseHttps(certificate));
     }
 });
 
@@ -68,11 +77,13 @@ try
     builder.Services.AddHostedService(sp => sp.GetRequiredService<LicenceCheckInService>());
     builder.Services.AddHotspotCore(paths.DatabaseFile);
     builder.Services.AddHotspotNetwork(
-        new HotspotNetworkOptions { PortalPort = (ushort)ports.Portal },
+        new HotspotNetworkOptions { PortalPort = (ushort)ports.Portal, AdminPort = ports.Admin, HttpsPort = ports.Https },
         builder.Configuration.GetSection("Bandwidth").Get<StonesHotspot.Network.Bandwidth.SpeedTestOptions>());
     builder.Services.AddHostedService<HotspotEngineService>();
     builder.Services.AddHostedService<DeviceDiscoveryService>();
     builder.Services.AddHostedService<PaymentWatcherService>();
+    builder.Services.AddHostedService<BackupScheduler>();
+    builder.Services.AddHostedService<UpdateCheckService>();
     builder.Services.AddHotspotWeb();
     // Keys for sign-in cookies and form tokens: kept in the data folder so they survive restarts.
     var keys = builder.Services.AddDataProtection().SetApplicationName("StonesHotspot")
@@ -83,6 +94,12 @@ try
     builder.Services.Configure<WebEncoderOptions>(o => o.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All));
 
     var app = builder.Build();
+    // Lost admin password: "StonesHotspot.Service.exe --reset-admin-password" from an Administrator command prompt.
+    if (args.Contains("--reset-admin-password"))
+    {
+        await app.InitializeDatabaseAsync(resetAdminPassword: true);
+        return 0;
+    }
     await app.InitializeDatabaseAsync();
 
     app.UseSerilogRequestLogging();

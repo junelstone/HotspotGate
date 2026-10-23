@@ -29,6 +29,12 @@ public sealed class HotspotNetworkOptions
 {
     /// <summary>TCP port of the captive portal on the gateway (80 in production).</summary>
     public ushort PortalPort { get; set; } = 80;
+
+    /// <summary>Dashboard port, opened in the firewall on the LAN adapter.</summary>
+    public int AdminPort { get; set; } = 8080;
+
+    /// <summary>HTTPS port (dashboard/portal), 0 = no HTTPS.</summary>
+    public int HttpsPort { get; set; }
 }
 
 /// <summary>
@@ -42,7 +48,8 @@ public sealed class NetworkSetupService(
     IPrivilegeChecker privileges,
     HotspotNetworkOptions options,
     SettingsService settings,
-    AuditService audit)
+    AuditService audit,
+    Firewall.IFirewallManager firewall)
 {
     /// <summary>Windows ICS always gives the shared adapter this address unless changed in the registry.</summary>
     public static readonly Ipv4Subnet DefaultIcsLan = Ipv4Subnet.Parse("192.168.137.1/24");
@@ -202,6 +209,9 @@ public sealed class NetworkSetupService(
             }
             return new NetworkApplyResult(false, [problem]);
         }
+
+        if (adapters.FirstOrDefault(a => SameId(a.Id, config.LanAdapterId)) is { } lanAdapter)
+            firewall.Apply(Firewall.FirewallPlan.For(lanAdapter.Name, options.PortalPort, options.AdminPort, options.HttpsPort));
 
         if (config.Mode == NetworkMode.Ics)
         {

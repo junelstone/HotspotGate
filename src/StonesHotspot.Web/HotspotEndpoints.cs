@@ -21,9 +21,10 @@ public static class HotspotEndpoints
     public static IEndpointRouteBuilder MapHotspotEndpoints(this IEndpointRouteBuilder app)
     {
         // Used by the tray app and by monitoring to know the service is up.
-        app.MapGet("/health", (ILicenseService licence, TimeProvider clock) =>
+        app.MapGet("/health", (ILicenseService licence, Licensing.Online.UpdateStatus updates, TimeProvider clock) =>
         {
             var status = licence.GetStatus();
+            var update = updates.Available;
             return Results.Ok(new
             {
                 status = "ok",
@@ -34,6 +35,8 @@ public static class HotspotEndpoints
                 inGracePeriod = status.InGracePeriod,
                 warningDaysLeft = status.WarningDaysLeft,
                 licensedEdition = status.LicensedEdition.ToString(),
+                // Verified (signed) by the service; the tray app downloads it and checks the hash before running it.
+                update = update is null ? null : new { version = update.Version, url = update.Url, sha256 = update.Sha256, notes = update.Notes },
             });
         });
 

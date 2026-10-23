@@ -40,6 +40,11 @@ public sealed class DatabaseInitializer(HotspotDbContext db, IPasswordHasher has
                 CreatedAt = now,
             });
             audit.Record(null, "Database.Seeded", "Admin account created");
+            db.Settings.Add(new Setting { Key = SettingKeys.SetupCompleted, Value = "false" }); // new installation: first-run wizard
+        }
+        else if (!await db.Settings.AnyAsync(s => s.Key == SettingKeys.SetupCompleted, ct))
+        {
+            db.Settings.Add(new Setting { Key = SettingKeys.SetupCompleted, Value = "true" }); // in use before the wizard existed
         }
 
         if (!await db.Tariffs.AnyAsync(ct))

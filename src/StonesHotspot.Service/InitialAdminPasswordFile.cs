@@ -11,7 +11,7 @@ namespace StonesHotspot.Service;
 /// </summary>
 public static class InitialAdminPasswordFile
 {
-    public const string FileName = "initial-admin-password.txt";
+    public const string FileName = AppPaths.InitialAdminPasswordFileName;
 
     public static string Write(AppPaths paths, string username, string password)
     {

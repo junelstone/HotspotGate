@@ -11,7 +11,8 @@ namespace StonesHotspot.LicenseServer;
 /// <param name="LicencePublicKey">Checks licence codes sent at activation.</param>
 /// <param name="AdminPassword">Owner page (<c>/admin</c>, HTTP Basic over HTTPS, any user name).</param>
 /// <param name="ManagerToken">Bearer token LicenseManager uses to upload licences and revocations.</param>
-public sealed record ServerOptions(byte[] ServerPrivateKey, byte[] LicencePublicKey, string AdminPassword, string ManagerToken);
+/// <param name="Update">Latest hotspot version (section <c>LicenceServer:Update</c>); null when none is published.</param>
+public sealed record ServerOptions(byte[] ServerPrivateKey, byte[] LicencePublicKey, string AdminPassword, string ManagerToken, UpdateManifest? Update = null);
 
 /// <summary>The licence server's endpoints. Every answer to a hotspot is signed with the server key.</summary>
 public static class LicenceServerApi
@@ -62,6 +63,10 @@ public static class LicenceServerApi
 
         api.MapPost("/checkin", (CheckInRequest r, ServerStore store, ServerOptions o, TimeProvider clock, HttpContext http) =>
             Answer(r.LicenceId, r.MachineId, r.ExpiresOn, r.Nonce, "checkin", r.Version, store, o, clock, http));
+
+        // Latest version for the hotspots' daily update check (signed, so a fake server cannot push an installer).
+        api.MapGet("/update", (ServerOptions o) =>
+            o.Update is { IsWellFormed: true } update ? Results.Json(SignedUpdate.Sign(update, o.ServerPrivateKey)) : Results.NoContent());
 
         api.MapGet("/renewal/{licenceId}", (uint licenceId, string machineId, DateOnly expiresOn, string nonce, ServerStore store, ServerOptions o, TimeProvider clock, HttpContext http) =>
             Answer(licenceId, machineId, expiresOn, nonce, "renewal", null, store, o, clock, http));

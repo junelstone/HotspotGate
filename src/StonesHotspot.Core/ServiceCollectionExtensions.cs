@@ -33,6 +33,8 @@ public static class ServiceCollectionExtensions
             new Payments.HttpPaymentProviderFactory(new HttpClient { Timeout = TimeSpan.FromSeconds(30) }, sp.GetRequiredService<TimeProvider>()));
         services.AddScoped<AccountService>();
         services.AddScoped<StaffService>();
+        services.AddScoped<SetupService>();
+        services.AddSingleton<SetupState>();
         services.AddScoped<DeviceService>();
         services.AddScoped<SessionService>();
         services.AddScoped<WebFilterService>();

@@ -13,9 +13,6 @@ namespace StonesHotspot.Web.Pages.Admin;
 
 public sealed class PasswordModel(StaffService staff, CurrentStaff current, AppPaths paths) : PageModel
 {
-    /// <summary>Written by the service on first start (see Service/InitialAdminPasswordFile).</summary>
-    public const string InitialPasswordFile = "initial-admin-password.txt";
-
     [BindProperty] public string? Current { get; set; }
     [BindProperty] public string? New { get; set; }
     [BindProperty] public string? Confirm { get; set; }
@@ -53,7 +50,7 @@ public sealed class PasswordModel(StaffService staff, CurrentStaff current, AppP
 
         // The first admin password was written to a file on first start: no longer needed.
         if (me.Username == DatabaseInitializer.AdminUsername)
-            System.IO.File.Delete(Path.Combine(paths.Root, InitialPasswordFile));
+            System.IO.File.Delete(Path.Combine(paths.Root, AppPaths.InitialAdminPasswordFileName));
 
         var updated = await staff.FindAsync(me.Id, HttpContext.RequestAborted);
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, StaffClaims.Create(updated!));

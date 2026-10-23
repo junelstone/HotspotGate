@@ -24,7 +24,7 @@ public sealed class ServiceSmokeTests : IClassFixture<ServiceSmokeTests.Factory>
 {
     public const string RemoteIpHeader = "X-Test-Remote-Ip";
 
-    public sealed class Factory : WebApplicationFactory<Program>
+    public class Factory : WebApplicationFactory<Program>
     {
         public string DataDirectory { get; } =
             Path.Combine(Path.GetTempPath(), "StonesHotspotTests", Guid.NewGuid().ToString("N"));
@@ -36,9 +36,13 @@ public sealed class ServiceSmokeTests : IClassFixture<ServiceSmokeTests.Factory>
         public FakeSmsTransportFactory Sms { get; } = new();
         public FakePayments Payments { get; } = new();
 
+        protected virtual bool SetupWizard => false;
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseSetting("StonesHotspot:DataDirectory", DataDirectory);
+            // The first-run wizard has its own tests (SetupWizardTests); elsewhere the dashboard is used directly.
+            builder.UseSetting("StonesHotspot:SetupWizard", SetupWizard ? "true" : "false");
             builder.ConfigureServices(services =>
             {
                 services.AddSingleton<IIcsController>(Ics);

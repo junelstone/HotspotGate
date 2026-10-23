@@ -26,6 +26,16 @@ public sealed class LicenceServerClient(HttpClient http, Uri baseAddress, string
     public Task<(SignedAnswer Answer, string Nonce)> CheckInAsync(uint licenceId, string machineId, DateOnly expiresOn, CancellationToken ct) =>
         PostAsync("api/v1/checkin", nonce => new CheckInRequest(licenceId, machineId, expiresOn, nonce, version), ct);
 
+    /// <summary>The signed latest-version manifest; null when the owner has not published one.</summary>
+    public async Task<SignedUpdate?> GetUpdateAsync(CancellationToken ct)
+    {
+        using var response = await http.GetAsync(new Uri(baseAddress, "api/v1/update"), ct);
+        if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+            return null;
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<SignedUpdate>(Json, ct);
+    }
+
     private async Task<(SignedAnswer, string)> PostAsync<T>(string path, Func<string, T> body, CancellationToken ct)
     {
         var nonce = Convert.ToHexString(RandomNumberGenerator.GetBytes(16));

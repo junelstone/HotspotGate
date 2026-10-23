@@ -722,4 +722,37 @@ The business may cut off access in case of abuse. The service is provided withou
   <data name="Licence_WhatsAppText" xml:space="preserve"><value>Hello, I would like a Stone's Hotspot licence for {0}. Machine ID: {1}</value></data>
   <data name="Tray_LicenceEnds" xml:space="preserve"><value>The Stone's Hotspot licence ends in {0} day(s). Open the dashboard → Licence.</value></data>
   <data name="Tray_LicenceGrace" xml:space="preserve"><value>Licence ended: the hotspot will stop soon. Open the dashboard → Licence.</value></data>
+  <data name="Update_Banner" xml:space="preserve"><value>Stone's Hotspot version {0} is available. Install it from the Stone's Hotspot icon near the clock (menu "Install the update").</value></data>
+  <data name="Tray_InstallUpdate" xml:space="preserve"><value>Install the update</value></data>
+  <data name="Tray_InstallUpdateVersion" xml:space="preserve"><value>Install update {0}</value></data>
+  <data name="Tray_UpdateConfirm" xml:space="preserve"><value>Install version {0} now?
+
+{1}
+
+The hotspot stops for a minute during the installation. Your data is kept.</value></data>
+  <data name="Tray_UpdateDownloading" xml:space="preserve"><value>Downloading the update…</value></data>
+  <data name="Tray_UpdateFailed" xml:space="preserve"><value>The update could not be installed: {0}</value></data>
+  <data name="Setup_Title" xml:space="preserve"><value>First-time setup</value></data>
+  <data name="Setup_StepOf" xml:space="preserve"><value>Step {0} of {1}</value></data>
+  <data name="Setup_StepLanguage" xml:space="preserve"><value>Language</value></data>
+  <data name="Setup_StepBusiness" xml:space="preserve"><value>Your business</value></data>
+  <data name="Setup_StepPassword" xml:space="preserve"><value>Administrator password</value></data>
+  <data name="Setup_StepNetwork" xml:space="preserve"><value>Internet and customer Wi-Fi</value></data>
+  <data name="Setup_StepPlans" xml:space="preserve"><value>First plans</value></data>
+  <data name="Setup_StepDone" xml:space="preserve"><value>Done</value></data>
+  <data name="Setup_Welcome" xml:space="preserve"><value>Welcome to Stone's Hotspot. A few questions and your hotspot is ready.</value></data>
+  <data name="Setup_Language" xml:space="preserve"><value>Language of the dashboard and portal</value></data>
+  <data name="Setup_BusinessName" xml:space="preserve"><value>Business name (shown on the portal and receipts)</value></data>
+  <data name="Setup_WifiName" xml:space="preserve"><value>Wi-Fi name</value></data>
+  <data name="Setup_WifiNameHelp" xml:space="preserve"><value>The name customers see on their phone (set on the access point or the Windows mobile hotspot).</value></data>
+  <data name="Setup_PasswordIntro" xml:space="preserve"><value>Choose the administrator account's password. Write it down and keep it safe.</value></data>
+  <data name="Setup_NetworkIntro" xml:space="preserve"><value>Choose the connection that brings internet and the one customers connect to (Wi-Fi access point or Windows mobile hotspot). Internet sharing is set up automatically.</value></data>
+  <data name="Setup_Later" xml:space="preserve"><value>Later (Network menu)</value></data>
+  <data name="Setup_PlansIntro" xml:space="preserve"><value>These are the starting plans. Adjust the prices (FCFA); you can change everything later in Plans.</value></data>
+  <data name="Setup_Ready" xml:space="preserve"><value>Your hotspot is ready. Sign in with the admin account to sell your first codes.</value></data>
+  <data name="Setup_Finish" xml:space="preserve"><value>Finish</value></data>
+  <data name="Setup_Next" xml:space="preserve"><value>Next</value></data>
+  <data name="Setup_Back" xml:space="preserve"><value>Back</value></data>
+  <data name="Setup_Done" xml:space="preserve"><value>Setup finished. Sign in with the admin account.</value></data>
+  <data name="Setup_OnThePc" xml:space="preserve"><value>The first-time setup is not finished. Finish it on the hotspot PC ("Stone's Hotspot" icon on the desktop).</value></data>
 </root>

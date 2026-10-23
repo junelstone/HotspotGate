@@ -21,6 +21,16 @@ shipped (Phase 11 makes the release build fail).
    and `server-public.txt` (replace the whole file; no "DEVELOPMENT" line), commit, build.
 3. Copy the server private key into the licence server's `appsettings.Local.json` (`LicenceServer:ServerPrivateKey`).
 4. From then on, every code is signed by the owner's key; development codes stop working.
+5. `.\build.ps1 -Installer` now passes the release check (it refuses development keys) and builds
+   `StonesHotspot-Setup-x.y.z.exe` for customers and `LicenseManager-Setup-x.y.z.exe` for the owner only.
+
+## Publishing an update
+
+1. Raise `<Version>` in `Directory.Build.props`, build the installer, note the SHA-256 printed by `build.ps1`.
+2. Upload `StonesHotspot-Setup-x.y.z.exe` to an HTTPS address (the licence server's host, or any file host).
+3. On the licence server, fill `LicenceServer:Update` in `appsettings.Local.json` (`Version`, `Url`, `Sha256`,
+   `Notes`) and restart it. Hotspots see it within a day: admins get a banner, the tray offers
+   **Installer la mise à jour**; the downloaded file is run only if its SHA-256 matches the signed information.
 
 ## Licence server deployment
 

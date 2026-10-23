@@ -3,6 +3,7 @@
 @using StonesHotspot.Licensing
 @inject ILicenseService Licence
 @inject TimeProvider Clock
+@inject StonesHotspot.Licensing.Online.UpdateStatus Updates
 @{
     var lang = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var path = Context.Request.Path;
@@ -136,6 +137,10 @@
         @if (licence.ClockProblem)
         {
             <div class="msg warning">@Strings.Licence_BannerClock</div>
+        }
+        @if (admin && Updates.Available is { } update)
+        {
+            <div class="msg ok">@string.Format(Strings.Update_Banner, StonesHotspot.Licensing.Online.AppVersion.Display(update.Version)) @update.Notes</div>
         }
     }
     @if (TempData[Flash.SuccessKey] is string ok)

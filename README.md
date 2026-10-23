@@ -3,9 +3,11 @@
 Windows Wi-Fi hotspot manager (captive portal) by **Stone's IT Consulting**: turns a Windows 10/11 PC into a
 managed, paid Wi-Fi hotspot — vouchers, user accounts, tariffs, Mobile Money, admin dashboard.
 
-> **Status: Phase 10 — licensing.** 30-day Pro trial, then a signed licence code per PC (Basic or Pro), warnings,
-> 7-day grace, stop; LicenseManager (owner-only) issues, renews and revokes licences; a licence server registers trials
-> and does daily check-ins. Development keys until the owner creates the real ones. See [Licence](#licence). See [Build phases](#build-phases).
+> **Status: Phase 11 — installer and updates.** `StonesHotspot-Setup.exe` installs the Windows service (restarted
+> automatically after a crash), the tray app and the firewall rules; a first-run wizard sets up language, business,
+> admin password, network and prices; daily backups; signed updates from the licence server. The owner's
+> `LicenseManager-Setup.exe` is a separate installer, and the build refuses to put owner files or development keys in
+> the customer installer. See [Installing](#installing-on-the-hotspot-pc) and [Build phases](#build-phases).
 
 ## Requirements
 
@@ -21,7 +23,15 @@ managed, paid Wi-Fi hotspot — vouchers, user accounts, tariffs, Mobile Money, 
 .\build.ps1 -Configuration Debug
 .\build.ps1 -SkipTests
 .\build.ps1 -Publish           # also publish Service + Tray (win-x64, self-contained) to .\artifacts\publish
+.\build.ps1 -Installer         # publish + release check + both installers (Windows, Inno Setup 6) → installer\Output
+.\build.ps1 -Installer -AllowDevelopmentKeys   # TEST installer with the development keys — never for a customer
 ```
+
+`-Installer` needs [Inno Setup 6](https://jrsoftware.org/isdl.php) and prints the SHA-256 of each installer (needed
+to publish an update). Before it runs Inno Setup, `tools\Test-ReleaseContent.ps1` checks the customer files and
+**fails the build** if they contain the LicenseManager/LicenseIssuer/LicenseServer, key files, `appsettings.Local.json`,
+a private key, or the development public keys. A real release therefore needs the owner's keys first
+([`docs/licensing.md`](docs/licensing.md) → "Before the first release").
 
 Test results are written to `artifacts\test-results\tests.trx`. GitHub Actions runs the same script on
 `windows-latest` for every push (`.github/workflows/build.yml`) and uploads the published apps.
@@ -43,25 +53,29 @@ which listens on ports 80 and 8080 on all addresses.
 Tray app (Windows only): `dotnet run --project src\StonesHotspot.Tray`. It shows the state of the
 `StonesHotspot` Windows service, opens the dashboard, and starts/stops the service (needs admin rights).
 
-### Installing the service by hand (until the installer exists)
+## Installing on the hotspot PC
 
-From an elevated PowerShell, after `.\build.ps1 -Publish`:
+Run `StonesHotspot-Setup-x.y.z.exe` (administrator; nothing else to install, .NET is included):
 
-```powershell
-$exe = (Resolve-Path .\artifacts\publish\StonesHotspot.Service\StonesHotspot.Service.exe).Path
-sc.exe create StonesHotspot binPath= "`"$exe`"" start= auto DisplayName= "Stone's Hotspot"
-sc.exe start StonesHotspot
-# remove:  sc.exe stop StonesHotspot ; sc.exe delete StonesHotspot
-```
+- Program files in `C:\Program Files\Stone's Hotspot`, data in `%ProgramData%\StonesHotspot` (kept on upgrade).
+- Windows service **StonesHotspot** (automatic, delayed start), restarted by Windows 5 s / 10 s / 30 s after a crash.
+- Tray icon for every user at sign-in; desktop shortcut **Stone's Hotspot** (opens the dashboard).
+- Firewall: the service opens TCP 80, 443, 8080 and UDP 53 **on the customer (LAN) adapter only**, group
+  "Stone's Hotspot", as soon as the network is set up.
+- At the end the dashboard opens on the **first-run wizard** (`/setup`, only on the PC itself): language, business
+  and Wi-Fi name, administrator password, internet and customer connections, prices of the first plans.
 
-To reach the dashboard from a phone on the LAN, allow TCP 8080 in Windows Firewall (the installer will do this
-later): `New-NetFirewallRule -DisplayName "Stone's Hotspot admin" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow`.
+**Upgrade:** run the newer installer (or tray → **Installer la mise à jour**): the service is stopped, files replaced,
+service started; data, settings and licence stay. **Uninstall** (Settings → Apps): stops and removes the service
+(internet sharing off), removes the firewall rules and the tray start-up, then asks whether to delete the data
+(default **No**). The trial/licence records are always kept. Manual checklist:
+[`phase-11-installer.md`](docs/manual-tests/phase-11-installer.md).
 
 ## Configuration
 
 | File | Committed? | Purpose |
 |---|---|---|
-| `src/StonesHotspot.Service/appsettings.json` | yes | Defaults: `StonesHotspot:AdminPort` (8080), `PortalPort` (80), `LocalhostOnly`, `DataDirectory` (empty = `%ProgramData%\StonesHotspot`), log levels |
+| `src/StonesHotspot.Service/appsettings.json` | yes | Defaults: `StonesHotspot:AdminPort` (8080), `PortalPort` (80), `HttpsPort` (443, 0 = off), `LocalhostOnly`, `DataDirectory` (empty = `%ProgramData%\StonesHotspot`), `SetupWizard` (true), `Licensing:ServerUrl` (licence server, also used for updates), log levels |
 | `appsettings.Local.json` | **no** (git-ignored) | Secrets (SMS, Mobile Money keys). Copy `appsettings.Local.example.json`. Read from the exe folder and from `%ProgramData%\StonesHotspot\` |
 
 Never put API keys or passwords in `appsettings.json`.
@@ -71,16 +85,22 @@ Runtime data (`%ProgramData%\StonesHotspot\`):
 | Path | Content |
 |---|---|
 | `logs\service-YYYYMMDD.log` | Service log, one file per day, 30 days kept |
-| `backups\` | Database backups (phase 5) |
+| `backups\` | Database backups: automatic every day (`…-auto.db`, the 14 latest kept) and manual ones (never deleted automatically) |
+| `https.pfx`, `https.key` | This PC's own self-signed HTTPS certificate (made on first start) and its password, DPAPI-protected |
 | `stoneshotspot.db` | SQLite database (WAL mode, so also `-wal`/`-shm` files while running) |
 | `initial-admin-password.txt` | Created once, on first start: the random password of the `admin` account. Readable by Administrators only. Delete it after the first login |
 
-## First login
+## First start
 
-On first start the service creates the staff account **`admin`** with a random password, written to
-`%ProgramData%\StonesHotspot\initial-admin-password.txt` (from source: `src\StonesHotspot.Service\data\`). Sign in
-at <http://localhost:8080/admin>: you must choose your own password, after which the file is deleted. There is
-deliberately no default password: customers on the hotspot can reach the dashboard port.
+On a new installation the dashboard opens the **first-run wizard** at <http://localhost:8080/setup> (from another
+device it only says to finish the setup on the PC). Its third step sets the password of the **`admin`** account.
+Until then that account has a random password in `%ProgramData%\StonesHotspot\initial-admin-password.txt`
+(Administrators only), deleted once a password is chosen. There is deliberately no default password: customers on
+the hotspot can reach the dashboard port. A database from before the wizard existed is treated as set up.
+
+**Lost admin password**, no other admin: from a command prompt opened *as administrator* on the PC,
+`"C:\Program Files\Stone's Hotspot\StonesHotspot.Service.exe" --reset-admin-password` writes a new temporary
+password to `initial-admin-password.txt` (to be changed at the next sign-in).
 
 ## Dashboard
 
@@ -97,7 +117,11 @@ deliberately no default password: customers on the hotspot can reach the dashboa
   trial). Basic keeps **Vendre**, sales by plan and the sessions report.
 - Printing is always on **A4**, through the browser's print dialog (Ctrl+P on the PC, Share → Print on a phone) or
   a downloaded PDF. Code cards print 3 per row with a QR code, to cut out.
-- Backups: **Sauvegarde** downloads a copy of the database; restoring keeps a copy of the current database first.
+- Backups: automatic copy every day (14 kept); **Sauvegarde** makes or downloads a copy; restoring keeps a copy of
+  the current database first.
+- HTTPS: `https://192.168.137.1/admin` uses the PC's own self-signed certificate (the browser warns once).
+- Updates: when the licence server publishes a newer version (signed), admins see a banner and the tray offers
+  **Installer la mise à jour** (download, SHA-256 check against the signed information, then the installer).
   Copy backups to a USB stick regularly (automatic daily backups come in phase 11).
 
 ## Network setup
@@ -207,8 +231,8 @@ How the gate, DNS and redirect work: [`docs/architecture.md`](docs/architecture.
 
 **If the service stops or crashes:** a normal stop switches internet sharing off (customers lose internet, the
 Wi-Fi is never left open). If WinDivert cannot start, sharing stays off and the Network page says why. After a
-*crash* (process killed), sharing stays on **without filter** until the service starts again — phase 11 makes
-Windows restart it automatically. In Windows Mobile hotspot mode the service cannot switch the hotspot off. The
+*crash* (process killed), sharing stays on **without filter** until the service starts again; Windows restarts it
+after 5 seconds (installer setting). In Windows Mobile hotspot mode the service cannot switch the hotspot off. The
 PC's own internet is never filtered.
 
 Manual tests: [`phase-2-network.md`](docs/manual-tests/phase-2-network.md),
@@ -218,7 +242,8 @@ Manual tests: [`phase-2-network.md`](docs/manual-tests/phase-2-network.md),
 [`phase-7-business-tools.md`](docs/manual-tests/phase-7-business-tools.md),
 [`phase-8-free-sms.md`](docs/manual-tests/phase-8-free-sms.md),
 [`phase-9-mobile-money.md`](docs/manual-tests/phase-9-mobile-money.md),
-[`phase-10-licensing.md`](docs/manual-tests/phase-10-licensing.md).
+[`phase-10-licensing.md`](docs/manual-tests/phase-10-licensing.md),
+[`phase-11-installer.md`](docs/manual-tests/phase-11-installer.md).
 
 ## Database
 
@@ -246,6 +271,8 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 | `tools/StonesHotspot.LicenseIssuer` | **Owner-only** library: key vault, licence book, signing, sync. Never shipped |
 | `tools/StonesHotspot.LicenseManager` | **Owner-only** Windows app over the issuer library. Never shipped to customers |
 | `tests/StonesHotspot.Tests` | xUnit tests |
+| `installer/` | Inno Setup scripts: `StonesHotspot.iss` (customer) and `LicenseManager.iss` (**owner only**) |
+| `tools/Test-ReleaseContent.ps1` | Build check: nothing of the owner (tools, keys, development keys) in the customer installer |
 | `legacy/python-prototype` | The earlier Python *HotspotGate* prototype, kept for reference only |
 
 ## Languages and currency
@@ -270,8 +297,8 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 | 7 | Business tools (products, till, A4 receipts, reports) | done |
 | 8 | Free access and SMS login | done — SMS to be verified with the real modem or provider |
 | 9 | Mobile Money payments | done — to be verified with the operators' sandbox, then production keys |
-| 10 | Licensing, trial and activation | **done** — owner keys and server hosting to be set up |
-| 11 | Windows service, installer and updates | — |
+| 10 | Licensing, trial and activation | done — owner keys and server hosting to be set up |
+| 11 | Windows service, installer and updates | **done** — installers to be built and tried on a clean Windows 11 |
 | 12 | Hardening and final testing | — |
 
 Plans for each phase are in `docs/phase-N-plan.md`.
@@ -290,11 +317,14 @@ Plans for each phase are in `docs/phase-N-plan.md`.
 | Gate page: "driver was blocked" / "signature" | Antivirus or Secure Boot policy blocked WinDivert: allow it in the antivirus, then restart the service |
 | Service log: "address already in use" for port 80 | Another program uses port 80 (IIS, Skype…): stop it, or set `StonesHotspot:PortalPort` |
 | Portal says "Votre appareil n'a pas pu être identifié" | The PC has not seen the phone in its ARP table: turn the phone's Wi-Fi off and on. If it persists, check the LAN adapter choice on the Network page |
-| Phones never show "Sign in to network" | Check the firewall rule for port 80 above and the gate state on <http://localhost:8080/admin/gate> |
+| Phones never show "Sign in to network" | Check the "Stone's Hotspot" firewall rules (port 80) and the gate state on <http://localhost:8080/admin/gate> |
 | "database is locked" in the log | Another program (e.g. DB Browser for SQLite) has the database open for writing; close it |
-| Lost the admin password | Another admin resets it in **Personnel**. If no admin can sign in: restore a backup, or contact Stone's IT Consulting (an offline reset tool comes with the installer, phase 11) |
+| Lost the admin password | Another admin resets it in **Personnel**. If no admin can sign in: `StonesHotspot.Service.exe --reset-admin-password` as administrator on the PC (see [First start](#first-start)) |
+| Build: "Release check FAILED" | The customer installer would contain owner files or keys (listed). Development keys: create the owner's keys ([`docs/licensing.md`](docs/licensing.md)), or `-AllowDevelopmentKeys` for a test build only |
+| Phones can't open the dashboard or portal although the gate runs | Windows Firewall: check the "Stone's Hotspot" rules exist for the LAN adapter (`Get-NetFirewallRule -Group "Stone's Hotspot"`); re-apply the network setup to recreate them |
+| No update banner although a version is published | `Licensing:ServerUrl` must be set; the check runs 2 minutes after start, then daily. The service log says if the update information was not signed with the server key |
 | Speed test in **Débit** fails | The PC has no internet, or speed.cloudflare.com is blocked: set other URLs in `appsettings.json` → `Bandwidth` |
 | Customers slower than their plan | Check **Débit**: fair share may give them less (many active devices or totals set too low). The gate page shows delayed/dropped packets |
 | A blocked site still opens | The phone cached the address: switch its Wi-Fi off and on. Apps using their own encrypted DNS (DoH) can bypass domain blocking; add the site's IP range as well |
 | Dashboard says "Accès refusé" | The page is for administrators; sign in with an admin account |
-| Tray "Start/Stop" shows an administrator message | Run the tray app as administrator (the installer will grant service rights later) |
+| Tray "Start/Stop" shows an administrator message | Starting or stopping a Windows service needs administrator rights: right-click the tray icon's program → Run as administrator, or use Services (services.msc). The service restarts by itself after a crash |

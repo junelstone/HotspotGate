@@ -40,12 +40,14 @@ public static class NetworkServiceCollectionExtensions
             services.AddSingleton<IIcsController, WindowsIcsController>();
             services.AddSingleton<INeighborTable, WindowsNeighborTable>();
             services.AddSingleton<IPacketGate, WinDivertPacketGate>();
+            services.AddSingleton<Firewall.IFirewallManager, Firewall.WindowsFirewall>();
         }
         else
         {
             services.AddSingleton<IIcsController, UnsupportedIcsController>();
             services.AddSingleton<INeighborTable, EmptyNeighborTable>();
             services.AddSingleton<IPacketGate, UnsupportedPacketGate>();
+            services.AddSingleton<Firewall.IFirewallManager, Firewall.NoFirewall>();
         }
 
         services.AddScoped<NetworkSetupService>();

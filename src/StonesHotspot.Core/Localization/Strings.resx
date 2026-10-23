@@ -722,4 +722,37 @@ L'établissement peut couper un accès en cas d'abus. Le service est fourni sans
   <data name="Licence_WhatsAppText" xml:space="preserve"><value>Bonjour, je souhaite une licence Stone's Hotspot pour {0}. Machine ID : {1}</value></data>
   <data name="Tray_LicenceEnds" xml:space="preserve"><value>La licence de Stone's Hotspot se termine dans {0} jour(s). Ouvrez le tableau de bord → Licence.</value></data>
   <data name="Tray_LicenceGrace" xml:space="preserve"><value>Licence terminée : le hotspot va bientôt s'arrêter. Ouvrez le tableau de bord → Licence.</value></data>
+  <data name="Update_Banner" xml:space="preserve"><value>Nouvelle version {0} de Stone's Hotspot disponible. Installez-la depuis l'icône Stone's Hotspot près de l'horloge (menu « Installer la mise à jour »).</value></data>
+  <data name="Tray_InstallUpdate" xml:space="preserve"><value>Installer la mise à jour</value></data>
+  <data name="Tray_InstallUpdateVersion" xml:space="preserve"><value>Installer la mise à jour {0}</value></data>
+  <data name="Tray_UpdateConfirm" xml:space="preserve"><value>Installer la version {0} maintenant ?
+
+{1}
+
+Le hotspot s'arrête une minute pendant l'installation. Vos données sont conservées.</value></data>
+  <data name="Tray_UpdateDownloading" xml:space="preserve"><value>Téléchargement de la mise à jour…</value></data>
+  <data name="Tray_UpdateFailed" xml:space="preserve"><value>La mise à jour n'a pas pu être installée : {0}</value></data>
+  <data name="Setup_Title" xml:space="preserve"><value>Première installation</value></data>
+  <data name="Setup_StepOf" xml:space="preserve"><value>Étape {0} sur {1}</value></data>
+  <data name="Setup_StepLanguage" xml:space="preserve"><value>Langue</value></data>
+  <data name="Setup_StepBusiness" xml:space="preserve"><value>Votre commerce</value></data>
+  <data name="Setup_StepPassword" xml:space="preserve"><value>Mot de passe administrateur</value></data>
+  <data name="Setup_StepNetwork" xml:space="preserve"><value>Internet et Wi-Fi clients</value></data>
+  <data name="Setup_StepPlans" xml:space="preserve"><value>Premiers forfaits</value></data>
+  <data name="Setup_StepDone" xml:space="preserve"><value>Terminé</value></data>
+  <data name="Setup_Welcome" xml:space="preserve"><value>Bienvenue dans Stone's Hotspot. Quelques questions et votre hotspot est prêt.</value></data>
+  <data name="Setup_Language" xml:space="preserve"><value>Langue du tableau de bord et du portail</value></data>
+  <data name="Setup_BusinessName" xml:space="preserve"><value>Nom du commerce (affiché sur le portail et les reçus)</value></data>
+  <data name="Setup_WifiName" xml:space="preserve"><value>Nom du Wi-Fi</value></data>
+  <data name="Setup_WifiNameHelp" xml:space="preserve"><value>Le nom que les clients voient sur leur téléphone (il est réglé sur le point d'accès ou le hotspot mobile Windows).</value></data>
+  <data name="Setup_PasswordIntro" xml:space="preserve"><value>Choisissez le mot de passe du compte administrateur. Notez-le et gardez-le en lieu sûr.</value></data>
+  <data name="Setup_NetworkIntro" xml:space="preserve"><value>Choisissez la connexion qui apporte Internet et celle où se connectent les clients (point d'accès Wi-Fi ou hotspot mobile Windows). Le partage Internet est réglé automatiquement.</value></data>
+  <data name="Setup_Later" xml:space="preserve"><value>Plus tard (menu Réseau)</value></data>
+  <data name="Setup_PlansIntro" xml:space="preserve"><value>Voici les forfaits de départ. Ajustez les prix (FCFA) ; vous pourrez tout modifier ensuite dans Forfaits.</value></data>
+  <data name="Setup_Ready" xml:space="preserve"><value>Votre hotspot est prêt. Connectez-vous avec le compte admin pour vendre vos premiers codes.</value></data>
+  <data name="Setup_Finish" xml:space="preserve"><value>Terminer</value></data>
+  <data name="Setup_Next" xml:space="preserve"><value>Suivant</value></data>
+  <data name="Setup_Back" xml:space="preserve"><value>Retour</value></data>
+  <data name="Setup_Done" xml:space="preserve"><value>Installation terminée. Connectez-vous avec le compte admin.</value></data>
+  <data name="Setup_OnThePc" xml:space="preserve"><value>La première installation n'est pas terminée. Terminez-la sur le PC du hotspot (icône « Stone's Hotspot » sur le bureau).</value></data>
 </root>

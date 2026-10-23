@@ -12,6 +12,7 @@
 | System.Management | 8.0.0 | MIT | Hardware serial numbers for the Machine ID (WMI) | NuGet |
 | System.Security.Cryptography.ProtectedData | 8.0.0 | MIT | DPAPI protection of the trial record | NuGet |
 | Microsoft.Data.Sqlite | 8.0.11 | MIT | Licence server and LicenseManager databases | NuGet |
+| [Inno Setup](https://jrsoftware.org/isinfo.php) | 6.x | Inno Setup licence (free, commercial use allowed) | Builds the two installers; only its small uninstaller runtime goes to customers | Installed on the build PC; not stored in Git |
 
 WinDivert is used unmodified and loaded dynamically (`WinDivert.dll`), which the LGPL allows in a closed-source
 product as long as its licence text is shipped and users can replace the DLL/driver with their own build.

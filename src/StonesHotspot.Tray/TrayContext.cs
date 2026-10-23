@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.ServiceProcess;
 using StonesHotspot.Core;
 using StonesHotspot.Core.Localization;
+using StonesHotspot.Core.Updates;
 
 namespace StonesHotspot.Tray;
 
@@ -16,16 +17,20 @@ internal sealed class TrayContext : ApplicationContext
     private readonly ToolStripMenuItem _statusItem;
     private readonly ToolStripMenuItem _startItem;
     private readonly ToolStripMenuItem _stopItem;
+    private readonly ToolStripMenuItem _updateItem;
     private readonly System.Windows.Forms.Timer _timer;
     private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(5) };
     private DateTime _nextLicenceCheck = DateTime.MinValue;
     private string? _lastLicenceNotice;
+    private UpdateInfo? _update;
+    private bool _updateAnnounced;
 
     public TrayContext()
     {
         _statusItem = new ToolStripMenuItem(Strings.Status_Unknown) { Enabled = false };
         _startItem = new ToolStripMenuItem(Strings.Tray_StartService, null, (_, _) => ControlService(start: true));
         _stopItem = new ToolStripMenuItem(Strings.Tray_StopService, null, (_, _) => ControlService(start: false));
+        _updateItem = new ToolStripMenuItem(Strings.Tray_InstallUpdate, null, async (_, _) => await InstallUpdateAsync()) { Visible = false };
 
         var menu = new ContextMenuStrip();
         menu.Items.Add(_statusItem);
@@ -33,6 +38,7 @@ internal sealed class TrayContext : ApplicationContext
         menu.Items.Add(new ToolStripMenuItem(Strings.Tray_OpenDashboard, null, (_, _) => OpenDashboard()));
         menu.Items.Add(_startItem);
         menu.Items.Add(_stopItem);
+        menu.Items.Add(_updateItem);
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add(new ToolStripMenuItem(Strings.Tray_Exit, null, (_, _) => ExitThread()));
 
@@ -73,7 +79,8 @@ internal sealed class TrayContext : ApplicationContext
         }
     }
 
-    private sealed record Health(bool HotspotAllowed, bool InGracePeriod, int? WarningDaysLeft);
+    private sealed record UpdateInfo(string Version, string Url, string Sha256, string? Notes);
+    private sealed record Health(bool HotspotAllowed, bool InGracePeriod, int? WarningDaysLeft, UpdateInfo? Update);
 
     /// <summary>Licence warnings as a balloon at 30, 14, 7, 3 and 1 day(s) before the end, during the grace period, and once stopped.</summary>
     private async Task CheckLicenceAsync()
@@ -90,6 +97,18 @@ internal sealed class TrayContext : ApplicationContext
         if (health is null)
             return;
 
+        _update = health.Update;
+        _updateItem.Visible = _update is not null;
+        if (_update is not null)
+        {
+            _updateItem.Text = string.Format(Strings.Tray_InstallUpdateVersion, _update.Version);
+            if (!_updateAnnounced)
+            {
+                _updateAnnounced = true;
+                _icon.ShowBalloonTip(15_000, Strings.AppName, string.Format(Strings.Update_Banner, _update.Version), ToolTipIcon.Info);
+            }
+        }
+
         string? notice = !health.HotspotAllowed ? Strings.Licence_BannerStopped
             : health.InGracePeriod ? Strings.Tray_LicenceGrace
             : health.WarningDaysLeft is { } days && Array.Exists([30, 14, 7, 3, 1], d => d == days) ? string.Format(Strings.Tray_LicenceEnds, days)
@@ -100,6 +119,42 @@ internal sealed class TrayContext : ApplicationContext
             return;
         _lastLicenceNotice = key;
         _icon.ShowBalloonTip(15_000, Strings.AppName, notice, health.HotspotAllowed ? ToolTipIcon.Warning : ToolTipIcon.Error);
+    }
+
+    /// <summary>
+    /// Downloads the new installer, checks it against the SHA-256 of the manifest the service verified (signed by the
+    /// licence server), then runs it; Windows asks for administrator rights. The installer upgrades in place.
+    /// </summary>
+    private async Task InstallUpdateAsync()
+    {
+        if (_update is not { } update)
+            return;
+        if (MessageBox.Show(string.Format(Strings.Tray_UpdateConfirm, update.Version, update.Notes), Strings.AppName,
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            return;
+
+        _updateItem.Enabled = false;
+        _updateItem.Text = Strings.Tray_UpdateDownloading;
+        try
+        {
+            using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(30) };
+            var folder = Path.Combine(Path.GetTempPath(), "StonesHotspot-Update");
+            var installer = await InstallerDownload.DownloadAndVerifyAsync(http, update.Url, update.Sha256, folder);
+            Process.Start(new ProcessStartInfo(installer, "/SILENT /SP- /NORESTART") { UseShellExecute = true, Verb = "runas" });
+        }
+        catch (Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            // the administrator prompt was cancelled
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or InvalidDataException or IOException or Win32Exception)
+        {
+            MessageBox.Show(string.Format(Strings.Tray_UpdateFailed, ex.Message), Strings.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            _updateItem.Enabled = true;
+            _updateItem.Text = string.Format(Strings.Tray_InstallUpdateVersion, update.Version);
+        }
     }
 
     private static ServiceControllerStatus? ReadServiceStatus()
@@ -137,7 +192,7 @@ internal sealed class TrayContext : ApplicationContext
         RefreshStatus();
     }
 
-    private static void OpenDashboard() =>
+    public static void OpenDashboard() =>
         Process.Start(new ProcessStartInfo(DashboardUrl) { UseShellExecute = true });
 
     protected override void Dispose(bool disposing)

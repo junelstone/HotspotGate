@@ -19,8 +19,10 @@ public static class WebServiceCollectionExtensions
             options.Conventions.AllowAnonymousToPage("/Admin/Denied");
             options.Conventions.ConfigureFilter(new ForcePasswordChangeFilter());
             options.Conventions.ConfigureFilter(new LicenceGateFilter());
+            options.Conventions.ConfigureFilter(new SetupWizardFilter());
         });
         services.AddSingleton<PortalClient>();
+        services.AddSingleton<Licensing.Online.UpdateStatus>();
         services.AddScoped<Documents.ReceiptBrandingProvider>();
         services.AddSingleton<Core.Security.ISecretProtector, Admin.DataProtectionSecretProtector>();
         return services;

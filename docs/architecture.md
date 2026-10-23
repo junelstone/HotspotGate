@@ -6,8 +6,8 @@ How the packet gate, the portal, the sessions and (later) payments fit together.
 
 | Process | Runs as | Role |
 |---|---|---|
-| `StonesHotspot.Service` | Windows service (LocalSystem) | Everything below: database, network, gate, DNS, portal (port 80), dashboard (port 8080) |
-| `StonesHotspot.Tray` | the logged-in user | Shows the service state, Start/Stop, opens the dashboard |
+| `StonesHotspot.Service` | Windows service (LocalSystem), restarted by Windows after a crash | Everything below: database, network, gate, DNS, firewall rules, portal (port 80), dashboard (port 8080), HTTPS (443), daily backup, update check |
+| `StonesHotspot.Tray` | the logged-in user (started at sign-in) | Shows the service state, Start/Stop, opens the dashboard, licence and update notices, downloads and starts an update |
 
 ## Network path
 
@@ -108,6 +108,23 @@ Operator access tokens are cached until they expire (`TokenCache`). Keys go thro
  Status: trial or licence end → warnings (≤ 30 days) → 7 days grace → stopped (HotspotAllowed = false)
 ```
 
+## Installation, first start and updates
+
+```
+ StonesHotspot-Setup.exe (Inno Setup) ─► Program Files + service (sc.exe: delayed auto, restart 5/10/30 s) + tray Run key
+ service first start ─► database + admin (random password) + Setup.Completed=false + https.pfx (self-signed, DPAPI)
+ /setup (loopback only, SetupWizardFilter sends every /admin page there) ─► language, business, admin password,
+     NetworkSetupService.ApplyAsync (ICS/hotspot + firewall rules on the LAN adapter), plan prices ─► Setup.Completed=true
+ BackupScheduler: 10 min after start, then daily ─► BackupService.CreateAutomaticAsync (keeps 14 "-auto")
+ UpdateCheckService (daily) ─► GET licence-server /api/v1/update ─► SignedUpdate.Verify(server public key)
+     ─► UpdateStatus ─► dashboard banner + /health "update" ─► tray: InstallerDownload (SHA-256) ─► installer (UAC)
+```
+
+- The update manifest is signed with the licence server key over a fixed label, so a check-in answer can never be
+  replayed as a manifest; the installer address must be HTTPS and the downloaded file must match the signed SHA-256.
+- Build: `tools/Test-ReleaseContent.ps1` runs on the staged customer files before Inno Setup and fails on owner
+  files, keys or the development public keys. The LicenseManager is published and packaged separately.
+
 ## Speed limits
 
 Per authorised device and direction, `PacketProcessor.Shape` runs a GCRA token bucket (theoretical arrival time,
@@ -143,7 +160,7 @@ Windows. Printing is HTML + print CSS with inline-SVG QR codes (QRCoder).
 
 - Gate started before ICS; gate failure → ICS switched off.
 - Service stop → ICS switched off, gate closed.
-- Crash → ICS stays on without filter until the service restarts (phase 11: automatic restart on failure). With
+- Crash → ICS stays on without filter until Windows restarts the service (5 s, then 10 s, 30 s). With
   Windows Mobile hotspot mode the service cannot switch the hotspot off.
 - Licence stopped (trial or licence ended + 7 days of grace, or revoked + 7 days) → empty access table: nobody passes,
   the portal shows "service unavailable", the dashboard keeps Licence, Reports, Backup and Audit (`LicenceGateFilter`).
@@ -153,9 +170,10 @@ Windows. Printing is HTML + print CSS with inline-SVG QR codes (QRCoder).
 | Project | Main parts |
 |---|---|
 | Core | entities + EF Core (`Data`), rules (`Rules`), services (`Services`: sessions, vouchers, accounts, cash, sales, products, reports, web filter…), PDF/CSV (`Documents`) |
-| Network | adapters, ICS, neighbour table, setup/reconcile, gate (`Gate`), DNS (`Dns`) |
+| Network | adapters, ICS, neighbour table, setup/reconcile, gate (`Gate`), DNS (`Dns`), Windows Firewall rules (`Firewall`) |
 | Web | Razor Pages: portal (`Pages/Portal`), dashboard (`Pages/Admin`), captive-portal middleware, receipt/report layouts (`Documents`) |
-| Service | host, `HotspotEngineService`, `DeviceDiscoveryService`, Kestrel ports, logging |
+| Service | host, `HotspotEngineService`, `DeviceDiscoveryService`, `BackupScheduler`, `UpdateCheckService`, `HttpsCertificate`, Kestrel ports, logging, `--reset-admin-password` |
 | Licensing | `ILicenseService` → `LicenseService` (codes, Machine ID, trial store, monotonic time, server answers), `Online` client |
 | LicenseServer | API + SQLite + owner page; signs answers with the server key |
 | tools/LicenseIssuer, LicenseManager | owner-only: key vault, licence book, signing, sync |
+| installer, tools/Test-ReleaseContent.ps1 | Inno Setup scripts (customer, owner) and the release content check |

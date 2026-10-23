@@ -67,6 +67,8 @@ public static class SettingKeys
     public const string AirtelPrefixes = "Pay.Airtel.Prefixes";
     public const string ReceiptHeader = "Receipts.Header";
     public const string ReceiptFooter = "Receipts.Footer";
+    /// <summary>"true" once the first-run wizard is finished (not in <see cref="Defaults"/>: set by the database initializer).</summary>
+    public const string SetupCompleted = "Setup.Completed";
 
     /// <summary>Values written on first start; existing values are never overwritten.</summary>
     public static IReadOnlyDictionary<string, string> Defaults { get; } = new Dictionary<string, string>

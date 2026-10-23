@@ -16,6 +16,8 @@ public sealed class BackupService(HotspotDbContext db, AppPaths paths, AuditServ
 {
     public const string Prefix = "stoneshotspot-";
     public const string Extension = ".db";
+    public const string AutomaticSuffix = "-auto";
+    public const int KeepAutomatic = 14;
 
     public IReadOnlyList<BackupFile> List() =>
         Directory.Exists(paths.Backups)
@@ -65,6 +67,33 @@ public sealed class BackupService(HotspotDbContext db, AppPaths paths, AuditServ
         }
         return name;
     }
+
+    /// <summary>
+    /// The daily automatic backup: skipped when the latest automatic one is less than 20 hours old (service restarts),
+    /// then only the <see cref="KeepAutomatic"/> latest automatic backups are kept. Manual backups are never deleted.
+    /// </summary>
+    /// <returns>The new backup's name, or null when none was due.</returns>
+    public async Task<string?> CreateAutomaticAsync(CancellationToken ct = default)
+    {
+        var automatic = AutomaticFiles();
+        if (automatic.FirstOrDefault() is { } latest && clock.GetUtcNow().UtcDateTime - Stamp(latest) < TimeSpan.FromHours(20))
+            return null;
+        var name = await CreateAsync(null, AutomaticSuffix, ct);
+        foreach (var old in AutomaticFiles().Skip(KeepAutomatic))
+            File.Delete(Path.Combine(paths.Backups, old));
+        return name;
+    }
+
+    /// <summary>Automatic backups, newest first (by the time in their name).</summary>
+    private List<string> AutomaticFiles() =>
+        Directory.Exists(paths.Backups)
+            ? Directory.GetFiles(paths.Backups, $"{Prefix}*{AutomaticSuffix}{Extension}").Select(Path.GetFileName).OfType<string>()
+                .OrderByDescending(n => n, StringComparer.Ordinal).ToList()
+            : [];
+
+    private static DateTime Stamp(string name) =>
+        DateTime.TryParseExact(name.AsSpan(Prefix.Length, 15), "yyyyMMdd-HHmmss", CultureInfo.InvariantCulture,
+            DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var stamp) ? stamp : DateTime.MinValue;
 
     /// <summary>
     /// Replaces the database with an uploaded backup. The file is checked first and the current database is

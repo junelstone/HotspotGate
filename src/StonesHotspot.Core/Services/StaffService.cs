@@ -91,6 +91,24 @@ public sealed class StaffService(HotspotDbContext db, IPasswordHasher hasher, Au
         await db.SaveChangesAsync(ct);
     }
 
+    /// <summary>
+    /// Last resort when no administrator can sign in (run on the PC by an Administrator of Windows): the <c>admin</c>
+    /// account gets a new random temporary password and is enabled again. Returns that password.
+    /// </summary>
+    public async Task<string> ResetAdminOfflineAsync(CancellationToken ct = default)
+    {
+        var admin = await db.Staff.FirstOrDefaultAsync(s => s.Username == DatabaseInitializer.AdminUsername, ct)
+                    ?? throw new BusinessRuleException(ErrorCodes.NotFound, "Admin account not found.");
+        var password = PasswordGenerator.Generate();
+        admin.PasswordHash = hasher.Hash(password);
+        admin.MustChangePassword = true;
+        admin.Enabled = true;
+        admin.Role = StaffRole.Admin;
+        audit.Record(null, "Staff.PasswordReset", $"{admin.Username} (offline reset on the PC)");
+        await db.SaveChangesAsync(ct);
+        return password;
+    }
+
     private static void CheckPassword(string password)
     {
         if (password.Length < MinPasswordLength)
