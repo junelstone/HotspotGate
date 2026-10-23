@@ -93,7 +93,6 @@
   <data name="Admin_Home_Title" xml:space="preserve"><value>Tableau de bord</value></data>
   <data name="Portal_Title" xml:space="preserve"><value>Connexion Wi-Fi</value></data>
   <data name="Portal_Welcome" xml:space="preserve"><value>Bienvenue sur le Wi-Fi de {0}</value></data>
-  <data name="Portal_LoginSoon" xml:space="preserve"><value>Connectez-vous pour accéder à Internet. La connexion avec un code arrive très bientôt sur cette page.</value></data>
   <data name="Portal_Connected" xml:space="preserve"><value>Vous êtes connecté : Internet est disponible.</value></data>
   <data name="Portal_Continue" xml:space="preserve"><value>Continuer vers la page demandée</value></data>
   <data name="Portal_Device" xml:space="preserve"><value>Votre appareil</value></data>
@@ -145,4 +144,73 @@
   <data name="Network_Gate" xml:space="preserve"><value>Filtrage des paquets</value></data>
   <data name="Network_Problem_GateFailed" xml:space="preserve"><value>Le filtrage des paquets (WinDivert) n'a pas pu démarrer : le partage de connexion reste coupé pour ne pas laisser le Wi-Fi ouvert.</value></data>
   <data name="Network_Problem_GateNotRunning" xml:space="preserve"><value>Le filtrage des paquets n'est pas encore actif.</value></data>
+  <data name="Portal_TabCode" xml:space="preserve"><value>Code d'accès</value></data>
+  <data name="Portal_TabAccount" xml:space="preserve"><value>Compte</value></data>
+  <data name="Portal_CodeLabel" xml:space="preserve"><value>Entrez le code de votre ticket</value></data>
+  <data name="Portal_CodeHint" xml:space="preserve"><value>8 caractères, par exemple ABCD-EFGH</value></data>
+  <data name="Portal_Connect" xml:space="preserve"><value>Se connecter</value></data>
+  <data name="Portal_Username" xml:space="preserve"><value>Nom d'utilisateur</value></data>
+  <data name="Portal_Password" xml:space="preserve"><value>Mot de passe</value></data>
+  <data name="Portal_TermsAccept" xml:space="preserve"><value>En vous connectant, vous acceptez les</value></data>
+  <data name="Portal_TermsLink" xml:space="preserve"><value>conditions d'utilisation</value></data>
+  <data name="Portal_Back" xml:space="preserve"><value>Retour</value></data>
+  <data name="Portal_BuyCode" xml:space="preserve"><value>Pas de code ? Achetez un ticket à l'accueil.</value></data>
+  <data name="Terms_Title" xml:space="preserve"><value>Conditions d'utilisation</value></data>
+  <data name="Terms_Default" xml:space="preserve"><value>L'accès Wi-Fi est réservé aux clients munis d'un code ou d'un compte valide.
+
+Vous vous engagez à utiliser Internet dans le respect de la loi : pas d'activité illégale, pas de téléchargement d'œuvres protégées sans droit, pas d'atteinte aux autres utilisateurs ni au réseau.
+
+Le temps et les données de votre code sont décomptés comme indiqué à l'accueil. Un code ne peut être utilisé que sur le nombre d'appareils prévu.
+
+Pour la sécurité du réseau et le respect de la loi, l'adresse de votre appareil (MAC), son adresse IP et les heures de connexion sont enregistrées.
+
+L'établissement peut couper un accès en cas d'abus. Le service est fourni sans garantie de débit ni de disponibilité.</value></data>
+  <data name="Portal_Unavailable_Title" xml:space="preserve"><value>Service temporairement indisponible</value></data>
+  <data name="Portal_Unavailable_Text" xml:space="preserve"><value>Le Wi-Fi est momentanément indisponible. Merci de vous adresser à l'accueil.</value></data>
+  <data name="Portal_DeviceUnknown" xml:space="preserve"><value>Votre appareil n'a pas pu être identifié. Déconnectez-vous du Wi-Fi puis reconnectez-vous, et réessayez.</value></data>
+  <data name="Login_InvalidCode" xml:space="preserve"><value>Code invalide. Vérifiez les caractères et réessayez.</value></data>
+  <data name="Login_InvalidCredentials" xml:space="preserve"><value>Nom d'utilisateur ou mot de passe incorrect.</value></data>
+  <data name="Login_VoucherDisabled" xml:space="preserve"><value>Ce code a été désactivé. Adressez-vous à l'accueil.</value></data>
+  <data name="Login_VoucherExpired" xml:space="preserve"><value>Ce code a expiré.</value></data>
+  <data name="Login_QuotaUsed" xml:space="preserve"><value>Le temps ou les données de ce code sont épuisés.</value></data>
+  <data name="Login_TooManyDevices" xml:space="preserve"><value>Ce code est déjà utilisé sur le nombre maximum d'appareils. Déconnectez d'abord un autre appareil.</value></data>
+  <data name="Login_LockedOut" xml:space="preserve"><value>Trop d'essais. Réessayez dans {0} minute(s).</value></data>
+  <data name="Login_DeviceBlocked" xml:space="preserve"><value>Cet appareil n'est pas autorisé sur ce réseau.</value></data>
+  <data name="Login_AccountDisabled" xml:space="preserve"><value>Ce compte est désactivé. Adressez-vous à l'accueil.</value></data>
+  <data name="Login_AccountExpired" xml:space="preserve"><value>Ce compte a expiré.</value></data>
+  <data name="Login_InsufficientBalance" xml:space="preserve"><value>Solde insuffisant. Rechargez votre compte à l'accueil.</value></data>
+  <data name="Status_Title" xml:space="preserve"><value>Votre connexion</value></data>
+  <data name="Status_TimeLeft" xml:space="preserve"><value>Temps restant</value></data>
+  <data name="Status_DataLeft" xml:space="preserve"><value>Données restantes</value></data>
+  <data name="Status_ValidUntil" xml:space="preserve"><value>Valable jusqu'au</value></data>
+  <data name="Status_Unlimited" xml:space="preserve"><value>Illimité</value></data>
+  <data name="Status_Speed" xml:space="preserve"><value>Vitesse actuelle</value></data>
+  <data name="Status_SpeedLimit" xml:space="preserve"><value>Débit maximum</value></data>
+  <data name="Status_Used" xml:space="preserve"><value>Consommé</value></data>
+  <data name="Status_Plan" xml:space="preserve"><value>Forfait</value></data>
+  <data name="Status_Code" xml:space="preserve"><value>Code</value></data>
+  <data name="Status_Account" xml:space="preserve"><value>Compte</value></data>
+  <data name="Status_Balance" xml:space="preserve"><value>Solde du compte</value></data>
+  <data name="Status_Logout" xml:space="preserve"><value>Se déconnecter</value></data>
+  <data name="Status_PauseNote" xml:space="preserve"><value>Le décompte du temps s'arrête quand vous vous déconnectez.</value></data>
+  <data name="Status_WallClockNote" xml:space="preserve"><value>Le temps continue de s'écouler même si vous vous déconnectez.</value></data>
+  <data name="Status_Redirecting" xml:space="preserve"><value>Vous allez être redirigé vers la page demandée…</value></data>
+  <data name="Status_Down" xml:space="preserve"><value>Réception</value></data>
+  <data name="Status_Up" xml:space="preserve"><value>Envoi</value></data>
+  <data name="Ended_QuotaUsed" xml:space="preserve"><value>Votre temps ou vos données sont épuisés. Achetez un nouveau code pour continuer.</value></data>
+  <data name="Ended_Expired" xml:space="preserve"><value>Votre code a expiré. Achetez un nouveau code pour continuer.</value></data>
+  <data name="Ended_Idle" xml:space="preserve"><value>Vous avez été déconnecté après une période sans activité. Reconnectez-vous avec le même code.</value></data>
+  <data name="Ended_Logout" xml:space="preserve"><value>Vous êtes déconnecté.</value></data>
+  <data name="Ended_KickedByStaff" xml:space="preserve"><value>Votre connexion a été arrêtée par le personnel.</value></data>
+  <data name="Gate_TestVouchers" xml:space="preserve"><value>Codes de test</value></data>
+  <data name="Gate_TestVouchersNote" xml:space="preserve"><value>Pour essayer le portail avant le tableau de bord (phase 5) : créez un code, écrivez-le sur un papier, puis tapez-le sur le téléphone.</value></data>
+  <data name="Gate_CreateVoucher" xml:space="preserve"><value>Créer un code</value></data>
+  <data name="Gate_VoucherCreated" xml:space="preserve"><value>Nouveau code : {0}</value></data>
+  <data name="Col_Code" xml:space="preserve"><value>Code</value></data>
+  <data name="Col_Tariff" xml:space="preserve"><value>Forfait</value></data>
+  <data name="Voucher_Status_New" xml:space="preserve"><value>Nouveau</value></data>
+  <data name="Voucher_Status_Sold" xml:space="preserve"><value>Vendu</value></data>
+  <data name="Voucher_Status_Active" xml:space="preserve"><value>Actif</value></data>
+  <data name="Voucher_Status_Expired" xml:space="preserve"><value>Terminé</value></data>
+  <data name="Voucher_Status_Disabled" xml:space="preserve"><value>Désactivé</value></data>
 </root>

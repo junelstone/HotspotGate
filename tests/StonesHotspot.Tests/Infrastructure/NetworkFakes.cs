@@ -121,3 +121,26 @@ public sealed class FakeNeighborTable : INeighborTable
             return _entries.ToList();
     }
 }
+
+/// <summary>Licence whose "hotspot allowed" flag a test can switch (the real licensing comes in phase 10).</summary>
+public sealed class FakeLicenseService : StonesHotspot.Licensing.ILicenseService
+{
+    public bool HotspotAllowed { get; set; } = true;
+
+    public StonesHotspot.Licensing.LicenseStatus GetStatus() =>
+        new(StonesHotspot.Licensing.Edition.Trial, DateTimeOffset.UtcNow.AddDays(30), InGracePeriod: false, HotspotAllowed);
+
+    public bool IsAllowed(StonesHotspot.Licensing.Feature feature) => HotspotAllowed;
+}
+
+/// <summary>Sends every request as if it came from a given customer IP (see ServiceSmokeTests.RemoteIpHeader).</summary>
+public sealed class RemoteIpHandler(string ip, string host = "192.168.137.1") : DelegatingHandler
+{
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        request.Headers.Remove(ServiceSmokeTests.RemoteIpHeader);
+        request.Headers.Add(ServiceSmokeTests.RemoteIpHeader, ip);
+        request.Headers.Host ??= host; // the customer browses the portal on the gateway address
+        return base.SendAsync(request, cancellationToken);
+    }
+}

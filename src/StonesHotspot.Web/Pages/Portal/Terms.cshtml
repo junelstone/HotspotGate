@@ -1,0 +1,14 @@
+@page "/portal/terms"
+@model StonesHotspot.Web.Pages.Portal.TermsModel
+@{
+    Layout = "_PortalLayout";
+    ViewData["Title"] = Strings.Terms_Title;
+}
+<h1>@Strings.Terms_Title</h1>
+<div class="card">
+    @foreach (var paragraph in Model.Paragraphs)
+    {
+        <p>@paragraph</p>
+    }
+</div>
+<a class="button" href="/portal">@Strings.Portal_Back</a>

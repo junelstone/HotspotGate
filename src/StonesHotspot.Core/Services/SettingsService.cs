@@ -11,6 +11,10 @@ public static class SettingKeys
     public const string DefaultLanguage = "Ui.DefaultLanguage";
     public const string DefaultIdleTimeoutMinutes = "Sessions.DefaultIdleTimeoutMinutes";
     public const string LastReceiptNumber = "Receipts.LastNumber";
+    public const string PortalWelcomeUrl = "Portal.WelcomeUrl";
+    public const string PortalAccentColor = "Portal.AccentColor";
+    public const string PortalTermsFr = "Portal.TermsFr";
+    public const string PortalTermsEn = "Portal.TermsEn";
     public const string NetworkMode = "Network.Mode";
     public const string NetworkWanAdapterId = "Network.WanAdapterId";
     public const string NetworkLanAdapterId = "Network.LanAdapterId";

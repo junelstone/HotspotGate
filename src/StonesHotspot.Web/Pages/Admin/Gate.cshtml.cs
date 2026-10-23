@@ -23,14 +23,21 @@ public sealed class GateModel(
     HotspotDbContext db,
     DeviceService devices,
     SessionService sessions,
-    WebFilterService filters) : PageModel
+    WebFilterService filters,
+    TariffService tariffs,
+    VoucherService vouchers) : PageModel
 {
+    public const string TestBatch = "Test";
+
     public GateStatus Status { get; private set; } = GateStatus.Stopped;
     public GateCounters Counters { get; private set; } = new();
     public PacketProcessor Processor => gate.Processor;
     public IReadOnlyList<GateDeviceRow> Devices { get; private set; } = [];
     public IReadOnlyList<WebFilterRule> Rules { get; private set; } = [];
     public string? Error { get; private set; }
+    public IReadOnlyList<Tariff> Tariffs { get; private set; } = [];
+    public IReadOnlyList<Voucher> TestVouchers { get; private set; } = [];
+    public string? CreatedCode { get; private set; }
 
     [BindProperty]
     public string? Pattern { get; set; }
@@ -69,6 +76,14 @@ public sealed class GateModel(
         }
     }
 
+    /// <summary>Creates one voucher so the portal can be tried before the dashboard exists (phase 5).</summary>
+    public async Task OnPostCreateVoucherAsync(int tariffId)
+    {
+        var created = await vouchers.GenerateBatchAsync(tariffId, 1, TestBatch, singleUse: false, null, HttpContext.RequestAborted);
+        CreatedCode = StonesHotspot.Core.Rules.VoucherCodeGenerator.Format(created[0].Code);
+        await LoadAsync();
+    }
+
     public async Task<IActionResult> OnPostRemoveRuleAsync(int id)
     {
         await filters.RemoveAsync(id, null, HttpContext.RequestAborted);
@@ -80,6 +95,8 @@ public sealed class GateModel(
         Status = gate.Status;
         Counters = gate.Processor.Counters;
         Rules = await filters.ListAsync(HttpContext.RequestAborted);
+        Tariffs = await tariffs.ListAsync(ct: HttpContext.RequestAborted);
+        TestVouchers = (await vouchers.ListBatchAsync(TestBatch, HttpContext.RequestAborted)).OrderByDescending(v => v.Id).Take(10).ToList();
 
         var seen = registry.Latest.Devices;
         var macs = seen.Select(d => d.Mac).ToList();
@@ -98,6 +115,15 @@ public sealed class GateModel(
             return new GateDeviceRow(d, access);
         }).ToList();
     }
+
+    public static string VoucherStatusText(VoucherStatus status) => status switch
+    {
+        VoucherStatus.New => Strings.Voucher_Status_New,
+        VoucherStatus.Sold => Strings.Voucher_Status_Sold,
+        VoucherStatus.Active => Strings.Voucher_Status_Active,
+        VoucherStatus.Expired => Strings.Voucher_Status_Expired,
+        _ => Strings.Voucher_Status_Disabled,
+    };
 
     public static string AccessText(DeviceAccess access) => access switch
     {

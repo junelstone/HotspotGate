@@ -21,6 +21,8 @@ public static class NetworkServiceCollectionExtensions
         services.AddSingleton<ConnectedDeviceRegistry>();
         services.AddSingleton<PacketProcessor>();
         services.AddSingleton<PortalLocation>();
+        services.AddSingleton<LiveTrafficMonitor>();
+        services.AddSingleton<AccessRefreshSignal>();
         services.AddSingleton<ClientIdentityResolver>();
         services.AddSingleton<DnsResponder>();
         services.AddSingleton<IDnsUpstream>(sp => new UdpDnsUpstream(() => WanDnsServers(sp), sp.GetRequiredService<ILogger<UdpDnsUpstream>>()));

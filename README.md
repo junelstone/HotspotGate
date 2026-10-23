@@ -3,9 +3,10 @@
 Windows Wi-Fi hotspot manager (captive portal) by **Stone's IT Consulting**: turns a Windows 10/11 PC into a
 managed, paid Wi-Fi hotspot — vouchers, user accounts, tariffs, Mobile Money, admin dashboard.
 
-> **Status: Phase 3 — packet gate and DNS.** Customers on the Wi-Fi have no internet until they are
-> authorised; their web requests land on the portal and phones show "Sign in to network" by themselves. The login
-> forms come in phase 4; for now devices are authorised by hand on a test page. See [Build phases](#build-phases).
+> **Status: Phase 4 — captive portal.** Customers join the Wi-Fi, the portal opens by itself, they log in with
+> the code from their ticket (or an account), see their time/data left, and are cut off when it runs out. Staff
+> screens (selling and printing codes) come with the dashboard in phase 5; until then test codes are created on
+> <http://localhost:8080/admin/gate>. See [Build phases](#build-phases).
 
 ## Requirements
 
@@ -35,7 +36,8 @@ dotnet run --project src\StonesHotspot.Service --launch-profile StonesHotspot.Se
 Then open <http://localhost:8080/admin> (add `?lang=en` for English) and <http://localhost:8080/health>.
 In Development the data folder is `src\StonesHotspot.Service\data\` instead of `%ProgramData%\StonesHotspot`,
 the service listens on **localhost only** and the portal uses port **8081**: fine for working on pages, but phones
-cannot reach it. For tests with real devices run the published service
+cannot reach it. A desktop browser on the PC is treated as a test device (MAC `02:00:00:00:00:01`), so the
+portal can be tried at <http://localhost:8081/portal> with a code from <http://localhost:8080/admin/gate>. For tests with real devices run the published service
 (`.\build.ps1 -Publish`, then `artifacts\publish\StonesHotspot.Service\StonesHotspot.Service.exe` as administrator),
 which listens on ports 80 and 8080 on all addresses.
 
@@ -100,6 +102,15 @@ The setup pages only answer on the PC itself until staff login exists (phase 5).
 `http://192.168.137.1/portal`. Every 5 s the service makes the network match the saved setup (it switches
 sharing back on if Windows dropped it).
 
+### Customer portal
+
+`http://192.168.137.1/portal`: code login (default) and account login, status page with live countdown, data left,
+speed and **Se déconnecter**, terms of use, "site blocked" page — French/English, ~5 KB per page, nothing loaded from
+the internet. After login the customer goes to the **welcome page** (setting `Portal.WelcomeUrl`) if set, otherwise
+to the page they first asked for. Business name, accent colour (`Portal.AccentColor`) and logo
+(`%ProgramData%\StonesHotspot\branding\logo.png`) come from the settings; terms can be replaced with the
+settings `Portal.TermsFr` / `Portal.TermsEn` (the dashboard edits all of these in phase 5).
+
 ### Packet gate (WinDivert)
 
 `build.ps1` downloads **WinDivert 2.2.2** from its official release (SHA-256 checked, see
@@ -113,7 +124,7 @@ Windows restart it automatically. In Windows Mobile hotspot mode the service can
 PC's own internet is never filtered.
 
 Manual tests: [`phase-2-network.md`](docs/manual-tests/phase-2-network.md),
-[`phase-3-gate.md`](docs/manual-tests/phase-3-gate.md).
+[`phase-3-gate.md`](docs/manual-tests/phase-3-gate.md), [`phase-4-portal.md`](docs/manual-tests/phase-4-portal.md).
 
 ## Database
 
@@ -157,8 +168,8 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 | 0 | Project skeleton | done |
 | 1 | Data layer and business rules | done |
 | 2 | Network setup (adapters, ICS, connected devices) | done (Mode B dropped) |
-| 3 | Packet gate (WinDivert) and DNS | **done** — to be verified on Windows |
-| 4 | Captive portal | — |
+| 3 | Packet gate (WinDivert) and DNS | done — to be verified on Windows |
+| 4 | Captive portal | **done** — to be verified on Windows |
 | 5 | Admin dashboard | — |
 | 6 | Bandwidth control and web filter | — |
 | 7 | Business tools (shifts, POS, reports) | — |
@@ -183,6 +194,7 @@ Plans for each phase are in `docs/phase-N-plan.md`.
 | Gate page: "WinDivert driver files … are missing" | Run `.\build.ps1` (it downloads WinDivert), or copy `WinDivert.dll` and `WinDivert64.sys` next to `StonesHotspot.Service.exe` |
 | Gate page: "driver was blocked" / "signature" | Antivirus or Secure Boot policy blocked WinDivert: allow it in the antivirus, then restart the service |
 | Service log: "address already in use" for port 80 | Another program uses port 80 (IIS, Skype…): stop it, or set `StonesHotspot:PortalPort` |
+| Portal says "Votre appareil n'a pas pu être identifié" | The PC has not seen the phone in its ARP table: turn the phone's Wi-Fi off and on. If it persists, check the LAN adapter choice on the Network page |
 | Phones never show "Sign in to network" | Check the firewall rule for port 80 above and the gate state on <http://localhost:8080/admin/gate> |
 | "database is locked" in the log | Another program (e.g. DB Browser for SQLite) has the database open for writing; close it |
 | Lost the admin password | Another admin can reset it; an offline reset tool for the last admin comes with the dashboard (phase 5) |

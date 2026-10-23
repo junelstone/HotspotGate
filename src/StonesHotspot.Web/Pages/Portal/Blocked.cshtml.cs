@@ -1,8 +1,10 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using StonesHotspot.Core;
+using StonesHotspot.Core.Services;
+using StonesHotspot.Web.Portal;
 
 namespace StonesHotspot.Web.Pages.Portal;
 
-public sealed class BlockedModel : PageModel
+public sealed class BlockedModel(SettingsService settings, AppPaths paths) : PortalPageModel(settings, paths)
 {
     public string Host { get; private set; } = "";
 

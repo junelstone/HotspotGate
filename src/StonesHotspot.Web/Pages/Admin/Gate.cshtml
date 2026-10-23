@@ -55,6 +55,39 @@ else
     </div>
 }
 
+<h2>@Strings.Gate_TestVouchers</h2>
+<p class="muted">@Strings.Gate_TestVouchersNote</p>
+@if (Model.CreatedCode is not null)
+{
+    <div class="msg ok" style="font-size:1.4rem;font-family:ui-monospace,Consolas,monospace">@string.Format(Strings.Gate_VoucherCreated, Model.CreatedCode)</div>
+}
+<div class="card">
+    <form method="post" asp-page-handler="CreateVoucher">
+        <label for="tariffId">@Strings.Col_Tariff</label>
+        <select name="tariffId" id="tariffId">
+            @foreach (var t in Model.Tariffs)
+            {
+                <option value="@t.Id">@t.Name — @t.Price</option>
+            }
+        </select>
+        <button type="submit">@Strings.Gate_CreateVoucher</button>
+    </form>
+</div>
+@if (Model.TestVouchers.Count > 0)
+{
+    <table>
+        <tr><th>@Strings.Col_Code</th><th>@Strings.Col_Tariff</th><th>@Strings.Col_State</th></tr>
+        @foreach (var v in Model.TestVouchers)
+        {
+            <tr>
+                <td><code>@StonesHotspot.Core.Rules.VoucherCodeGenerator.Format(v.Code)</code></td>
+                <td>@v.Tariff.Name</td>
+                <td>@StonesHotspot.Web.Pages.Admin.GateModel.VoucherStatusText(v.Status)</td>
+            </tr>
+        }
+    </table>
+}
+
 <h2>@Strings.Gate_Counters</h2>
 <table>
     <tr><th>@Strings.Gate_PassedUp</th><td>@c.PassedUp</td></tr>

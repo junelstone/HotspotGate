@@ -93,7 +93,6 @@
   <data name="Admin_Home_Title" xml:space="preserve"><value>Dashboard</value></data>
   <data name="Portal_Title" xml:space="preserve"><value>Wi-Fi login</value></data>
   <data name="Portal_Welcome" xml:space="preserve"><value>Welcome to the {0} Wi-Fi</value></data>
-  <data name="Portal_LoginSoon" xml:space="preserve"><value>Log in to use the internet. Login with a code is coming to this page very soon.</value></data>
   <data name="Portal_Connected" xml:space="preserve"><value>You are connected: the internet is available.</value></data>
   <data name="Portal_Continue" xml:space="preserve"><value>Continue to the page you asked for</value></data>
   <data name="Portal_Device" xml:space="preserve"><value>Your device</value></data>
@@ -145,4 +144,73 @@
   <data name="Network_Gate" xml:space="preserve"><value>Packet filter</value></data>
   <data name="Network_Problem_GateFailed" xml:space="preserve"><value>The packet filter (WinDivert) could not start: connection sharing stays off so the Wi-Fi is not left open.</value></data>
   <data name="Network_Problem_GateNotRunning" xml:space="preserve"><value>The packet filter is not running yet.</value></data>
+  <data name="Portal_TabCode" xml:space="preserve"><value>Access code</value></data>
+  <data name="Portal_TabAccount" xml:space="preserve"><value>Account</value></data>
+  <data name="Portal_CodeLabel" xml:space="preserve"><value>Enter the code from your ticket</value></data>
+  <data name="Portal_CodeHint" xml:space="preserve"><value>8 characters, for example ABCD-EFGH</value></data>
+  <data name="Portal_Connect" xml:space="preserve"><value>Connect</value></data>
+  <data name="Portal_Username" xml:space="preserve"><value>Username</value></data>
+  <data name="Portal_Password" xml:space="preserve"><value>Password</value></data>
+  <data name="Portal_TermsAccept" xml:space="preserve"><value>By connecting, you accept the</value></data>
+  <data name="Portal_TermsLink" xml:space="preserve"><value>terms of use</value></data>
+  <data name="Portal_Back" xml:space="preserve"><value>Back</value></data>
+  <data name="Portal_BuyCode" xml:space="preserve"><value>No code? Buy a ticket at the counter.</value></data>
+  <data name="Terms_Title" xml:space="preserve"><value>Terms of use</value></data>
+  <data name="Terms_Default" xml:space="preserve"><value>Wi-Fi access is reserved for customers with a valid code or account.
+
+You agree to use the internet lawfully: no illegal activity, no downloading of protected works without permission, no harm to other users or to the network.
+
+The time and data of your code are counted as explained at the counter. A code can only be used on the number of devices it allows.
+
+For network security and to comply with the law, your device's address (MAC), its IP address and connection times are recorded.
+
+The business may cut off access in case of abuse. The service is provided without any guarantee of speed or availability.</value></data>
+  <data name="Portal_Unavailable_Title" xml:space="preserve"><value>Service temporarily unavailable</value></data>
+  <data name="Portal_Unavailable_Text" xml:space="preserve"><value>The Wi-Fi is unavailable for the moment. Please ask at the counter.</value></data>
+  <data name="Portal_DeviceUnknown" xml:space="preserve"><value>Your device could not be identified. Disconnect from the Wi-Fi, reconnect, and try again.</value></data>
+  <data name="Login_InvalidCode" xml:space="preserve"><value>Invalid code. Check the characters and try again.</value></data>
+  <data name="Login_InvalidCredentials" xml:space="preserve"><value>Wrong username or password.</value></data>
+  <data name="Login_VoucherDisabled" xml:space="preserve"><value>This code has been disabled. Please ask at the counter.</value></data>
+  <data name="Login_VoucherExpired" xml:space="preserve"><value>This code has expired.</value></data>
+  <data name="Login_QuotaUsed" xml:space="preserve"><value>The time or data of this code is used up.</value></data>
+  <data name="Login_TooManyDevices" xml:space="preserve"><value>This code is already in use on the maximum number of devices. Log out another device first.</value></data>
+  <data name="Login_LockedOut" xml:space="preserve"><value>Too many attempts. Try again in {0} minute(s).</value></data>
+  <data name="Login_DeviceBlocked" xml:space="preserve"><value>This device is not allowed on this network.</value></data>
+  <data name="Login_AccountDisabled" xml:space="preserve"><value>This account is disabled. Please ask at the counter.</value></data>
+  <data name="Login_AccountExpired" xml:space="preserve"><value>This account has expired.</value></data>
+  <data name="Login_InsufficientBalance" xml:space="preserve"><value>Not enough balance. Top up your account at the counter.</value></data>
+  <data name="Status_Title" xml:space="preserve"><value>Your connection</value></data>
+  <data name="Status_TimeLeft" xml:space="preserve"><value>Time left</value></data>
+  <data name="Status_DataLeft" xml:space="preserve"><value>Data left</value></data>
+  <data name="Status_ValidUntil" xml:space="preserve"><value>Valid until</value></data>
+  <data name="Status_Unlimited" xml:space="preserve"><value>Unlimited</value></data>
+  <data name="Status_Speed" xml:space="preserve"><value>Current speed</value></data>
+  <data name="Status_SpeedLimit" xml:space="preserve"><value>Maximum speed</value></data>
+  <data name="Status_Used" xml:space="preserve"><value>Used</value></data>
+  <data name="Status_Plan" xml:space="preserve"><value>Plan</value></data>
+  <data name="Status_Code" xml:space="preserve"><value>Code</value></data>
+  <data name="Status_Account" xml:space="preserve"><value>Account</value></data>
+  <data name="Status_Balance" xml:space="preserve"><value>Account balance</value></data>
+  <data name="Status_Logout" xml:space="preserve"><value>Log out</value></data>
+  <data name="Status_PauseNote" xml:space="preserve"><value>The time stops counting when you log out.</value></data>
+  <data name="Status_WallClockNote" xml:space="preserve"><value>The time keeps running even if you log out.</value></data>
+  <data name="Status_Redirecting" xml:space="preserve"><value>Taking you to the page you asked for…</value></data>
+  <data name="Status_Down" xml:space="preserve"><value>Download</value></data>
+  <data name="Status_Up" xml:space="preserve"><value>Upload</value></data>
+  <data name="Ended_QuotaUsed" xml:space="preserve"><value>Your time or data is used up. Buy a new code to continue.</value></data>
+  <data name="Ended_Expired" xml:space="preserve"><value>Your code has expired. Buy a new code to continue.</value></data>
+  <data name="Ended_Idle" xml:space="preserve"><value>You were logged out after a period without activity. Log in again with the same code.</value></data>
+  <data name="Ended_Logout" xml:space="preserve"><value>You are logged out.</value></data>
+  <data name="Ended_KickedByStaff" xml:space="preserve"><value>Your connection was stopped by staff.</value></data>
+  <data name="Gate_TestVouchers" xml:space="preserve"><value>Test codes</value></data>
+  <data name="Gate_TestVouchersNote" xml:space="preserve"><value>To try the portal before the dashboard (phase 5): create a code, write it on paper, then type it on the phone.</value></data>
+  <data name="Gate_CreateVoucher" xml:space="preserve"><value>Create a code</value></data>
+  <data name="Gate_VoucherCreated" xml:space="preserve"><value>New code: {0}</value></data>
+  <data name="Col_Code" xml:space="preserve"><value>Code</value></data>
+  <data name="Col_Tariff" xml:space="preserve"><value>Plan</value></data>
+  <data name="Voucher_Status_New" xml:space="preserve"><value>New</value></data>
+  <data name="Voucher_Status_Sold" xml:space="preserve"><value>Sold</value></data>
+  <data name="Voucher_Status_Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Voucher_Status_Expired" xml:space="preserve"><value>Used up</value></data>
+  <data name="Voucher_Status_Disabled" xml:space="preserve"><value>Disabled</value></data>
 </root>

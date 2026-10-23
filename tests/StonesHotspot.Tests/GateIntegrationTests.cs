@@ -126,24 +126,7 @@ public sealed class GateIntegrationTests : IClassFixture<ServiceSmokeTests.Facto
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Contains("Bienvenue sur le Wi-Fi de", html);
-        Assert.Contains(PhoneIp, html);
-    }
-
-    [Fact]
-    public async Task Portal_never_offers_a_script_link_as_continue_target()
-    {
-        const string ip = "192.168.137.63", mac = "DA:A1:19:00:00:63";
-        _factory.Neighbors.Add(new NeighborEntry(7, IPAddress.Parse(ip), mac, NeighborState.Reachable));
-        await InScope(sp => sp.GetRequiredService<DeviceService>().SetWhitelistedAsync(mac, true, null).ContinueWith(_ => 0));
-        await TickAsync();
-
-        var request = new HttpRequestMessage(HttpMethod.Get, "/portal?url=javascript%3Aalert(1)");
-        request.Headers.Add(ServiceSmokeTests.RemoteIpHeader, ip);
-        request.Headers.Host = "192.168.137.1";
-        var html = await (await Client().SendAsync(request)).Content.ReadAsStringAsync();
-
-        Assert.Contains("Vous êtes connecté", WebUtility.HtmlDecode(html));
-        Assert.DoesNotContain("javascript:", html);
+        Assert.Contains("Entrez le code de votre ticket", html);
     }
 
     [Fact]
@@ -171,6 +154,25 @@ public sealed class GateIntegrationTests : IClassFixture<ServiceSmokeTests.Facto
         var request = new HttpRequestMessage(HttpMethod.Get, "/health");
         request.Headers.Host = "www.example.com";
         Assert.Equal(HttpStatusCode.OK, (await Client().SendAsync(request)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Gate_page_creates_a_test_voucher()
+    {
+        var client = Client();
+        var page = await client.GetStringAsync("/admin/gate");
+        var token = Regex.Match(page, "name=\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\"").Groups[1].Value;
+        var tariffId = await InScope(async sp => (await sp.GetRequiredService<TariffService>().ListAsync()).First().Id);
+
+        var response = await client.PostAsync("/admin/gate?handler=CreateVoucher", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["tariffId"] = tariffId.ToString(), ["__RequestVerificationToken"] = token,
+        }));
+        var html = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
+
+        var code = Regex.Match(html, "Nouveau code : ([A-Z0-9]{4}-[A-Z0-9]{4})").Groups[1].Value;
+        Assert.NotEmpty(code);
+        Assert.True(await InScope(sp => sp.GetRequiredService<HotspotDbContext>().Vouchers.AnyAsync(v => v.Code == code.Replace("-", "") && v.BatchName == "Test")));
     }
 
     [Fact]

@@ -2,7 +2,9 @@ using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using StonesHotspot.Core;
 using StonesHotspot.Licensing;
+using StonesHotspot.Web.Portal;
 
 namespace StonesHotspot.Web;
 
@@ -27,6 +29,22 @@ public static class HotspotEndpoints
                 daysLeft = status.DaysLeft(clock.GetUtcNow()),
                 hotspotAllowed = status.HotspotAllowed,
             });
+        });
+
+        // Business logo for the portal (uploaded in the dashboard, phase 5).
+        app.MapGet("/portal/logo", (AppPaths paths) =>
+        {
+            var file = PortalBranding.FindLogo(paths);
+            if (file is null)
+                return Results.NotFound();
+            var type = Path.GetExtension(file).ToLowerInvariant() switch
+            {
+                ".png" => "image/png",
+                ".svg" => "image/svg+xml",
+                ".webp" => "image/webp",
+                _ => "image/jpeg",
+            };
+            return Results.File(file, type, lastModified: File.GetLastWriteTimeUtc(file));
         });
 
         app.MapGet("/", () => Results.Redirect("/admin"));

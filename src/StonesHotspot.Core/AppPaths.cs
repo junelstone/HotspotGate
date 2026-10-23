@@ -18,6 +18,9 @@ public sealed class AppPaths
     public string Root { get; }
     public string Logs => Path.Combine(Root, "logs");
     public string Backups => Path.Combine(Root, "backups");
+
+    /// <summary>Logo and other portal branding files.</summary>
+    public string Branding => Path.Combine(Root, "branding");
     public string DatabaseFile => Path.Combine(Root, "stoneshotspot.db");
 
     /// <summary>Creates the data folders if they do not exist yet.</summary>
@@ -26,6 +29,7 @@ public sealed class AppPaths
         Directory.CreateDirectory(Root);
         Directory.CreateDirectory(Logs);
         Directory.CreateDirectory(Backups);
+        Directory.CreateDirectory(Branding);
         return this;
     }
 }

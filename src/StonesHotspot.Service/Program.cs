@@ -59,7 +59,7 @@ try
     builder.Services.AddHotspotNetwork(new HotspotNetworkOptions { PortalPort = (ushort)ports.Portal });
     builder.Services.AddHostedService<HotspotEngineService>();
     builder.Services.AddHostedService<DeviceDiscoveryService>();
-    builder.Services.AddRazorPages();
+    builder.Services.AddHotspotWeb();
     // French text as plain UTF-8 instead of &#xE9; entities: lighter pages, same safety.
     builder.Services.Configure<WebEncoderOptions>(o => o.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All));
 

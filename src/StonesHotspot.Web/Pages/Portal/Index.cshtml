@@ -4,19 +4,48 @@
     Layout = "_PortalLayout";
     ViewData["Title"] = Strings.Portal_Title;
 }
-<h1>@string.Format(Strings.Portal_Welcome, Model.BusinessName)</h1>
+@if (Model.Unavailable)
+{
+    <h1>@Strings.Portal_Unavailable_Title</h1>
+    <div class="card">@Strings.Portal_Unavailable_Text</div>
+    return;
+}
+
+<h1>@string.Format(Strings.Portal_Welcome, Model.Branding.BusinessName)</h1>
+
+@if (Model.Info is not null)
+{
+    <div class="msg info">@Model.Info</div>
+}
+@if (Model.Error is not null)
+{
+    <div class="msg error" role="alert">@Model.Error</div>
+}
+
 <div class="card">
-    @if (Model.IsAuthorized)
-    {
-        <p class="ok">@Strings.Portal_Connected</p>
-        @if (Model.OriginalUrl is not null)
-        {
-            <a class="button" href="@Model.OriginalUrl">@Strings.Portal_Continue</a>
-        }
-    }
-    else
-    {
-        <p>@Strings.Portal_LoginSoon</p>
-    }
+    <form method="post" asp-page-handler="Voucher">
+        <input type="hidden" name="url" value="@Model.OriginalUrl">
+        <label for="Code">@Strings.Portal_CodeLabel</label>
+        <input asp-for="Code" class="code" type="text" autocomplete="off" autocapitalize="characters" autocorrect="off"
+               spellcheck="false" maxlength="12" placeholder="ABCD-EFGH" autofocus="@(!Model.AccountOpen)">
+        <p class="hint">@Strings.Portal_CodeHint</p>
+        <button type="submit">@Strings.Portal_Connect</button>
+    </form>
 </div>
-<p class="muted">@Strings.Portal_Device : @(Model.Mac ?? "—") · @(Model.Ip ?? "—")</p>
+
+<div class="card">
+    <details open="@Model.AccountOpen">
+        <summary>@Strings.Portal_TabAccount</summary>
+        <form method="post" asp-page-handler="Account">
+            <input type="hidden" name="url" value="@Model.OriginalUrl">
+            <label for="Username" style="margin-top:.8rem">@Strings.Portal_Username</label>
+            <input asp-for="Username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off">
+            <label for="Password" style="margin-top:.8rem">@Strings.Portal_Password</label>
+            <input asp-for="Password" type="password" autocomplete="current-password">
+            <button type="submit">@Strings.Portal_Connect</button>
+        </form>
+    </details>
+</div>
+
+<p class="muted">@Strings.Portal_BuyCode</p>
+<p class="muted">@Strings.Portal_TermsAccept <a href="/portal/terms">@Strings.Portal_TermsLink</a>.</p>

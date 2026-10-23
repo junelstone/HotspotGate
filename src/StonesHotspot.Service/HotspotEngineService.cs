@@ -22,34 +22,44 @@ internal sealed class HotspotEngineService(
     IPacketGate gate,
     INeighborTable neighbors,
     PortalLocation portal,
+    AccessRefreshSignal refresh,
+    LiveTrafficMonitor speeds,
     ILicenseService licence,
     TimeProvider clock,
     ILogger<HotspotEngineService> logger) : BackgroundService
 {
     public static readonly TimeSpan TickInterval = TimeSpan.FromSeconds(1);
-    private const int ReconcileEveryTicks = 5;
-    private const int RulesEveryTicks = 10;
+    public static readonly TimeSpan ReconcileInterval = TimeSpan.FromSeconds(5);
+    public static readonly TimeSpan RulesInterval = TimeSpan.FromSeconds(10);
 
     private FilterRules _rules = FilterRules.Empty;
     private string? _lastReconcileProblem;
+    private DateTimeOffset _lastTick = DateTimeOffset.MinValue;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await ReconcileAsync(stoppingToken);
         await ReloadRulesAsync(stoppingToken);
 
-        using var timer = new PeriodicTimer(TickInterval, clock);
-        var tick = 0;
-        while (await WaitAsync(timer, stoppingToken))
+        var lastReconcile = clock.GetUtcNow();
+        var lastRules = lastReconcile;
+        while (!stoppingToken.IsCancellationRequested)
         {
-            tick++;
             try
             {
+                // Every second, or at once when a login/logout asks for it.
+                await refresh.WaitAsync(TickInterval, stoppingToken);
                 await TickAsync(stoppingToken);
-                if (tick % ReconcileEveryTicks == 0)
-                    await ReconcileAsync(stoppingToken);
-                if (tick % RulesEveryTicks == 0)
+
+                var now = clock.GetUtcNow();
+                if (now - lastReconcile >= ReconcileInterval)
                 {
+                    lastReconcile = now;
+                    await ReconcileAsync(stoppingToken);
+                }
+                if (now - lastRules >= RulesInterval)
+                {
+                    lastRules = now;
                     await ReloadRulesAsync(stoppingToken);
                     gate.Processor.Maintain();
                 }
@@ -109,6 +119,11 @@ internal sealed class HotspotEngineService(
         var db = services.GetRequiredService<HotspotDbContext>();
         var sessions = await db.Sessions.AsNoTracking().Where(s => s.EndedAt == null)
             .Select(s => new AccessSession(s.Id, s.Device.Mac, s.Ip)).ToListAsync(ct);
+
+        var now = clock.GetUtcNow();
+        if (_lastTick != DateTimeOffset.MinValue)
+            speeds.Record(traffic.ToDictionary(t => t.Key, t => (t.Value.BytesUp, t.Value.BytesDown)), sessions.Select(s => s.SessionId), now - _lastTick);
+        _lastTick = now;
         var whitelisted = await db.Devices.AsNoTracking().Where(d => d.Whitelisted).Select(d => d.Mac).ToListAsync(ct);
         var blocked = await db.Devices.AsNoTracking().Where(d => d.Blocked).Select(d => d.Mac).ToListAsync(ct);
 
@@ -173,17 +188,5 @@ internal sealed class HotspotEngineService(
             }
         }
         return new FilterRules(new DomainSet(blockedDomains), new DomainSet(freeDomains), new IpRangeSet(blockedIps), new IpRangeSet(freeIps));
-    }
-
-    private static async Task<bool> WaitAsync(PeriodicTimer timer, CancellationToken ct)
-    {
-        try
-        {
-            return await timer.WaitForNextTickAsync(ct);
-        }
-        catch (OperationCanceledException)
-        {
-            return false;
-        }
     }
 }

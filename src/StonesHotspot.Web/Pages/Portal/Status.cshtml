@@ -1,0 +1,80 @@
+@page "/portal/status"
+@model StonesHotspot.Web.Pages.Portal.StatusModel
+@using StonesHotspot.Core.Data.Entities
+@{
+    Layout = "_PortalLayout";
+    ViewData["Title"] = Strings.Status_Title;
+    var s = Model.Status;
+    var v = Model.View;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+    var forward = Model.JustLoggedIn && Model.Next is not null;
+}
+@section Head {
+    @if (forward)
+    {
+        <meta http-equiv="refresh" content="3;url=@Model.Next">
+    }
+}
+<h1>@Strings.Status_Title</h1>
+<p class="ok">@Strings.Portal_Connected</p>
+@if (forward)
+{
+    <div class="msg info">@Strings.Status_Redirecting <a href="@Model.Next">@Strings.Portal_Continue</a></div>
+}
+
+<div class="card">
+    <div class="muted">@Strings.Status_TimeLeft</div>
+    <div class="big" id="time">@v.TimeLeft</div>
+    @if (v.DataLeft is not null)
+    {
+        <div class="muted" style="margin-top:.6rem">@Strings.Status_DataLeft</div>
+        <div class="big" id="data">@v.DataLeft</div>
+    }
+</div>
+
+<div class="card">
+    <dl>
+        <dt>@Strings.Status_Plan</dt><dd>@s.Tariff.Name</dd>
+        @if (s.VoucherCode is not null) { <dt>@Strings.Status_Code</dt><dd>@StonesHotspot.Core.Rules.VoucherCodeGenerator.Format(s.VoucherCode)</dd> }
+        @if (s.Username is not null) { <dt>@Strings.Status_Account</dt><dd>@s.Username</dd> }
+        @if (s.Balance is not null) { <dt>@Strings.Status_Balance</dt><dd>@s.Balance</dd> }
+        @if (v.EndsAt is not null) { <dt>@Strings.Status_ValidUntil</dt><dd>@v.EndsAt</dd> }
+        <dt>@Strings.Status_Speed</dt><dd><span id="down">↓ @v.Down</span><br><span id="up">↑ @v.Up</span></dd>
+        @if (s.Tariff.DownloadKbps is { } maxDown)
+        {
+            <dt>@Strings.Status_SpeedLimit</dt><dd>↓ @StonesHotspot.Core.Localization.Units.SpeedLimit(maxDown, culture)@if (s.Tariff.UploadKbps is { } maxUp) {<br>@("↑ " + StonesHotspot.Core.Localization.Units.SpeedLimit(maxUp, culture))}</dd>
+        }
+        <dt>@Strings.Status_Used</dt><dd id="used">@v.Used</dd>
+    </dl>
+</div>
+
+<form method="post" asp-page-handler="Logout">
+    <button type="submit" class="secondary">@Strings.Status_Logout</button>
+</form>
+@if (s.Tariff.Type == TariffType.TimeBased)
+{
+    <p class="muted">@(s.Tariff.CountdownMode == CountdownMode.UsageOnly ? Strings.Status_PauseNote : Strings.Status_WallClockNote)</p>
+}
+
+@section Scripts {
+<script>
+// Refresh the figures every second from the hotspot (no internet needed). When the session ends, go back to the login page.
+(function () {
+    function set(id, text) { var el = document.getElementById(id); if (el && text != null) el.textContent = text; }
+    function poll() {
+        var r = new XMLHttpRequest();
+        r.open('GET', '/portal/status?handler=json', true);
+        r.onload = function () {
+            try {
+                var d = JSON.parse(r.responseText);
+                if (!d.active) { location.href = '/portal'; return; }
+                set('time', d.timeLeft); set('data', d.dataLeft); set('used', d.used);
+                set('down', '↓ ' + d.down); set('up', '↑ ' + d.up);
+            } catch (e) { }
+        };
+        r.send();
+    }
+    setInterval(poll, 1000);
+})();
+</script>
+}

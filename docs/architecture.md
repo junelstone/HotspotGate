@@ -54,6 +54,17 @@ How the packet gate, the portal, the sessions and (later) payments fit together.
 MAC is the identity of a device; its IPs are looked up in the neighbour table at every tick, so an IP change does
 not cut the customer off, and a revoked device is cut off at the next tick (≤ 1–2 s).
 
+## Portal flow
+
+```
+ phone opens any http page ─► gate rewrites it to the portal ─► 302 /portal?mac=…&url=…
+ /portal: code or account ─► SessionService.LoginWith… (by MAC from the ARP table)
+        ─► AccessRefreshSignal wakes the engine ─► device in the access table within milliseconds
+        ─► /portal/status (countdown polled every second, logout) ─► forward to welcome page / original page
+ time/data/validity/idle runs out ─► engine ends the session ─► gate drops the device ─► status page returns to
+ /portal, which explains why (last session ended < 15 min ago)
+```
+
 ## Fail-closed rules
 
 - Gate started before ICS; gate failure → ICS switched off.

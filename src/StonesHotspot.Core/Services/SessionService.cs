@@ -27,6 +27,20 @@ public sealed record LoginResult(LoginStatus Status, Session? Session = null, Da
     public bool Succeeded => Status == LoginStatus.Success;
 }
 
+/// <summary>What the customer's status page shows about their running session.</summary>
+/// <param name="SecondsLeft">Countdown shown to the customer: time quota and/or validity, whichever ends first; null when neither applies.</param>
+/// <param name="BytesLeft">Data left for data tariffs, else null.</param>
+/// <param name="EndsAt">When the voucher/account stops being valid (UTC), if it has an end.</param>
+public sealed record SessionStatus(
+    Session Session,
+    Tariff Tariff,
+    string? VoucherCode,
+    string? Username,
+    long? SecondsLeft,
+    long? BytesLeft,
+    DateTime? EndsAt,
+    Money.Xaf? Balance);
+
 /// <summary>Bytes seen by the packet engine for one session since the previous tick.</summary>
 public readonly record struct TrafficDelta(long BytesUp, long BytesDown)
 {
@@ -54,6 +68,58 @@ public sealed class SessionService(
     {
         var normalized = MacAddress.Normalize(mac);
         return ActiveSessions().FirstOrDefaultAsync(s => s.Device.Mac == normalized, ct);
+    }
+
+    /// <summary>The running session of a device with what is left of it, computed up to this second.</summary>
+    public async Task<SessionStatus?> GetStatusForDeviceAsync(string mac, CancellationToken ct = default)
+    {
+        if (!MacAddress.TryNormalize(mac, out var normalized))
+            return null;
+        var session = await ActiveSessions().AsNoTracking().FirstOrDefaultAsync(s => s.Device.Mac == normalized, ct);
+        if (session is null)
+            return null;
+
+        var now = Now;
+        var allowance = session.Voucher?.Allowance ?? session.UserAccount?.Allowance ?? new Allowance();
+        var tariff = session.Voucher?.Tariff ?? session.UserAccount?.Tariff ?? session.Tariff;
+
+        DateTime? endsAt = allowance.ExpiresAt;
+        if (session.UserAccount?.ExpiresAt is { } accountEnd && (endsAt is null || accountEnd < endsAt))
+            endsAt = accountEnd;
+        long? untilEnd = endsAt is { } end ? Math.Max(0, (long)Math.Ceiling((end - now).TotalSeconds)) : null;
+
+        long? quotaLeft = null;
+        if (tariff.Type == TariffType.TimeBased && tariff.CountdownMode == CountdownMode.UsageOnly && allowance.RemainingSeconds is { } remaining)
+        {
+            // Time taken since the engine last charged it (less than a second normally).
+            var pending = allowance.LastConsumedAt is { } last && now > last ? (long)(now - last).TotalSeconds : 0;
+            quotaLeft = Math.Max(0, remaining - pending);
+        }
+
+        long? secondsLeft = (quotaLeft, untilEnd) switch
+        {
+            ({ } q, { } u) => Math.Min(q, u),
+            ({ } q, null) => q,
+            (null, { } u) => u,
+            _ => null,
+        };
+
+        return new SessionStatus(session, tariff, session.Voucher?.Code, session.UserAccount?.Username,
+            secondsLeft, allowance.RemainingBytes, endsAt, session.UserAccount?.Balance);
+    }
+
+    /// <summary>The device's last session if it ended within <paramref name="within"/> (to tell the customer why).</summary>
+    public async Task<Session?> GetRecentlyEndedAsync(string mac, TimeSpan within, CancellationToken ct = default)
+    {
+        if (!MacAddress.TryNormalize(mac, out var normalized))
+            return null;
+        var since = Now - within;
+        if (await db.Sessions.AnyAsync(s => s.EndedAt == null && s.Device.Mac == normalized, ct))
+            return null;
+        return await db.Sessions.AsNoTracking()
+            .Where(s => s.Device.Mac == normalized && s.EndedAt != null && s.EndedAt >= since)
+            .OrderByDescending(s => s.EndedAt)
+            .FirstOrDefaultAsync(ct);
     }
 
     public async Task<LoginResult> LoginWithVoucherAsync(string mac, string? ip, string code, CancellationToken ct = default)
