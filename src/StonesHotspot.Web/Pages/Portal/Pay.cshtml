@@ -1,0 +1,41 @@
+@page "/portal/pay"
+@model StonesHotspot.Web.Pages.Portal.PayModel
+@using StonesHotspot.Web.Admin
+@{
+    Layout = "_PortalLayout";
+    ViewData["Title"] = Strings.Pay_Title;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+}
+<h1>@Strings.Pay_Title</h1>
+@if (!Model.Available)
+{
+    <div class="card">@Strings.Pay_Unavailable</div>
+    <a class="button secondary" href="/portal">@Strings.Portal_Back</a>
+    return;
+}
+@if (Model.Error is not null)
+{
+    <div class="msg error" role="alert">@Model.Error</div>
+}
+<form method="post">
+    <div class="card">
+        <h2>@Strings.Pay_ChoosePlan</h2>
+        @foreach (var t in Model.Plans)
+        {
+            <label class="check"><input type="radio" name="TariffId" value="@t.Id" checked="@(t.Id == Model.TariffId)">
+                <span><strong>@t.Name — @t.Price</strong><br><span class="muted">@AdminText.Describe(t, culture)</span></span></label>
+        }
+    </div>
+    <div class="card">
+        <h2>@Strings.Pay_ChooseOperator</h2>
+        @foreach (var m in Model.Methods)
+        {
+            <label class="check"><input type="radio" name="Method" value="@m" checked="@(m == Model.Method)"> <strong>@AdminText.Payment(m)</strong></label>
+        }
+        <label for="Phone" style="margin-top:.8rem">@Strings.Pay_PhoneLabel</label>
+        <input asp-for="Phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 123 45 67" required>
+        <p class="hint">@Strings.Pay_PhoneHint</p>
+        <button type="submit">@Strings.Pay_Submit</button>
+    </div>
+</form>
+<a href="/portal" class="muted">@Strings.Portal_Back</a>

@@ -6,6 +6,7 @@ using StonesHotspot.Core.Data.Entities;
 using StonesHotspot.Core.Documents;
 using StonesHotspot.Core.Localization;
 using StonesHotspot.Core.Money;
+using StonesHotspot.Core.Rules;
 using StonesHotspot.Core.Services;
 using StonesHotspot.Licensing;
 using StonesHotspot.Web.Admin;
@@ -17,9 +18,9 @@ namespace StonesHotspot.Web.Pages.Admin;
 /// <summary>Business reports over dates, on screen and as CSV / PDF. Sales by plan and sessions are Basic, the others Pro.</summary>
 [Authorize(Policy = StaffPolicies.Admin)]
 public sealed class ReportsModel(
-    ReportService reports, StaffService staff, SettingsService settings, CurrentStaff current, ILicenseService licence, TimeProvider clock) : PageModel
+    ReportService reports, StaffService staff, Core.Payments.MobileMoneyService payments, SettingsService settings, CurrentStaff current, ILicenseService licence, TimeProvider clock) : PageModel
 {
-    public static readonly string[] Kinds = ["plans", "sessions", "shifts", "transactions", "turnover"];
+    public static readonly string[] Kinds = ["plans", "sessions", "shifts", "transactions", "turnover", "mobilemoney"];
 
     [BindProperty(SupportsGet = true)] public string R { get; set; } = "plans";
     [BindProperty(SupportsGet = true)] public DateOnly? From { get; set; }
@@ -33,7 +34,7 @@ public sealed class ReportsModel(
     public ReportDocument? Report { get; private set; }
     public IReadOnlyList<Staff> StaffMembers { get; private set; } = [];
 
-    public static bool IsPro(string kind) => kind is "shifts" or "transactions" or "turnover";
+    public static bool IsPro(string kind) => kind is "shifts" or "transactions" or "turnover" or "mobilemoney";
 
     public static string Title(string kind) => kind switch
     {
@@ -41,6 +42,7 @@ public sealed class ReportsModel(
         "shifts" => Strings.Report_Shifts,
         "transactions" => Strings.Report_Transactions,
         "turnover" => Strings.Report_Turnover,
+        "mobilemoney" => Strings.Report_MobileMoney,
         _ => Strings.Report_Plans,
     };
 
@@ -90,6 +92,7 @@ public sealed class ReportsModel(
             "shifts" => await ShiftsAsync(range, culture, ct),
             "transactions" => await TransactionsAsync(range, culture, ct),
             "turnover" => await TurnoverAsync(range, culture, ct),
+            "mobilemoney" => await MobileMoneyAsync(range, culture, ct),
             _ => await PlansAsync(range, culture, ct),
         };
 
@@ -178,6 +181,43 @@ public sealed class ReportsModel(
         }
         table.Totals = [Strings.Print_Total, "", "", ReportCell.Number(rows.Count, culture), "", "", ReportCell.Money(Xaf.Sum(rows.Select(t => t.Amount)))];
         return [table];
+    }
+
+    /// <summary>Daily totals per operator and every payment, to check against the operators' statements.</summary>
+    private async Task<List<ReportTable>> MobileMoneyAsync(DateRange range, CultureInfo culture, CancellationToken ct)
+    {
+        var (from, to) = reports.ToUtc(range);
+        var list = await payments.ListAsync(from, to, ReportService.MaxTransactions, ct);
+        var zone = clock.LocalTimeZone;
+        DateOnly Day(MobilePayment p) => DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(p.CreatedAt, zone));
+
+        var summary = new ReportTable(Strings.Report_MobileMoneyByDay,
+            new ReportColumn(Strings.Report_Day, Weight: 1.3f), new ReportColumn(Strings.Sell_Payment, Weight: 1.2f),
+            new ReportColumn(Strings.Payments_StatusPaid, Numeric: true), new ReportColumn(Strings.Col_Amount, Numeric: true, Weight: 1.3f),
+            new ReportColumn(Strings.Payments_StatusFailed, Numeric: true), new ReportColumn(Strings.Payments_StatusTimedOut, Numeric: true));
+        foreach (var g in list.GroupBy(p => (Day: Day(p), p.Method)).OrderBy(g => g.Key.Day).ThenBy(g => g.Key.Method))
+        {
+            var paid = g.Where(p => p.Status == MobilePaymentStatus.Successful).ToList();
+            summary.Add(new ReportCell(g.Key.Day.ToString("d", culture), g.Key.Day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+                AdminText.Payment(g.Key.Method), ReportCell.Number(paid.Count, culture), ReportCell.Money(Xaf.Sum(paid.Select(p => p.Amount))),
+                ReportCell.Number(g.Count(p => p.Status == MobilePaymentStatus.Failed), culture),
+                ReportCell.Number(g.Count(p => p.Status == MobilePaymentStatus.TimedOut), culture));
+        }
+        var allPaid = list.Where(p => p.Status == MobilePaymentStatus.Successful).ToList();
+        summary.Totals = [Strings.Print_Total, "", ReportCell.Number(allPaid.Count, culture), ReportCell.Money(Xaf.Sum(allPaid.Select(p => p.Amount))),
+            ReportCell.Number(list.Count(p => p.Status == MobilePaymentStatus.Failed), culture), ReportCell.Number(list.Count(p => p.Status == MobilePaymentStatus.TimedOut), culture)];
+
+        var detail = new ReportTable(Strings.Report_MobileMoneyList,
+            new ReportColumn(Strings.Col_Time, Weight: 1.3f), new ReportColumn(Strings.Sell_Payment), new ReportColumn(Strings.Access_Number, Weight: 1.3f),
+            new ReportColumn(Strings.Col_Tariff), new ReportColumn(Strings.Col_Amount, Numeric: true), new ReportColumn(Strings.Col_State),
+            new ReportColumn(Strings.Payments_OperatorId, Weight: 1.4f), new ReportColumn(Strings.Col_Receipt), new ReportColumn(Strings.Col_Code));
+        foreach (var p in list)
+        {
+            detail.Add(ReportCell.Date(p.CreatedAt.ToLocalTime(), culture), AdminText.Payment(p.Method), PhoneNumber.Format(p.Phone), p.Tariff.Name,
+                ReportCell.Money(p.Amount), PaymentsModel.Status(p.Status), p.OperatorTransactionId ?? p.Reference, p.ReceiptNumber ?? "",
+                p.Voucher is null ? "" : VoucherCodeGenerator.Format(p.Voucher.Code));
+        }
+        return [summary, detail];
     }
 
     private async Task<List<ReportTable>> TurnoverAsync(DateRange range, CultureInfo culture, CancellationToken ct)

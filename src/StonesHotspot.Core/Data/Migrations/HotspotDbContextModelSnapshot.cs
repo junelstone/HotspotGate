@@ -102,6 +102,81 @@ namespace StonesHotspot.Core.Data.Migrations
                     b.ToTable("Devices");
                 });
 
+            modelBuilder.Entity("StonesHotspot.Core.Data.Entities.MobilePayment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("Amount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("DeviceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FailureReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("LastCheckedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OperatorTransactionId")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReceiptNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Reference")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TariffId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("VoucherId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.HasIndex("Reference")
+                        .IsUnique();
+
+                    b.HasIndex("TariffId");
+
+                    b.HasIndex("VoucherId");
+
+                    b.HasIndex("Status", "CreatedAt");
+
+                    b.ToTable("MobilePayments");
+                });
+
             modelBuilder.Entity("StonesHotspot.Core.Data.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -688,6 +763,31 @@ namespace StonesHotspot.Core.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("WebFilterRules");
+                });
+
+            modelBuilder.Entity("StonesHotspot.Core.Data.Entities.MobilePayment", b =>
+                {
+                    b.HasOne("StonesHotspot.Core.Data.Entities.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("StonesHotspot.Core.Data.Entities.Tariff", "Tariff")
+                        .WithMany()
+                        .HasForeignKey("TariffId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StonesHotspot.Core.Data.Entities.Voucher", "Voucher")
+                        .WithMany()
+                        .HasForeignKey("VoucherId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Device");
+
+                    b.Navigation("Tariff");
+
+                    b.Navigation("Voucher");
                 });
 
             modelBuilder.Entity("StonesHotspot.Core.Data.Entities.Product", b =>

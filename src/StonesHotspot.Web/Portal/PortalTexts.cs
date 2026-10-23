@@ -41,6 +41,17 @@ public static class PortalTexts
         _ => Strings.Login_ModeDisabled,
     };
 
+    public static string PayError(StonesHotspot.Core.Payments.PayStartResult result, PaymentMethod method) => result.Status switch
+    {
+        StonesHotspot.Core.Payments.PayStartStatus.InvalidNumber => Strings.Sms_InvalidNumber,
+        StonesHotspot.Core.Payments.PayStartStatus.WrongOperator => string.Format(Strings.Pay_WrongOperator, Admin.AdminText.Payment(method)),
+        StonesHotspot.Core.Payments.PayStartStatus.TooMany => Strings.Pay_TooMany,
+        StonesHotspot.Core.Payments.PayStartStatus.DeviceBlocked => Strings.Login_DeviceBlocked,
+        StonesHotspot.Core.Payments.PayStartStatus.PlanNotSold => Strings.Pay_PlanNotSold,
+        StonesHotspot.Core.Payments.PayStartStatus.OperatorError => Strings.Pay_OperatorError,
+        _ => Strings.Pay_Unavailable,
+    };
+
     public static string Ended(SessionEndReason reason) => reason switch
     {
         SessionEndReason.QuotaUsed => Strings.Ended_QuotaUsed,

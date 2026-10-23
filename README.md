@@ -3,9 +3,10 @@
 Windows Wi-Fi hotspot manager (captive portal) by **Stone's IT Consulting**: turns a Windows 10/11 PC into a
 managed, paid Wi-Fi hotspot — vouchers, user accounts, tariffs, Mobile Money, admin dashboard.
 
-> **Status: Phase 8 — free access and SMS login.** Besides codes and accounts, the portal can offer free access
-> (accept the terms), a shared password of the day, and login by SMS code (USB GSM modem or HTTP SMS provider), each
-> with its own plan and daily limits. See [Build phases](#build-phases). See [Build phases](#build-phases).
+> **Status: Phase 9 — Mobile Money.** Customers buy a plan on the portal with MTN MoMo or Airtel Money, approve
+> with their PIN and are online with a code also sent by SMS; payments are followed until they end, appear in the
+> reports and in a daily Mobile Money reconciliation. Ready for the operators' keys (sandbox first). See
+> [Build phases](#build-phases). See [Build phases](#build-phases).
 
 ## Requirements
 
@@ -89,7 +90,7 @@ deliberately no default password: customers on the hotspot can reach the dashboa
 | Role | Can use |
 |---|---|
 | **Caissier / Cashier** | Home, **Caisse** (till: products and Wi-Fi codes in one cart, change to give, receipt), **Vendre** (new codes printed on a ticket, or a pre-printed card), **Ma caisse** (open with starting cash, sales, close with counted cash), **Comptes** (search, top up) |
-| **Administrateur** | Everything: **En direct** (customers online: add time, log out, block, whitelist), **Forfaits**, **Filtrage web**, **Débit**, **Tickets** (batches, A4 cards with QR, CSV, disable), **Produits** (groups, prices with VAT, stock deliveries and counts), **Rapports**, **Accès gratuit** (free access, password of the day, SMS login), **Comptes**, **Personnel**, **Paramètres** (name, Wi-Fi name, logo, colour, welcome page, terms, language, idle timeout, receipt header/footer), **Journal** (audit log), **Sauvegarde**, network and diagnostics pages |
+| **Administrateur** | Everything: **En direct** (customers online: add time, log out, block, whitelist), **Forfaits**, **Filtrage web**, **Débit**, **Tickets** (batches, A4 cards with QR, CSV, disable), **Produits** (groups, prices with VAT, stock deliveries and counts), **Rapports**, **Accès gratuit** (free access, password of the day, SMS login), **Mobile Money** (operator keys, plans sold online, payments), **Comptes**, **Personnel**, **Paramètres** (name, Wi-Fi name, logo, colour, welcome page, terms, language, idle timeout, receipt header/footer), **Journal** (audit log), **Sauvegarde**, network and diagnostics pages |
 
 - Sign-in ends after 2 hours without activity; 5 wrong passwords from one address → 5 minutes wait. New staff
   and reset passwords are temporary: they must be changed at first sign-in.
@@ -169,6 +170,23 @@ to the page they first asked for. Business name, accent colour (`Portal.AccentCo
   never shown again; **test SMS** button and a log of the last 50 SMS.
 - Social login (Google/Facebook) is not built: see [`docs/social-login.md`](docs/social-login.md).
 
+### Mobile Money (Pro)
+
+- **Mobile Money** (admin): MTN MoMo (Collection API) and Airtel Money (Collections API) — address, environment,
+  currency and keys (stored encrypted, never shown again), number starts per operator (MTN `+24206`, Airtel
+  `+24205, +24204`), **Tester la connexion**, plans sold online, time to approve (3 min), optional public https
+  address for operator notifications, latest payments with **Vérifier**.
+- Portal: **Acheter un forfait avec Mobile Money** → plan → operator → number → the customer approves with their PIN
+  → code shown, device logged in, code sent by SMS. Declined / not approved in time → clear message.
+- Payments are checked every few seconds (waiting page and a background job), so no public address is needed;
+  operator notifications, when set up, only trigger a check with our own keys (a forged one cannot create a code).
+  Each payment completes once (code + sale + login), even if notifications arrive twice. A payment approved late is
+  completed by **Vérifier** or a late notification (within 24 h).
+- Sales are recorded with method MTN MoMo / Airtel Money and the operator's transaction number; **Rapports →
+  Mobile Money** gives per-day totals per operator and every payment, to compare with the operator's statement.
+- Sandbox: MTN `https://sandbox.momodeveloper.mtn.com`, environment `sandbox`, currency EUR (the defaults);
+  Airtel `https://openapiuat.airtel.africa`.
+
 ### Packet gate (WinDivert)
 
 `build.ps1` downloads **WinDivert 2.2.2** from its official release (SHA-256 checked, see
@@ -186,7 +204,8 @@ Manual tests: [`phase-2-network.md`](docs/manual-tests/phase-2-network.md),
 [`phase-5-dashboard.md`](docs/manual-tests/phase-5-dashboard.md),
 [`phase-6-bandwidth-filter.md`](docs/manual-tests/phase-6-bandwidth-filter.md),
 [`phase-7-business-tools.md`](docs/manual-tests/phase-7-business-tools.md),
-[`phase-8-free-sms.md`](docs/manual-tests/phase-8-free-sms.md).
+[`phase-8-free-sms.md`](docs/manual-tests/phase-8-free-sms.md),
+[`phase-9-mobile-money.md`](docs/manual-tests/phase-9-mobile-money.md).
 
 ## Database
 
@@ -235,8 +254,8 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 | 5 | Admin dashboard | done |
 | 6 | Bandwidth control and web filter | done — speeds to be verified on Windows |
 | 7 | Business tools (products, till, A4 receipts, reports) | done |
-| 8 | Free access and SMS login | **done** — SMS to be verified with the real modem or provider |
-| 9 | Mobile Money payments | — |
+| 8 | Free access and SMS login | done — SMS to be verified with the real modem or provider |
+| 9 | Mobile Money payments | **done** — to be verified with the operators' sandbox, then production keys |
 | 10 | Licensing, trial and activation | — |
 | 11 | Windows service, installer and updates | — |
 | 12 | Hardening and final testing | — |

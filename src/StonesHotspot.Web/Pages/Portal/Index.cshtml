@@ -33,6 +33,11 @@
     </form>
 </div>
 
+@if (Model.OffersMobileMoney)
+{
+    <a class="button" href="/portal/pay" style="margin-bottom:1rem">@Strings.Pay_Buy</a>
+}
+
 @if (Model.OffersSms)
 {
     <div class="card" id="sms">

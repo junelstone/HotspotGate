@@ -28,6 +28,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<FreeAccessService>();
         services.AddScoped<SmsLoginService>();
         services.AddScoped<Sms.SmsService>();
+        services.AddScoped<Payments.MobileMoneyService>();
+        services.AddSingleton<Payments.IPaymentProviderFactory>(sp =>
+            new Payments.HttpPaymentProviderFactory(new HttpClient { Timeout = TimeSpan.FromSeconds(30) }, sp.GetRequiredService<TimeProvider>()));
         services.AddScoped<AccountService>();
         services.AddScoped<StaffService>();
         services.AddScoped<DeviceService>();

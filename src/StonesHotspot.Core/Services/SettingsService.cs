@@ -47,6 +47,24 @@ public static class SettingKeys
     public const string SmsHttpUrl = "Sms.HttpUrl";
     public const string SmsHttpBody = "Sms.HttpBody";
     public const string SmsHttpSuccessText = "Sms.HttpSuccessText";
+    public const string PayTariffs = "Pay.TariffIds";
+    public const string PayCallbackUrl = "Pay.CallbackBaseUrl";
+    public const string PayTimeoutSeconds = "Pay.TimeoutSeconds";
+    public const string MtnEnabled = "Pay.Mtn.Enabled";
+    public const string MtnBaseUrl = "Pay.Mtn.BaseUrl";
+    public const string MtnTargetEnvironment = "Pay.Mtn.TargetEnvironment";
+    public const string MtnCurrency = "Pay.Mtn.Currency";
+    public const string MtnSubscriptionKey = "Pay.Mtn.SubscriptionKey";
+    public const string MtnApiUser = "Pay.Mtn.ApiUser";
+    public const string MtnApiKey = "Pay.Mtn.ApiKey";
+    public const string MtnPrefixes = "Pay.Mtn.Prefixes";
+    public const string AirtelEnabled = "Pay.Airtel.Enabled";
+    public const string AirtelBaseUrl = "Pay.Airtel.BaseUrl";
+    public const string AirtelClientId = "Pay.Airtel.ClientId";
+    public const string AirtelClientSecret = "Pay.Airtel.ClientSecret";
+    public const string AirtelCountry = "Pay.Airtel.Country";
+    public const string AirtelCurrency = "Pay.Airtel.Currency";
+    public const string AirtelPrefixes = "Pay.Airtel.Prefixes";
     public const string ReceiptHeader = "Receipts.Header";
     public const string ReceiptFooter = "Receipts.Footer";
 
@@ -68,6 +86,15 @@ public static class SettingKeys
         [SmsTotalPerDay] = "200",
         [SmsPrefixes] = "+24206, +24205, +24204",
         [SmsModemBaud] = "115200",
+        [PayTimeoutSeconds] = "180",
+        [MtnBaseUrl] = "https://sandbox.momodeveloper.mtn.com",
+        [MtnTargetEnvironment] = "sandbox",
+        [MtnCurrency] = "EUR",
+        [MtnPrefixes] = "+24206",
+        [AirtelBaseUrl] = "https://openapiuat.airtel.africa",
+        [AirtelCountry] = "CG",
+        [AirtelCurrency] = "XAF",
+        [AirtelPrefixes] = "+24205, +24204",
     };
 }
 

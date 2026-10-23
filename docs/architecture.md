@@ -80,6 +80,22 @@ not cut the customer off, and a revoked device is cut off at the next tick (≤ 
 Secret settings (the provider URL with its API key) go through `ISecretProtector` (ASP.NET Data Protection,
 DPAPI-protected keys on Windows).
 
+## Mobile Money
+
+```
+ portal /portal/pay ─► MobileMoneyService.StartAsync ─► MobilePayment (Pending, our reference)
+                                                     └─► IPaymentProvider.RequestToPayAsync (MTN / Airtel HTTP API)
+ checks: waiting page (every 4 s) │ PaymentWatcherService (every 5 s) │ /api/payments/{mtn|airtel} notification
+     └─► MobileMoneyService.CheckAsync ─► provider.GetStatusAsync (our keys; at most every 3 s per payment)
+           ├─ paid   ─► claim row (Pending/TimedOut → Processing, one conditional UPDATE) ─► one DB transaction:
+           │            hidden voucher (Source = MobileMoney) + sale (VoucherSale, MTN MoMo / Airtel Money,
+           │            operator transaction id) ─► device login ─► SMS with the code
+           ├─ failed ─► Failed (reason)
+           └─ pending past the time limit ─► TimedOut (can still turn paid within 24 h)
+```
+
+Operator access tokens are cached until they expire (`TokenCache`). Keys go through `ISecretProtector`.
+
 ## Speed limits
 
 Per authorised device and direction, `PacketProcessor.Shape` runs a GCRA token bucket (theoretical arrival time,

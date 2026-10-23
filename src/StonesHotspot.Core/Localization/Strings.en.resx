@@ -634,4 +634,57 @@ The business may cut off access in case of abuse. The service is provided withou
   <data name="Sms_Title" xml:space="preserve"><value>Connect by SMS</value></data>
   <data name="Sms_TooSoon" xml:space="preserve"><value>Wait {0} seconds before asking for a new code.</value></data>
   <data name="Sms_Unavailable" xml:space="preserve"><value>Sending SMS does not work right now. Buy a code at the counter.</value></data>
+  <data name="Sms_VoucherCode" xml:space="preserve"><value>{0}: thank you for your payment. Your Wi-Fi code ({2}): {1}</value></data>
+  <data name="Nav_Payments" xml:space="preserve"><value>Mobile Money</value></data>
+  <data name="Pay_Approve" xml:space="preserve"><value>Approve the payment on your phone: a message from your operator asks for your PIN.</value></data>
+  <data name="Pay_ApproveHelp" xml:space="preserve"><value>If no message appears, open your phone's Mobile Money menu and look for payments waiting for approval.</value></data>
+  <data name="Pay_Buy" xml:space="preserve"><value>Buy a plan with Mobile Money</value></data>
+  <data name="Pay_ChooseOperator" xml:space="preserve"><value>Pay with</value></data>
+  <data name="Pay_ChoosePlan" xml:space="preserve"><value>Choose your plan</value></data>
+  <data name="Pay_CodeKeep" xml:space="preserve"><value>Note this code: it is also sent to you by SMS.</value></data>
+  <data name="Pay_Done" xml:space="preserve"><value>Payment received, you are connected!</value></data>
+  <data name="Pay_Failed" xml:space="preserve"><value>The payment was refused or did not go through. You were not charged.</value></data>
+  <data name="Pay_OperatorError" xml:space="preserve"><value>The operator is not answering right now. Try again in a few minutes or buy a code at the counter.</value></data>
+  <data name="Pay_PhoneHint" xml:space="preserve"><value>The number that will pay. You will approve with your Mobile Money PIN.</value></data>
+  <data name="Pay_PhoneLabel" xml:space="preserve"><value>Mobile Money number</value></data>
+  <data name="Pay_PlanNotSold" xml:space="preserve"><value>This plan cannot be bought online.</value></data>
+  <data name="Pay_Reference" xml:space="preserve"><value>Reference</value></data>
+  <data name="Pay_Submit" xml:space="preserve"><value>Pay</value></data>
+  <data name="Pay_TimedOut" xml:space="preserve"><value>The payment was not approved in time. If you approved it anyway, your code will be sent to you by SMS.</value></data>
+  <data name="Pay_Title" xml:space="preserve"><value>Mobile Money payment</value></data>
+  <data name="Pay_TooMany" xml:space="preserve"><value>Too many payment requests from this device. Try again in an hour.</value></data>
+  <data name="Pay_TryAgain" xml:space="preserve"><value>Try again</value></data>
+  <data name="Pay_Unavailable" xml:space="preserve"><value>Mobile Money payment is not available right now.</value></data>
+  <data name="Pay_Waiting" xml:space="preserve"><value>This page updates by itself. Do not close it.</value></data>
+  <data name="Pay_WrongOperator" xml:space="preserve"><value>This is not a {0} number.</value></data>
+  <data name="Payments_AirtelHelp" xml:space="preserve"><value>Sandbox: https://openapiuat.airtel.africa — production: https://openapi.airtel.africa. Keys come from developers.airtel.africa (Collection product, country Congo). The notification address is set in the Airtel portal.</value></data>
+  <data name="Payments_BaseUrl" xml:space="preserve"><value>API address</value></data>
+  <data name="Payments_Callback" xml:space="preserve"><value>Public address of this hotspot (optional)</value></data>
+  <data name="Payments_CallbackHelp" xml:space="preserve"><value>Only if this PC can be reached from the internet over https. Without it, the hotspot asks the operator every few seconds: that works too, a little slower.</value></data>
+  <data name="Payments_Check" xml:space="preserve"><value>Check</value></data>
+  <data name="Payments_Checked" xml:space="preserve"><value>Payment {0}: {1}.</value></data>
+  <data name="Payments_Country" xml:space="preserve"><value>Country</value></data>
+  <data name="Payments_Currency" xml:space="preserve"><value>Currency</value></data>
+  <data name="Payments_Intro" xml:space="preserve"><value>Customers buy a plan on the portal and pay with MTN MoMo or Airtel Money. Start with the test (sandbox) keys, then put the production keys the operator gives you.</value></data>
+  <data name="Payments_InvalidUrl" xml:space="preserve"><value>Invalid address (the public address must start with https://).</value></data>
+  <data name="Payments_KeySaved" xml:space="preserve"><value>Saved (type to replace it)</value></data>
+  <data name="Payments_KeysHelp" xml:space="preserve"><value>Secret keys are stored encrypted and never shown again. Leave a field empty to keep the saved key.</value></data>
+  <data name="Payments_MtnHelp" xml:space="preserve"><value>Sandbox: https://sandbox.momodeveloper.mtn.com, environment "sandbox", currency EUR (required in sandbox). Production: the address and environment MTN Congo gives, currency XAF. Keys: momodeveloper.mtn.com (Collections product).</value></data>
+  <data name="Payments_NotConfigured" xml:space="preserve"><value>{0} is not turned on or its keys are missing.</value></data>
+  <data name="Payments_OperatorId" xml:space="preserve"><value>Operator transaction no.</value></data>
+  <data name="Payments_Plans" xml:space="preserve"><value>Plans sold online</value></data>
+  <data name="Payments_PlansHelp" xml:space="preserve"><value>None ticked = every active plan with a price.</value></data>
+  <data name="Payments_Recent" xml:space="preserve"><value>Latest payments</value></data>
+  <data name="Payments_StatusFailed" xml:space="preserve"><value>Refused</value></data>
+  <data name="Payments_StatusPaid" xml:space="preserve"><value>Paid</value></data>
+  <data name="Payments_StatusPending" xml:space="preserve"><value>Pending</value></data>
+  <data name="Payments_StatusTimedOut" xml:space="preserve"><value>Timed out</value></data>
+  <data name="Payments_Target" xml:space="preserve"><value>Environment (X-Target-Environment)</value></data>
+  <data name="Payments_Test" xml:space="preserve"><value>Test the connection</value></data>
+  <data name="Payments_TestFailed" xml:space="preserve"><value>{0}: cannot connect. {1}</value></data>
+  <data name="Payments_TestOk" xml:space="preserve"><value>{0}: connected, the keys are accepted.</value></data>
+  <data name="Payments_Timeout" xml:space="preserve"><value>Time to approve (seconds)</value></data>
+  <data name="Report_MobileMoney" xml:space="preserve"><value>Mobile Money</value></data>
+  <data name="Report_MobileMoneyByDay" xml:space="preserve"><value>By day and operator</value></data>
+  <data name="Report_MobileMoneyList" xml:space="preserve"><value>All payments</value></data>
 </root>

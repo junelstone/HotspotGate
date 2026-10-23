@@ -1,0 +1,45 @@
+@page "/portal/pay/wait"
+@model StonesHotspot.Web.Pages.Portal.PayWaitModel
+@using StonesHotspot.Core.Data.Entities
+@using StonesHotspot.Web.Admin
+@{
+    Layout = "_PortalLayout";
+    ViewData["Title"] = Strings.Pay_Title;
+    var p = Model.Payment;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+}
+@section Head {
+    @if (p.Status is MobilePaymentStatus.Pending or MobilePaymentStatus.Processing)
+    {
+        <meta http-equiv="refresh" content="@StonesHotspot.Web.Pages.Portal.PayWaitModel.RefreshSeconds">
+    }
+}
+<h1>@Strings.Pay_Title</h1>
+<div class="card">
+    <p><strong>@p.Tariff.Name — @p.Amount</strong><br><span class="muted">@AdminText.Payment(p.Method) · @StonesHotspot.Core.Rules.PhoneNumber.Format(p.Phone)</span></p>
+    @switch (p.Status)
+    {
+        case MobilePaymentStatus.Pending:
+        case MobilePaymentStatus.Processing:
+            <div class="msg info">@Strings.Pay_Approve</div>
+            <p class="muted">@Strings.Pay_ApproveHelp</p>
+            <p class="muted">@Strings.Pay_Waiting</p>
+            break;
+        case MobilePaymentStatus.Successful:
+            <p class="ok">@Strings.Pay_Done</p>
+            <div class="muted">@Strings.Status_Code</div>
+            <div class="big code">@StonesHotspot.Core.Rules.VoucherCodeGenerator.Format(p.Voucher!.Code)</div>
+            <p class="muted">@Strings.Pay_CodeKeep</p>
+            <a class="button" href="/portal/status?welcome=true">@Strings.Portal_Continue</a>
+            break;
+        case MobilePaymentStatus.TimedOut:
+            <div class="msg error">@Strings.Pay_TimedOut</div>
+            <a class="button" href="/portal/pay">@Strings.Pay_TryAgain</a>
+            break;
+        default:
+            <div class="msg error">@Strings.Pay_Failed</div>
+            <a class="button" href="/portal/pay">@Strings.Pay_TryAgain</a>
+            break;
+    }
+</div>
+<p class="muted">@Strings.Pay_Reference : @p.Reference</p>

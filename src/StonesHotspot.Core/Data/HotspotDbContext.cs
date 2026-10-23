@@ -22,6 +22,7 @@ public class HotspotDbContext(DbContextOptions<HotspotDbContext> options) : DbCo
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<SmsChallenge> SmsChallenges => Set<SmsChallenge>();
     public DbSet<SmsMessage> SmsMessages => Set<SmsMessage>();
+    public DbSet<MobilePayment> MobilePayments => Set<MobilePayment>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
     {
@@ -43,6 +44,7 @@ public class HotspotDbContext(DbContextOptions<HotspotDbContext> options) : DbCo
         builder.Properties<WebFilterKind>().HaveConversion<string>().HaveMaxLength(20);
         builder.Properties<VoucherSource>().HaveConversion<string>().HaveMaxLength(20);
         builder.Properties<SmsPurpose>().HaveConversion<string>().HaveMaxLength(20);
+        builder.Properties<MobilePaymentStatus>().HaveConversion<string>().HaveMaxLength(20);
     }
 
     protected override void OnModelCreating(ModelBuilder b)
@@ -74,6 +76,20 @@ public class HotspotDbContext(DbContextOptions<HotspotDbContext> options) : DbCo
             e.Property(x => x.CodeHash).HasMaxLength(100).IsRequired();
             e.HasIndex(x => new { x.Phone, x.CreatedAt });
             e.HasOne(x => x.Device).WithMany().OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<MobilePayment>(e =>
+        {
+            e.Property(x => x.Reference).HasMaxLength(40).IsRequired();
+            e.HasIndex(x => x.Reference).IsUnique();
+            e.HasIndex(x => new { x.Status, x.CreatedAt });
+            e.Property(x => x.Phone).HasMaxLength(20).IsRequired();
+            e.Property(x => x.OperatorTransactionId).HasMaxLength(100);
+            e.Property(x => x.FailureReason).HasMaxLength(300);
+            e.Property(x => x.ReceiptNumber).HasMaxLength(20);
+            e.HasOne(x => x.Tariff).WithMany().OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(x => x.Device).WithMany().OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(x => x.Voucher).WithMany().OnDelete(DeleteBehavior.SetNull);
         });
 
         b.Entity<SmsMessage>(e =>

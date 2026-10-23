@@ -19,6 +19,7 @@ public sealed class IndexModel(
     SessionService sessions,
     FreeAccessService free,
     SmsLoginService smsLogin,
+    Core.Payments.MobileMoneyService payments,
     PortalClient client,
     AccessRefreshSignal refresh,
     ILicenseService licence,
@@ -58,6 +59,7 @@ public sealed class IndexModel(
     public bool OffersFree { get; private set; }
     public bool OffersPassword { get; private set; }
     public bool OffersSms { get; private set; }
+    public bool OffersMobileMoney { get; private set; }
 
     /// <summary>The code was sent: the page asks for it (Phone holds the normalized number).</summary>
     public bool SmsCodeStep { get; private set; }
@@ -171,6 +173,7 @@ public sealed class IndexModel(
         OffersFree = freeModes && modes.Terms.Usable;
         OffersPassword = freeModes && modes.Password.Usable;
         OffersSms = licence.IsAllowed(Feature.SmsLogin) && modes.Sms.Usable;
+        OffersMobileMoney = licence.IsAllowed(Feature.MobileMoneyPayments) && (await payments.GetSettingsAsync(HttpContext.RequestAborted)).AnyConfigured;
     }
 
     private async Task<IActionResult> LoginAsync(Func<PortalDevice, Task<LoginResult>> login)

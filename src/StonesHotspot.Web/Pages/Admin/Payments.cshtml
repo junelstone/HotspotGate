@@ -1,0 +1,101 @@
+@page "/admin/payments"
+@model StonesHotspot.Web.Pages.Admin.PaymentsModel
+@using StonesHotspot.Core.Data.Entities
+@using StonesHotspot.Web.Admin
+@{
+    ViewData["Title"] = Strings.Nav_Payments;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+    var c = Model.Current;
+}
+<h1>@Strings.Nav_Payments</h1>
+@if (!Model.Enabled)
+{
+    <div class="msg warning">@Strings.Common_ProFeature</div>
+    return;
+}
+<p class="muted">@Strings.Payments_Intro</p>
+@if (Model.Error is not null)
+{
+    <div class="msg error">@Model.Error</div>
+}
+<form method="post">
+    <div class="card">
+        <h2 style="margin-top:0">MTN MoMo @(c.Mtn.Configured ? "✓" : "")</h2>
+        <label><input asp-for="MtnEnabled" type="checkbox"> @Strings.Access_Enable</label>
+        <div class="row">
+            <div><label for="MtnBaseUrl">@Strings.Payments_BaseUrl</label><input asp-for="MtnBaseUrl" type="text"></div>
+            <div><label for="MtnTarget">@Strings.Payments_Target</label><input asp-for="MtnTarget" type="text" placeholder="sandbox / mtncongo"></div>
+            <div><label for="MtnCurrency">@Strings.Payments_Currency</label><input asp-for="MtnCurrency" type="text" placeholder="EUR (sandbox) / XAF"></div>
+        </div>
+        <div class="row">
+            <div><label for="MtnApiUser">API User (UUID)</label><input asp-for="MtnApiUser" type="text" autocomplete="off"></div>
+            <div><label for="MtnSubscriptionKey">Subscription key (Collections)</label><input asp-for="MtnSubscriptionKey" type="password" autocomplete="new-password" placeholder="@(c.Mtn.SubscriptionKey is null ? "" : Strings.Payments_KeySaved)"></div>
+            <div><label for="MtnApiKey">API Key</label><input asp-for="MtnApiKey" type="password" autocomplete="new-password" placeholder="@(c.Mtn.ApiKey is null ? "" : Strings.Payments_KeySaved)"></div>
+        </div>
+        <label for="MtnPrefixes">@Strings.Access_Prefixes</label><input asp-for="MtnPrefixes" type="text" placeholder="+24206">
+        <p class="muted">@Strings.Payments_MtnHelp</p>
+        <button type="submit" class="secondary" formaction="?handler=Test&method=MtnMoMo" formnovalidate>@Strings.Payments_Test</button>
+    </div>
+
+    <div class="card">
+        <h2 style="margin-top:0">Airtel Money @(c.Airtel.Configured ? "✓" : "")</h2>
+        <label><input asp-for="AirtelEnabled" type="checkbox"> @Strings.Access_Enable</label>
+        <div class="row">
+            <div><label for="AirtelBaseUrl">@Strings.Payments_BaseUrl</label><input asp-for="AirtelBaseUrl" type="text"></div>
+            <div><label for="AirtelCountry">@Strings.Payments_Country</label><input asp-for="AirtelCountry" type="text" placeholder="CG"></div>
+            <div><label for="AirtelCurrency">@Strings.Payments_Currency</label><input asp-for="AirtelCurrency" type="text" placeholder="XAF"></div>
+        </div>
+        <div class="row">
+            <div><label for="AirtelClientId">Client ID</label><input asp-for="AirtelClientId" type="text" autocomplete="off"></div>
+            <div><label for="AirtelClientSecret">Client Secret</label><input asp-for="AirtelClientSecret" type="password" autocomplete="new-password" placeholder="@(c.Airtel.ClientSecret is null ? "" : Strings.Payments_KeySaved)"></div>
+        </div>
+        <label for="AirtelPrefixes">@Strings.Access_Prefixes</label><input asp-for="AirtelPrefixes" type="text" placeholder="+24205, +24204">
+        <p class="muted">@Strings.Payments_AirtelHelp</p>
+        <button type="submit" class="secondary" formaction="?handler=Test&method=AirtelMoney" formnovalidate>@Strings.Payments_Test</button>
+    </div>
+
+    <div class="card">
+        <h2 style="margin-top:0">@Strings.Payments_Plans</h2>
+        <p class="muted">@Strings.Payments_PlansHelp</p>
+        @foreach (var t in Model.Tariffs)
+        {
+            <label style="font-weight:normal"><input type="checkbox" name="PlanIds" value="@t.Id" checked="@Model.PlanIds.Contains(t.Id)"> <strong>@t.Name</strong> — @t.Price <span class="muted">(@AdminText.Describe(t, culture))</span></label>
+        }
+        <div class="row">
+            <div><label for="TimeoutSeconds">@Strings.Payments_Timeout</label><input asp-for="TimeoutSeconds" type="number" min="60" max="900"></div>
+            <div><label for="CallbackUrl">@Strings.Payments_Callback</label><input asp-for="CallbackUrl" type="text" placeholder="https://wifi.example.cg"></div>
+        </div>
+        <p class="muted">@Strings.Payments_CallbackHelp</p>
+    </div>
+    <p class="muted">@Strings.Payments_KeysHelp</p>
+    <button type="submit">@Strings.Common_Save</button>
+</form>
+
+<h2>@Strings.Payments_Recent</h2>
+<div class="scroll">
+<table>
+    <tr><th>@Strings.Col_Time</th><th>@Strings.Sell_Payment</th><th>@Strings.Access_Number</th><th>@Strings.Col_Tariff</th><th class="num">@Strings.Col_Amount</th>
+        <th>@Strings.Col_State</th><th>@Strings.Payments_OperatorId</th><th>@Strings.Col_Code</th><th></th></tr>
+    @foreach (var p in Model.Recent)
+    {
+        <tr>
+            <td>@AdminText.Date(p.CreatedAt, culture)</td>
+            <td>@AdminText.Payment(p.Method)</td>
+            <td>@StonesHotspot.Core.Rules.PhoneNumber.Format(p.Phone)</td>
+            <td>@p.Tariff.Name</td>
+            <td class="num">@p.Amount</td>
+            <td>@StonesHotspot.Web.Pages.Admin.PaymentsModel.Status(p.Status)@if (p.FailureReason is not null) { <div class="muted">@p.FailureReason</div> }</td>
+            <td><code>@p.OperatorTransactionId</code><div class="muted">@p.Reference</div></td>
+            <td class="code">@(p.Voucher is null ? "" : StonesHotspot.Core.Rules.VoucherCodeGenerator.Format(p.Voucher.Code))</td>
+            <td>
+                @if (p.Status is MobilePaymentStatus.Pending or MobilePaymentStatus.TimedOut)
+                {
+                    <form method="post" asp-page-handler="Check"><input type="hidden" name="reference" value="@p.Reference"><button type="submit" class="secondary">@Strings.Payments_Check</button></form>
+                }
+                @if (p.ReceiptNumber is not null) { <a href="/admin/receipt?n=@p.ReceiptNumber">@p.ReceiptNumber</a> }
+            </td>
+        </tr>
+    }
+</table>
+</div>
+@if (Model.Recent.Count == 0) { <p class="muted">@Strings.Report_Empty</p> }

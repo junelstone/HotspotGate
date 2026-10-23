@@ -93,7 +93,7 @@ public sealed class VoucherService(HotspotDbContext db, CashService cash, AuditS
     /// A voucher made by the portal for a free, password or SMS login (or Mobile Money): not part of any batch shown
     /// to staff, not audited one by one. Saved.
     /// </summary>
-    internal async Task<Voucher> CreateForDeviceAsync(Tariff tariff, VoucherSource source, int deviceId, string? phone, CancellationToken ct)
+    internal async Task<Voucher> CreateForDeviceAsync(Tariff tariff, VoucherSource source, int? deviceId, string? phone, CancellationToken ct)
     {
         string code;
         do

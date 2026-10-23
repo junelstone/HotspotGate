@@ -62,6 +62,7 @@ try
         builder.Configuration.GetSection("Bandwidth").Get<StonesHotspot.Network.Bandwidth.SpeedTestOptions>());
     builder.Services.AddHostedService<HotspotEngineService>();
     builder.Services.AddHostedService<DeviceDiscoveryService>();
+    builder.Services.AddHostedService<PaymentWatcherService>();
     builder.Services.AddHotspotWeb();
     // Keys for sign-in cookies and form tokens: kept in the data folder so they survive restarts.
     var keys = builder.Services.AddDataProtection().SetApplicationName("StonesHotspot")
