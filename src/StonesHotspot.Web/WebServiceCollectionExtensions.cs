@@ -21,6 +21,7 @@ public static class WebServiceCollectionExtensions
         });
         services.AddSingleton<PortalClient>();
         services.AddScoped<Documents.ReceiptBrandingProvider>();
+        services.AddSingleton<Core.Security.ISecretProtector, Admin.DataProtectionSecretProtector>();
         return services;
     }
 }

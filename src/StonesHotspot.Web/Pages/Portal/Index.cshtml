@@ -33,6 +33,63 @@
     </form>
 </div>
 
+@if (Model.OffersSms)
+{
+    <div class="card" id="sms">
+        <h2>@Strings.Sms_Title</h2>
+        @if (Model.SmsCodeStep)
+        {
+            <form method="post" asp-page-handler="SmsVerify">
+                <input type="hidden" name="url" value="@Model.OriginalUrl">
+                <input type="hidden" asp-for="Phone">
+                <label for="SmsCode">@Strings.Sms_CodeLabel</label>
+                <input asp-for="SmsCode" class="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="123456" autofocus>
+                <button type="submit">@Strings.Portal_Connect</button>
+            </form>
+            <form method="post" asp-page-handler="SmsSend">
+                <input type="hidden" name="url" value="@Model.OriginalUrl">
+                <input type="hidden" asp-for="Phone">
+                <button type="submit" class="link">@Strings.Sms_Resend</button>
+            </form>
+        }
+        else
+        {
+            <form method="post" asp-page-handler="SmsSend">
+                <input type="hidden" name="url" value="@Model.OriginalUrl">
+                <label for="Phone">@Strings.Sms_PhoneLabel</label>
+                <input asp-for="Phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 123 45 67">
+                <p class="hint">@Strings.Sms_PhoneHint</p>
+                <button type="submit">@Strings.Sms_Send</button>
+            </form>
+        }
+    </div>
+}
+
+@if (Model.OffersPassword)
+{
+    <div class="card">
+        <form method="post" asp-page-handler="Password">
+            <input type="hidden" name="url" value="@Model.OriginalUrl">
+            <label for="SharedPassword">@Strings.Free_PasswordLabel</label>
+            <input asp-for="SharedPassword" class="code" type="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="40">
+            <p class="hint">@Strings.Free_PasswordHint</p>
+            <button type="submit">@Strings.Portal_Connect</button>
+        </form>
+    </div>
+}
+
+@if (Model.OffersFree)
+{
+    <div class="card">
+        <form method="post" asp-page-handler="Free">
+            <input type="hidden" name="url" value="@Model.OriginalUrl">
+            <p><strong>@Strings.Free_Title</strong></p>
+            <label class="check"><input asp-for="AcceptTerms" type="checkbox"> @Strings.Free_Accept <a href="/portal/terms">@Strings.Portal_TermsLink</a></label>
+            <button type="submit">@Strings.Free_Connect</button>
+        </form>
+    </div>
+}
+
 <div class="card">
     <details open="@Model.AccountOpen">
         <summary>@Strings.Portal_TabAccount</summary>

@@ -16,5 +16,14 @@ public class Voucher
     public DateTime? FirstUsedAt { get; set; }
 
     public Allowance Allowance { get; set; } = new();
+
+    public VoucherSource Source { get; set; } = VoucherSource.Staff;
+
+    /// <summary>For portal-made vouchers: the device it was given to.</summary>
+    public int? IssuedToDeviceId { get; set; }
+    public Device? IssuedToDevice { get; set; }
+
+    /// <summary>For SMS logins (and, later, Mobile Money): the customer's number, +242…</summary>
+    public string? Phone { get; set; }
     public DateTime CreatedAt { get; set; }
 }

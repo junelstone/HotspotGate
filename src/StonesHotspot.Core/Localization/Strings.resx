@@ -563,4 +563,75 @@ L'établissement peut couper un accès en cas d'abus. Le service est fourni sans
   <data name="Receipt_UnitPrice" xml:space="preserve"><value>Prix unitaire</value></data>
   <data name="Settings_ReceiptHeader" xml:space="preserve"><value>Haut des reçus (adresse, téléphone, NIU…)</value></data>
   <data name="Settings_ReceiptFooter" xml:space="preserve"><value>Bas des reçus (remerciements, conditions…)</value></data>
+  <data name="Sms_LoginCode" xml:space="preserve"><value>{0} : votre code Wi-Fi est {1}. Valable {2} min.</value></data>
+  <data name="Access_ClearProvider" xml:space="preserve"><value>Effacer l'adresse du fournisseur enregistrée</value></data>
+  <data name="Access_Enable" xml:space="preserve"><value>Activer</value></data>
+  <data name="Access_Free" xml:space="preserve"><value>Accès gratuit (accepter les conditions)</value></data>
+  <data name="Access_FreeHelp" xml:space="preserve"><value>Le client coche « J'accepte les conditions » et se connecte sans code, sur le forfait choisi. Utile pour offrir quelques minutes et attirer des clients.</value></data>
+  <data name="Access_HttpBody" xml:space="preserve"><value>Corps de la requête (facultatif : POST)</value></data>
+  <data name="Access_HttpBodySaved" xml:space="preserve"><value>Corps enregistré (tapez pour le remplacer)</value></data>
+  <data name="Access_HttpHelp" xml:space="preserve"><value>{phone} = +242…, {phone_digits} = 242…, {message} = le texte. Avec un corps, la requête est un POST (JSON si le corps commence par « { »). L'adresse et le corps sont enregistrés chiffrés et ne sont jamais réaffichés.</value></data>
+  <data name="Access_HttpSaved" xml:space="preserve"><value>Adresse enregistrée ({0}) — tapez pour la remplacer</value></data>
+  <data name="Access_HttpSuccess" xml:space="preserve"><value>Texte de réussite dans la réponse (facultatif)</value></data>
+  <data name="Access_HttpUrl" xml:space="preserve"><value>Adresse du fournisseur (modèle d'URL)</value></data>
+  <data name="Access_Intro" xml:space="preserve"><value>Autres façons de se connecter que les codes payants. Chaque mode a son forfait (créez par exemple « Gratuit 15 min » dans Forfaits ; son prix est ignoré) et un nombre de connexions par appareil et par jour.</value></data>
+  <data name="Access_InvalidUrl" xml:space="preserve"><value>L'adresse du fournisseur doit commencer par http:// ou https://.</value></data>
+  <data name="Access_Log" xml:space="preserve"><value>Derniers SMS envoyés</value></data>
+  <data name="Access_ModemBaud" xml:space="preserve"><value>Vitesse (bauds)</value></data>
+  <data name="Access_ModemHelp" xml:space="preserve"><value>Clé USB 3G/4G ou modem GSM avec une carte SIM dont le code PIN est désactivé. Fermez le logiciel fourni avec la clé : il bloque le port. Ports présents :</value></data>
+  <data name="Access_ModemPort" xml:space="preserve"><value>Port COM du modem</value></data>
+  <data name="Access_Number" xml:space="preserve"><value>Numéro</value></data>
+  <data name="Access_Password" xml:space="preserve"><value>Mot de passe partagé</value></data>
+  <data name="Access_PasswordDaily" xml:space="preserve"><value>Nouveau mot de passe chaque jour (créé automatiquement à minuit)</value></data>
+  <data name="Access_PasswordHelp" xml:space="preserve"><value>Les clients tapent le mot de passe du jour, que le personnel leur donne (il s'affiche sur l'accueil du tableau de bord).</value></data>
+  <data name="Access_PasswordRequired" xml:space="preserve"><value>Entrez le mot de passe, ou cochez « Nouveau mot de passe chaque jour ».</value></data>
+  <data name="Access_PasswordValue" xml:space="preserve"><value>Mot de passe (si pas automatique)</value></data>
+  <data name="Access_PerDay" xml:space="preserve"><value>Connexions par appareil et par jour</value></data>
+  <data name="Access_Prefixes" xml:space="preserve"><value>Débuts de numéro acceptés</value></data>
+  <data name="Access_PrefixesHelp" xml:space="preserve"><value>Séparés par des virgules. Par défaut les mobiles du Congo : +24206 (MTN), +24205 (Airtel), +24204. Vide = tous les numéros +242.</value></data>
+  <data name="Access_PurposeLogin" xml:space="preserve"><value>Code de connexion</value></data>
+  <data name="Access_PurposeTest" xml:space="preserve"><value>Test</value></data>
+  <data name="Access_PurposeVoucher" xml:space="preserve"><value>Code Wi-Fi</value></data>
+  <data name="Access_Sending" xml:space="preserve"><value>Envoi des SMS</value></data>
+  <data name="Access_Sms" xml:space="preserve"><value>Connexion par SMS</value></data>
+  <data name="Access_SmsFailed" xml:space="preserve"><value>Échec</value></data>
+  <data name="Access_SmsHelp" xml:space="preserve"><value>Le client tape son numéro, reçoit un code à 6 chiffres par SMS (valable 10 minutes) et le tape. Les limites protègent votre crédit SMS.</value></data>
+  <data name="Access_SmsPerDevice" xml:space="preserve"><value>SMS par appareil et par jour</value></data>
+  <data name="Access_SmsPerNumber" xml:space="preserve"><value>SMS par numéro et par jour</value></data>
+  <data name="Access_SmsSent" xml:space="preserve"><value>Envoyé</value></data>
+  <data name="Access_SmsTotal" xml:space="preserve"><value>SMS au total par jour</value></data>
+  <data name="Access_TariffRequired" xml:space="preserve"><value>Choisissez un forfait pour chaque mode activé.</value></data>
+  <data name="Access_Test" xml:space="preserve"><value>Envoyer un SMS de test</value></data>
+  <data name="Access_TestFailed" xml:space="preserve"><value>Le SMS de test n'est pas parti : {0}</value></data>
+  <data name="Access_TestHelp" xml:space="preserve"><value>Enregistrez d'abord les réglages d'envoi.</value></data>
+  <data name="Access_TestSend" xml:space="preserve"><value>Envoyer le test</value></data>
+  <data name="Access_TestSent" xml:space="preserve"><value>SMS de test envoyé au {0}.</value></data>
+  <data name="Access_TransportHttp" xml:space="preserve"><value>Fournisseur SMS par Internet (HTTP)</value></data>
+  <data name="Access_TransportModem" xml:space="preserve"><value>Modem GSM / clé USB avec carte SIM</value></data>
+  <data name="Access_TransportNone" xml:space="preserve"><value>Aucun (la connexion par SMS ne peut pas fonctionner)</value></data>
+  <data name="Free_Accept" xml:space="preserve"><value>J'accepte les</value></data>
+  <data name="Free_AcceptRequired" xml:space="preserve"><value>Cochez la case pour accepter les conditions d'utilisation.</value></data>
+  <data name="Free_Connect" xml:space="preserve"><value>Accès gratuit</value></data>
+  <data name="Free_PasswordHint" xml:space="preserve"><value>Demandez-le au comptoir.</value></data>
+  <data name="Free_PasswordLabel" xml:space="preserve"><value>Mot de passe Wi-Fi du jour</value></data>
+  <data name="Free_Title" xml:space="preserve"><value>Essayez gratuitement</value></data>
+  <data name="Home_PasswordOfTheDay" xml:space="preserve"><value>Mot de passe Wi-Fi du jour :</value></data>
+  <data name="Login_CodeExpired" xml:space="preserve"><value>Ce code n'est plus valable. Demandez un nouveau code.</value></data>
+  <data name="Login_DailyLimit" xml:space="preserve"><value>Vous avez déjà utilisé l'accès gratuit aujourd'hui sur cet appareil. Achetez un code au comptoir pour continuer.</value></data>
+  <data name="Login_InvalidPassword" xml:space="preserve"><value>Mot de passe incorrect.</value></data>
+  <data name="Login_ModeDisabled" xml:space="preserve"><value>Ce mode de connexion n'est pas disponible.</value></data>
+  <data name="Nav_Access" xml:space="preserve"><value>Accès gratuit</value></data>
+  <data name="Sms_CodeLabel" xml:space="preserve"><value>Code reçu par SMS</value></data>
+  <data name="Sms_DailyLimit" xml:space="preserve"><value>Trop de codes demandés aujourd'hui pour ce numéro ou cet appareil. Réessayez demain.</value></data>
+  <data name="Sms_InvalidNumber" xml:space="preserve"><value>Numéro invalide. Exemple : 06 123 45 67.</value></data>
+  <data name="Sms_PhoneHint" xml:space="preserve"><value>Numéro du Congo. Vous recevrez un code à 6 chiffres.</value></data>
+  <data name="Sms_PhoneLabel" xml:space="preserve"><value>Votre numéro de téléphone</value></data>
+  <data name="Sms_PrefixNotAllowed" xml:space="preserve"><value>Ce numéro n'est pas accepté ici.</value></data>
+  <data name="Sms_Resend" xml:space="preserve"><value>Je n'ai pas reçu le code : renvoyer</value></data>
+  <data name="Sms_Send" xml:space="preserve"><value>Recevoir un code par SMS</value></data>
+  <data name="Sms_Sent" xml:space="preserve"><value>Code envoyé au {0}. Il peut mettre une minute à arriver.</value></data>
+  <data name="Sms_TestText" xml:space="preserve"><value>{0} : SMS de test. L'envoi fonctionne.</value></data>
+  <data name="Sms_Title" xml:space="preserve"><value>Connexion par SMS</value></data>
+  <data name="Sms_TooSoon" xml:space="preserve"><value>Patientez {0} secondes avant de demander un nouveau code.</value></data>
+  <data name="Sms_Unavailable" xml:space="preserve"><value>L'envoi de SMS ne fonctionne pas pour le moment. Achetez un code au comptoir.</value></data>
 </root>

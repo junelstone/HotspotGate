@@ -25,6 +25,28 @@ public static class SettingKeys
     public const string NetworkMode = "Network.Mode";
     public const string NetworkWanAdapterId = "Network.WanAdapterId";
     public const string NetworkLanAdapterId = "Network.LanAdapterId";
+    public const string FreeEnabled = "Free.Terms.Enabled";
+    public const string FreeTariffId = "Free.Terms.TariffId";
+    public const string FreePerDay = "Free.Terms.PerDevicePerDay";
+    public const string PasswordEnabled = "Free.Password.Enabled";
+    public const string PasswordTariffId = "Free.Password.TariffId";
+    public const string PasswordPerDay = "Free.Password.PerDevicePerDay";
+    public const string PasswordValue = "Free.Password.Value";
+    public const string PasswordDaily = "Free.Password.Daily";
+    public const string PasswordSecret = "Free.Password.Secret";
+    public const string SmsEnabled = "Sms.Enabled";
+    public const string SmsTariffId = "Sms.TariffId";
+    public const string SmsPerDay = "Sms.LoginsPerDevicePerDay";
+    public const string SmsPerNumberPerDay = "Sms.CodesPerNumberPerDay";
+    public const string SmsPerDevicePerDay = "Sms.CodesPerDevicePerDay";
+    public const string SmsTotalPerDay = "Sms.TotalPerDay";
+    public const string SmsPrefixes = "Sms.AllowedPrefixes";
+    public const string SmsTransport = "Sms.Transport";
+    public const string SmsModemPort = "Sms.ModemPort";
+    public const string SmsModemBaud = "Sms.ModemBaud";
+    public const string SmsHttpUrl = "Sms.HttpUrl";
+    public const string SmsHttpBody = "Sms.HttpBody";
+    public const string SmsHttpSuccessText = "Sms.HttpSuccessText";
     public const string ReceiptHeader = "Receipts.Header";
     public const string ReceiptFooter = "Receipts.Footer";
 
@@ -38,6 +60,14 @@ public static class SettingKeys
         [FairShareMinKbps] = "256",
         [FairShareMaxKbps] = "4096",
         [FilterFamilyDns] = "false",
+        [FreePerDay] = "1",
+        [PasswordPerDay] = "3",
+        [SmsPerDay] = "1",
+        [SmsPerNumberPerDay] = "3",
+        [SmsPerDevicePerDay] = "3",
+        [SmsTotalPerDay] = "200",
+        [SmsPrefixes] = "+24206, +24205, +24204",
+        [SmsModemBaud] = "115200",
     };
 }
 
@@ -53,7 +83,11 @@ public sealed class SettingsService(HotspotDbContext db, AuditService audit)
     public async Task<bool> GetBoolAsync(string key, CancellationToken ct = default) =>
         bool.TryParse(await GetAsync(key, ct), out var value) && value;
 
-    public async Task SetAsync(string key, string value, Staff? actor, CancellationToken ct = default)
+    public async Task SetAsync(string key, string value, Staff? actor, CancellationToken ct = default) =>
+        await SetAsync(key, value, actor, secret: false, ct);
+
+    /// <summary>Saves a value; for a secret the audit log only says it changed.</summary>
+    public async Task SetAsync(string key, string value, Staff? actor, bool secret, CancellationToken ct = default)
     {
         var setting = await db.Settings.FindAsync([key], ct);
         var old = setting?.Value;
@@ -62,7 +96,7 @@ public sealed class SettingsService(HotspotDbContext db, AuditService audit)
         else
             setting.Value = value;
 
-        audit.Record(actor, "Setting.Changed", $"{key}: '{old}' → '{value}'");
+        audit.Record(actor, "Setting.Changed", secret ? $"{key}: (secret changed)" : $"{key}: '{old}' → '{value}'");
         await db.SaveChangesAsync(ct);
     }
 

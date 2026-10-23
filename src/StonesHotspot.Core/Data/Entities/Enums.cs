@@ -23,7 +23,13 @@ public enum CountdownMode
 
 public enum VoucherStatus { New, Sold, Active, Expired, Disabled }
 
-public enum LoginMethod { Voucher, Account, Free, Sms, MobileMoney, Whitelist }
+/// <summary><see cref="Free"/> = "I accept the terms"; <see cref="SharedPassword"/> = the password of the day.</summary>
+public enum LoginMethod { Voucher, Account, Free, Sms, MobileMoney, Whitelist, SharedPassword }
+
+/// <summary>Who created a voucher: staff (sold or printed), or the portal for a free / password / SMS login.</summary>
+public enum VoucherSource { Staff, Free, SharedPassword, Sms, MobileMoney }
+
+public enum SmsPurpose { LoginCode, Test, Voucher }
 
 public enum SessionEndReason { Expired, QuotaUsed, Idle, Logout, KickedByStaff }
 

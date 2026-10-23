@@ -35,7 +35,7 @@
 <div class="card">
     <dl>
         <dt>@Strings.Status_Plan</dt><dd>@s.Tariff.Name</dd>
-        @if (s.VoucherCode is not null) { <dt>@Strings.Status_Code</dt><dd>@StonesHotspot.Core.Rules.VoucherCodeGenerator.Format(s.VoucherCode)</dd> }
+        @if (s.VoucherCode is not null && s.Session.Method == LoginMethod.Voucher) { <dt>@Strings.Status_Code</dt><dd>@StonesHotspot.Core.Rules.VoucherCodeGenerator.Format(s.VoucherCode)</dd> }
         @if (s.Username is not null) { <dt>@Strings.Status_Account</dt><dd>@s.Username</dd> }
         @if (s.Balance is not null) { <dt>@Strings.Status_Balance</dt><dd>@s.Balance</dd> }
         @if (v.EndsAt is not null) { <dt>@Strings.Status_ValidUntil</dt><dd>@v.EndsAt</dd> }

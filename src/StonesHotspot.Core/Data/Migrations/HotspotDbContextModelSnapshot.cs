@@ -274,6 +274,82 @@ namespace StonesHotspot.Core.Data.Migrations
                     b.ToTable("Shifts");
                 });
 
+            modelBuilder.Entity("StonesHotspot.Core.Data.Entities.SmsChallenge", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CodeHash")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.HasIndex("Phone", "CreatedAt");
+
+                    b.ToTable("SmsChallenges");
+                });
+
+            modelBuilder.Entity("StonesHotspot.Core.Data.Entities.SmsMessage", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("DeviceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Sent")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.ToTable("SmsMessages");
+                });
+
             modelBuilder.Entity("StonesHotspot.Core.Data.Entities.Staff", b =>
                 {
                     b.Property<int>("Id")
@@ -531,6 +607,13 @@ namespace StonesHotspot.Core.Data.Migrations
                     b.Property<DateTime?>("FirstUsedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("IssuedToDeviceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("SingleUse")
                         .HasColumnType("INTEGER");
 
@@ -539,6 +622,11 @@ namespace StonesHotspot.Core.Data.Migrations
 
                     b.Property<int?>("SoldByStaffId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -555,11 +643,15 @@ namespace StonesHotspot.Core.Data.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
+                    b.HasIndex("IssuedToDeviceId");
+
                     b.HasIndex("SoldByStaffId");
 
                     b.HasIndex("Status");
 
                     b.HasIndex("TariffId");
+
+                    b.HasIndex("Source", "IssuedToDeviceId", "CreatedAt");
 
                     b.ToTable("Vouchers");
                 });
@@ -652,6 +744,17 @@ namespace StonesHotspot.Core.Data.Migrations
                     b.Navigation("Staff");
                 });
 
+            modelBuilder.Entity("StonesHotspot.Core.Data.Entities.SmsChallenge", b =>
+                {
+                    b.HasOne("StonesHotspot.Core.Data.Entities.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Device");
+                });
+
             modelBuilder.Entity("StonesHotspot.Core.Data.Entities.Transaction", b =>
                 {
                     b.HasOne("StonesHotspot.Core.Data.Entities.Product", "Product")
@@ -734,6 +837,11 @@ namespace StonesHotspot.Core.Data.Migrations
 
             modelBuilder.Entity("StonesHotspot.Core.Data.Entities.Voucher", b =>
                 {
+                    b.HasOne("StonesHotspot.Core.Data.Entities.Device", "IssuedToDevice")
+                        .WithMany()
+                        .HasForeignKey("IssuedToDeviceId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("StonesHotspot.Core.Data.Entities.Staff", "SoldByStaff")
                         .WithMany()
                         .HasForeignKey("SoldByStaffId")
@@ -775,6 +883,8 @@ namespace StonesHotspot.Core.Data.Migrations
 
                     b.Navigation("Allowance")
                         .IsRequired();
+
+                    b.Navigation("IssuedToDevice");
 
                     b.Navigation("SoldByStaff");
 

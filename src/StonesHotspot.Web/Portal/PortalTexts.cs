@@ -21,7 +21,24 @@ public static class PortalTexts
         LoginStatus.AccountDisabled => Strings.Login_AccountDisabled,
         LoginStatus.AccountExpired => Strings.Login_AccountExpired,
         LoginStatus.InsufficientBalance => Strings.Login_InsufficientBalance,
+        LoginStatus.ModeDisabled => Strings.Login_ModeDisabled,
+        LoginStatus.DailyLimitReached => Strings.Login_DailyLimit,
+        LoginStatus.InvalidPassword => Strings.Login_InvalidPassword,
+        LoginStatus.CodeExpired => Strings.Login_CodeExpired,
         _ => Strings.Login_InvalidCode,
+    };
+
+    public static string SmsError(SmsCodeResult result) => result.Status switch
+    {
+        SmsCodeStatus.InvalidNumber => Strings.Sms_InvalidNumber,
+        SmsCodeStatus.PrefixNotAllowed => Strings.Sms_PrefixNotAllowed,
+        SmsCodeStatus.TooSoon => string.Format(Strings.Sms_TooSoon, result.WaitSeconds ?? 60),
+        SmsCodeStatus.NumberLimit or SmsCodeStatus.DeviceLimit => Strings.Sms_DailyLimit,
+        SmsCodeStatus.TotalLimit or SmsCodeStatus.SendFailed => Strings.Sms_Unavailable,
+        SmsCodeStatus.DailyLoginLimit => Strings.Login_DailyLimit,
+        SmsCodeStatus.DeviceBlocked => Strings.Login_DeviceBlocked,
+        SmsCodeStatus.LockedOut => string.Format(Strings.Login_LockedOut, 5),
+        _ => Strings.Login_ModeDisabled,
     };
 
     public static string Ended(SessionEndReason reason) => reason switch

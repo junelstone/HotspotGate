@@ -48,7 +48,7 @@
         .msg.info, .msg.ok { background:var(--ok-bg); color:var(--ok); }
         .msg small { display:block; opacity:.8; margin-top:.2rem; word-break:break-word; }
         label { display:block; font-weight:600; margin:.7rem 0 .25rem; }
-        input[type=text], input[type=password], input[type=number], input[type=date], input[type=url], input[type=color], input[type=file], select, textarea {
+        input[type=text], input[type=password], input[type=tel], input[type=number], input[type=date], input[type=url], input[type=color], input[type=file], select, textarea {
             width:100%; max-width:520px; padding:.5rem; font-size:1rem; border:1px solid #b8c0cc; border-radius:6px; background:#fff; }
         textarea { min-height:9rem; max-width:100%; }
         input.small, select.small { width:auto; display:inline-block; }
@@ -88,6 +88,7 @@
                 <a class="@Active("/admin/vouchers")" href="/admin/vouchers">@Strings.Nav_Vouchers</a>
                 <a class="@Active("/admin/products")" href="/admin/products">@Strings.Nav_Products</a>
                 <a class="@Active("/admin/reports")" href="/admin/reports">@Strings.Nav_Reports</a>
+                <a class="@Active("/admin/access")" href="/admin/access">@Strings.Nav_Access</a>
                 <a class="@Active("/admin/filter")" href="/admin/filter">@Strings.Nav_Filter</a>
                 <a class="@Active("/admin/bandwidth")" href="/admin/bandwidth">@Strings.Nav_Bandwidth</a>
                 <a class="@Active("/admin/staff")" href="/admin/staff">@Strings.Nav_Staff</a>

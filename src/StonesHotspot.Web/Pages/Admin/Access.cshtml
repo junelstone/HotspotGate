@@ -1,0 +1,138 @@
+@page "/admin/access"
+@model StonesHotspot.Web.Pages.Admin.AccessModel
+@using StonesHotspot.Web.Admin
+@{
+    ViewData["Title"] = Strings.Nav_Access;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+}
+<h1>@Strings.Nav_Access</h1>
+<p class="muted">@Strings.Access_Intro</p>
+@if (Model.Error is not null)
+{
+    <div class="msg error">@Model.Error</div>
+}
+@if (!Model.FreeAllowed && !Model.SmsAllowed)
+{
+    <div class="msg warning">@Strings.Common_ProFeature</div>
+    return;
+}
+
+<form method="post" class="noprint">
+@{
+    async Task PlanSelect(string name, int? selected)
+    {
+        <select name="@name" id="@name">
+            <option value="">—</option>
+            @foreach (var t in Model.Tariffs)
+            {
+                <option value="@t.Id" selected="@(t.Id == selected)">@t.Name (@AdminText.Describe(t, culture))</option>
+            }
+        </select>
+    }
+}
+    @if (Model.FreeAllowed)
+    {
+        <div class="card">
+            <h2 style="margin-top:0">@Strings.Access_Free</h2>
+            <p class="muted">@Strings.Access_FreeHelp</p>
+            <label><input asp-for="FreeEnabled" type="checkbox"> @Strings.Access_Enable</label>
+            <div class="row">
+                <div><label for="FreeTariffId">@Strings.Col_Tariff</label>@{ await PlanSelect("FreeTariffId", Model.FreeTariffId); }</div>
+                <div><label for="FreePerDay">@Strings.Access_PerDay</label><input asp-for="FreePerDay" type="number" min="1" max="100"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-top:0">@Strings.Access_Password</h2>
+            <p class="muted">@Strings.Access_PasswordHelp</p>
+            <label><input asp-for="PasswordEnabled" type="checkbox"> @Strings.Access_Enable</label>
+            <div class="row">
+                <div><label for="PasswordTariffId">@Strings.Col_Tariff</label>@{ await PlanSelect("PasswordTariffId", Model.PasswordTariffId); }</div>
+                <div><label for="PasswordPerDay">@Strings.Access_PerDay</label><input asp-for="PasswordPerDay" type="number" min="1" max="100"></div>
+            </div>
+            <label><input asp-for="PasswordDaily" type="checkbox"> @Strings.Access_PasswordDaily</label>
+            <label for="PasswordValue">@Strings.Access_PasswordValue</label>
+            <input asp-for="PasswordValue" type="text" maxlength="40" autocomplete="off">
+            @if (Model.PasswordToday is not null)
+            {
+                <p>@Strings.Home_PasswordOfTheDay <strong class="code">@Model.PasswordToday</strong></p>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="msg warning">@Strings.Common_ProFeature</div>
+    }
+
+    @if (Model.SmsAllowed)
+    {
+        <div class="card">
+            <h2 style="margin-top:0">@Strings.Access_Sms</h2>
+            <p class="muted">@Strings.Access_SmsHelp</p>
+            <label><input asp-for="SmsEnabled" type="checkbox"> @Strings.Access_Enable</label>
+            <div class="row">
+                <div><label for="SmsTariffId">@Strings.Col_Tariff</label>@{ await PlanSelect("SmsTariffId", Model.SmsTariffId); }</div>
+                <div><label for="SmsPerDay">@Strings.Access_PerDay</label><input asp-for="SmsPerDay" type="number" min="1" max="100"></div>
+            </div>
+            <div class="row">
+                <div><label for="SmsPerNumber">@Strings.Access_SmsPerNumber</label><input asp-for="SmsPerNumber" type="number" min="1" max="100"></div>
+                <div><label for="SmsPerDevice">@Strings.Access_SmsPerDevice</label><input asp-for="SmsPerDevice" type="number" min="1" max="100"></div>
+                <div><label for="SmsTotal">@Strings.Access_SmsTotal</label><input asp-for="SmsTotal" type="number" min="1"></div>
+            </div>
+            <label for="SmsPrefixes">@Strings.Access_Prefixes</label>
+            <input asp-for="SmsPrefixes" type="text" placeholder="+24206, +24205, +24204">
+            <p class="muted">@Strings.Access_PrefixesHelp</p>
+
+            <h2>@Strings.Access_Sending</h2>
+            <label><input type="radio" name="Transport" value="none" checked="@(Model.Transport == "none")"> @Strings.Access_TransportNone</label>
+            <label><input type="radio" name="Transport" value="modem" checked="@(Model.Transport == "modem")"> @Strings.Access_TransportModem</label>
+            <div class="row">
+                <div><label for="ModemPort">@Strings.Access_ModemPort</label><input asp-for="ModemPort" type="text" list="ports" placeholder="COM3" autocomplete="off">
+                    <datalist id="ports">@foreach (var p in Model.Ports) { <option value="@p"></option> }</datalist></div>
+                <div><label for="ModemBaud">@Strings.Access_ModemBaud</label><input asp-for="ModemBaud" type="number" min="1200"></div>
+            </div>
+            <p class="muted">@Strings.Access_ModemHelp @(Model.Ports.Count > 0 ? $"({string.Join(", ", Model.Ports)})" : "")</p>
+            <label><input type="radio" name="Transport" value="http" checked="@(Model.Transport == "http")"> @Strings.Access_TransportHttp</label>
+            <label for="HttpUrl">@Strings.Access_HttpUrl</label>
+            <input asp-for="HttpUrl" type="text" autocomplete="off" value="" placeholder="@(Model.ProviderHost is null ? "https://api.example.com/send?key=…&to={phone}&text={message}" : string.Format(Strings.Access_HttpSaved, Model.ProviderHost))">
+            <label for="HttpBody">@Strings.Access_HttpBody</label>
+            <textarea asp-for="HttpBody" style="min-height:4rem" placeholder="@(Model.ProviderHasBody ? Strings.Access_HttpBodySaved : "{\"to\":\"{phone}\",\"text\":\"{message}\"}")"></textarea>
+            <label for="HttpSuccessText">@Strings.Access_HttpSuccess</label>
+            <input asp-for="HttpSuccessText" type="text" placeholder="OK">
+            <p class="muted">@Strings.Access_HttpHelp</p>
+            @if (Model.ProviderHost is not null)
+            {
+                <label><input asp-for="ClearProvider" type="checkbox"> @Strings.Access_ClearProvider</label>
+            }
+        </div>
+    }
+    <button type="submit">@Strings.Common_Save</button>
+</form>
+
+@if (Model.SmsAllowed)
+{
+    <form method="post" asp-page-handler="Test" class="card">
+        <h2 style="margin-top:0">@Strings.Access_Test</h2>
+        <label for="TestPhone">@Strings.Sms_PhoneLabel</label>
+        <input asp-for="TestPhone" type="tel" placeholder="06 123 45 67" class="small">
+        <button type="submit" class="secondary">@Strings.Access_TestSend</button>
+        <p class="muted">@Strings.Access_TestHelp</p>
+    </form>
+
+    <h2>@Strings.Access_Log</h2>
+    <div class="scroll">
+    <table>
+        <tr><th>@Strings.Col_Time</th><th>@Strings.Access_Number</th><th>@Strings.Col_Type</th><th>@Strings.Col_State</th></tr>
+        @foreach (var m in Model.Log)
+        {
+            <tr>
+                <td>@AdminText.Date(m.CreatedAt, culture)</td>
+                <td>@StonesHotspot.Core.Rules.PhoneNumber.Format(m.Phone)</td>
+                <td>@(m.Purpose switch { StonesHotspot.Core.Data.Entities.SmsPurpose.LoginCode => Strings.Access_PurposeLogin, StonesHotspot.Core.Data.Entities.SmsPurpose.Test => Strings.Access_PurposeTest, _ => Strings.Access_PurposeVoucher })</td>
+                <td>@(m.Sent ? Strings.Access_SmsSent : $"{Strings.Access_SmsFailed} : {m.Error}")</td>
+            </tr>
+        }
+    </table>
+    </div>
+    @if (Model.Log.Count == 0) { <p class="muted">@Strings.Report_Empty</p> }
+}

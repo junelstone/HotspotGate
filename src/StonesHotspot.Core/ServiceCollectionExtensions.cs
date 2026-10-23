@@ -25,6 +25,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ProductService>();
         services.AddScoped<SalesService>();
         services.AddScoped<ReportService>();
+        services.AddScoped<FreeAccessService>();
+        services.AddScoped<SmsLoginService>();
+        services.AddScoped<Sms.SmsService>();
         services.AddScoped<AccountService>();
         services.AddScoped<StaffService>();
         services.AddScoped<DeviceService>();

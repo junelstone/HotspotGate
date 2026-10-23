@@ -12,6 +12,7 @@ public sealed class IndexModel(
     CurrentStaff current,
     CashService cash,
     SessionService sessions,
+    FreeAccessService free,
     ConnectedDeviceRegistry devices,
     ILicenseService licence,
     TimeProvider clock) : PageModel
@@ -25,6 +26,9 @@ public sealed class IndexModel(
     public bool ShiftsEnabled { get; private set; }
     public int? TrialDaysLeft { get; private set; }
 
+    /// <summary>Today's shared Wi-Fi password, for staff to tell customers; null when that mode is off.</summary>
+    public string? PasswordOfTheDay { get; private set; }
+
     public async Task OnGetAsync()
     {
         var ct = HttpContext.RequestAborted;
@@ -37,5 +41,7 @@ public sealed class IndexModel(
         OpenShift = ShiftsEnabled ? await cash.GetOpenShiftAsync(Me.Id, ct) : null;
         var status = licence.GetStatus();
         TrialDaysLeft = status.Edition == Edition.Trial ? status.DaysLeft(clock.GetUtcNow()) : null;
+        if (licence.IsAllowed(Feature.FreeAccessModes) && (await free.GetSettingsAsync(ct)).Password.Usable)
+            PasswordOfTheDay = await free.PasswordOfTheDayAsync(ct);
     }
 }

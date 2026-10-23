@@ -3,9 +3,9 @@
 Windows Wi-Fi hotspot manager (captive portal) by **Stone's IT Consulting**: turns a Windows 10/11 PC into a
 managed, paid Wi-Fi hotspot — vouchers, user accounts, tariffs, Mobile Money, admin dashboard.
 
-> **Status: Phase 7 — business tools.** Products and stock, a till that sells products and Wi-Fi codes on one
-> receipt, A4 receipts (browser print or PDF), shift reports, business reports with CSV and PDF export, and the audit
-> log viewer. All printing is on A4 paper. See [Build phases](#build-phases).
+> **Status: Phase 8 — free access and SMS login.** Besides codes and accounts, the portal can offer free access
+> (accept the terms), a shared password of the day, and login by SMS code (USB GSM modem or HTTP SMS provider), each
+> with its own plan and daily limits. See [Build phases](#build-phases). See [Build phases](#build-phases).
 
 ## Requirements
 
@@ -89,7 +89,7 @@ deliberately no default password: customers on the hotspot can reach the dashboa
 | Role | Can use |
 |---|---|
 | **Caissier / Cashier** | Home, **Caisse** (till: products and Wi-Fi codes in one cart, change to give, receipt), **Vendre** (new codes printed on a ticket, or a pre-printed card), **Ma caisse** (open with starting cash, sales, close with counted cash), **Comptes** (search, top up) |
-| **Administrateur** | Everything: **En direct** (customers online: add time, log out, block, whitelist), **Forfaits**, **Filtrage web**, **Débit**, **Tickets** (batches, A4 cards with QR, CSV, disable), **Produits** (groups, prices with VAT, stock deliveries and counts), **Rapports**, **Comptes**, **Personnel**, **Paramètres** (name, Wi-Fi name, logo, colour, welcome page, terms, language, idle timeout, receipt header/footer), **Journal** (audit log), **Sauvegarde**, network and diagnostics pages |
+| **Administrateur** | Everything: **En direct** (customers online: add time, log out, block, whitelist), **Forfaits**, **Filtrage web**, **Débit**, **Tickets** (batches, A4 cards with QR, CSV, disable), **Produits** (groups, prices with VAT, stock deliveries and counts), **Rapports**, **Accès gratuit** (free access, password of the day, SMS login), **Comptes**, **Personnel**, **Paramètres** (name, Wi-Fi name, logo, colour, welcome page, terms, language, idle timeout, receipt header/footer), **Journal** (audit log), **Sauvegarde**, network and diagnostics pages |
 
 - Sign-in ends after 2 hours without activity; 5 wrong passwords from one address → 5 minutes wait. New staff
   and reset passwords are temporary: they must be changed at first sign-in.
@@ -156,6 +156,19 @@ to the page they first asked for. Business name, accent colour (`Portal.AccentCo
   Account charges are left out of turnover (the money was counted at the top-up).
 - **Journal** (admin): audit log with dates, staff and text filters, CSV.
 
+### Free access, password of the day, SMS login (Pro)
+
+- **Accès gratuit** (admin): each mode on/off with its own plan (create e.g. "Gratuit 15 min" in **Forfaits**) and
+  logins per device per day. A login gives the device a hidden code on that plan, so time and data count as usual;
+  logging out and in again does not use a new one.
+- **Password of the day**: fixed, or a new 6-character password every day at midnight; shown on the dashboard home.
+- **SMS code**: Congo number (`06 123 45 67`, `+242…`), allowed number starts, 6-digit code valid 10 minutes (5
+  tries), at most one code per minute per number, daily limits per number, per device and in total. Sending by a
+  **USB GSM modem** (COM port, SIM PIN disabled, AT commands) or an **HTTP SMS provider** (URL template with
+  `{phone}`, `{phone_digits}`, `{message}`, optional POST/JSON body). The provider address is stored encrypted and
+  never shown again; **test SMS** button and a log of the last 50 SMS.
+- Social login (Google/Facebook) is not built: see [`docs/social-login.md`](docs/social-login.md).
+
 ### Packet gate (WinDivert)
 
 `build.ps1` downloads **WinDivert 2.2.2** from its official release (SHA-256 checked, see
@@ -172,7 +185,8 @@ Manual tests: [`phase-2-network.md`](docs/manual-tests/phase-2-network.md),
 [`phase-3-gate.md`](docs/manual-tests/phase-3-gate.md), [`phase-4-portal.md`](docs/manual-tests/phase-4-portal.md),
 [`phase-5-dashboard.md`](docs/manual-tests/phase-5-dashboard.md),
 [`phase-6-bandwidth-filter.md`](docs/manual-tests/phase-6-bandwidth-filter.md),
-[`phase-7-business-tools.md`](docs/manual-tests/phase-7-business-tools.md).
+[`phase-7-business-tools.md`](docs/manual-tests/phase-7-business-tools.md),
+[`phase-8-free-sms.md`](docs/manual-tests/phase-8-free-sms.md).
 
 ## Database
 
@@ -220,8 +234,8 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 | 4 | Captive portal | done — to be verified on Windows |
 | 5 | Admin dashboard | done |
 | 6 | Bandwidth control and web filter | done — speeds to be verified on Windows |
-| 7 | Business tools (products, till, A4 receipts, reports) | **done** |
-| 8 | Free access and SMS login | — |
+| 7 | Business tools (products, till, A4 receipts, reports) | done |
+| 8 | Free access and SMS login | **done** — SMS to be verified with the real modem or provider |
 | 9 | Mobile Money payments | — |
 | 10 | Licensing, trial and activation | — |
 | 11 | Windows service, installer and updates | — |

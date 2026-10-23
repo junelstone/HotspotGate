@@ -23,7 +23,7 @@ public sealed class VoucherService(HotspotDbContext db, CashService cash, AuditS
 
     public async Task<List<BatchSummary>> ListBatchesAsync(CancellationToken ct = default)
     {
-        var groups = await db.Vouchers
+        var groups = await db.Vouchers.Where(v => v.Source == VoucherSource.Staff)
             .GroupBy(v => new { v.BatchName, v.TariffId })
             .Select(g => new
             {
@@ -87,6 +87,34 @@ public sealed class VoucherService(HotspotDbContext db, CashService cash, AuditS
         audit.Record(actor, "Vouchers.Disabled", $"{vouchers.Count} unused voucher(s) of batch '{batchName}'");
         await db.SaveChangesAsync(ct);
         return vouchers.Count;
+    }
+
+    /// <summary>
+    /// A voucher made by the portal for a free, password or SMS login (or Mobile Money): not part of any batch shown
+    /// to staff, not audited one by one. Saved.
+    /// </summary>
+    internal async Task<Voucher> CreateForDeviceAsync(Tariff tariff, VoucherSource source, int deviceId, string? phone, CancellationToken ct)
+    {
+        string code;
+        do
+            code = VoucherCodeGenerator.Next();
+        while (await db.Vouchers.AnyAsync(v => v.Code == code, ct));
+
+        var voucher = new Voucher
+        {
+            Code = code,
+            BatchName = $"({source})",
+            TariffId = tariff.Id,
+            Tariff = tariff,
+            Source = source,
+            IssuedToDeviceId = deviceId,
+            Phone = phone,
+            SingleUse = false,
+            CreatedAt = clock.GetUtcNow().UtcDateTime,
+        };
+        db.Vouchers.Add(voucher);
+        await db.SaveChangesAsync(ct);
+        return voucher;
     }
 
     /// <summary>Creates <paramref name="count"/> new vouchers with unique random codes.</summary>

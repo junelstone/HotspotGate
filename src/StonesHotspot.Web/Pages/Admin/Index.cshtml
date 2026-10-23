@@ -10,6 +10,11 @@
     <p class="muted">@string.Format(Strings.Licence_TrialDaysLeft, days)</p>
 }
 
+@if (Model.PasswordOfTheDay is not null)
+{
+    <div class="msg ok">@Strings.Home_PasswordOfTheDay <strong class="code" style="font-size:1.3rem">@Model.PasswordOfTheDay</strong></div>
+}
+
 <div class="cards">
     <div class="card">
         <div class="muted">@(admin ? Strings.Home_SalesToday : Strings.Home_MySalesToday)</div>

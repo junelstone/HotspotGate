@@ -28,6 +28,7 @@ public sealed class TestHost : IAsyncDisposable
     private readonly ServiceProvider _services;
 
     public FakeTimeProvider Clock { get; } = new(Start);
+    public FakeSmsTransportFactory Sms { get; } = new();
     public string? InitialAdminPassword { get; private set; }
 
     private TestHost(Action<IServiceCollection>? configure)
@@ -38,7 +39,10 @@ public sealed class TestHost : IAsyncDisposable
         var services = new ServiceCollection()
             .AddSingleton<TimeProvider>(Clock)
             .AddHotspotCore(o => o.UseSqlite(_connection))
-            .AddSingleton<IPasswordHasher>(new BcryptPasswordHasher(workFactor: 4)); // fast hashing in tests
+            .AddSingleton<IPasswordHasher>(new BcryptPasswordHasher(workFactor: 4)) // fast hashing in tests
+            .AddLogging()
+            .AddSingleton<ISecretProtector>(new FakeSecretProtector())
+            .AddSingleton<StonesHotspot.Core.Sms.ISmsTransportFactory>(Sms);
         configure?.Invoke(services);
         _services = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
     }

@@ -19,6 +19,15 @@ public enum LoginStatus
     AccountDisabled,
     AccountExpired,
     InsufficientBalance,
+
+    /// <summary>The free/password/SMS mode is off (or has no plan).</summary>
+    ModeDisabled,
+
+    /// <summary>The device already used its free logins of the day for this mode.</summary>
+    DailyLimitReached,
+
+    InvalidPassword,
+    CodeExpired,
 }
 
 /// <param name="LockedUntil">Set with <see cref="LoginStatus.LockedOut"/>: when the device may try again (UTC).</param>
@@ -168,7 +177,11 @@ public sealed class SessionService(
             .FirstOrDefaultAsync(ct);
     }
 
-    public async Task<LoginResult> LoginWithVoucherAsync(string mac, string? ip, string code, CancellationToken ct = default)
+    public Task<LoginResult> LoginWithVoucherAsync(string mac, string? ip, string code, CancellationToken ct = default) =>
+        LoginWithVoucherAsync(mac, ip, code, LoginMethod.Voucher, ct);
+
+    /// <summary>Voucher login; free, password and SMS logins use their own hidden voucher and say so in <paramref name="method"/>.</summary>
+    internal async Task<LoginResult> LoginWithVoucherAsync(string mac, string? ip, string code, LoginMethod method, CancellationToken ct)
     {
         var now = Now;
         var device = await devices.TouchAsync(mac, ip, null, ct);
@@ -215,7 +228,7 @@ public sealed class SessionService(
             AllowanceRules.Resume(voucher.Allowance, now);
         }
 
-        var session = await StartAsync(device, LoginMethod.Voucher, voucher.TariffId, ip, now, ct);
+        var session = await StartAsync(device, method, voucher.TariffId, ip, now, ct);
         session.VoucherId = voucher.Id;
         await db.SaveChangesAsync(ct);
         return new LoginResult(LoginStatus.Success, session);
@@ -385,7 +398,7 @@ public sealed class SessionService(
             .Include(s => s.UserAccount).ThenInclude(a => a!.Tariff)
             .Where(s => s.EndedAt == null);
 
-    private async Task<LoginResult?> CheckDeviceAsync(Device device, DateTime now, CancellationToken ct)
+    internal async Task<LoginResult?> CheckDeviceAsync(Device device, DateTime now, CancellationToken ct)
     {
         if (device.Blocked)
             return await RefuseAsync(LoginStatus.DeviceBlocked, ct);
@@ -394,13 +407,13 @@ public sealed class SessionService(
         return null;
     }
 
-    private async Task<LoginResult> FailAsync(Device device, LoginStatus status, DateTime now, CancellationToken ct) =>
+    internal async Task<LoginResult> FailAsync(Device device, LoginStatus status, DateTime now, CancellationToken ct) =>
         LoginAttemptLimiter.RegisterFailure(device, now)
             ? await RefuseAsync(LoginStatus.LockedOut, ct, device.LockedUntil)
             : await RefuseAsync(status, ct);
 
     /// <summary>Saves what changed so far (device seen, failed attempts, voucher marked expired) and refuses.</summary>
-    private async Task<LoginResult> RefuseAsync(LoginStatus status, CancellationToken ct, DateTime? lockedUntil = null)
+    internal async Task<LoginResult> RefuseAsync(LoginStatus status, CancellationToken ct, DateTime? lockedUntil = null)
     {
         await db.SaveChangesAsync(ct);
         return new LoginResult(status, LockedUntil: lockedUntil);

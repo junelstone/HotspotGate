@@ -65,6 +65,21 @@ not cut the customer off, and a revoked device is cut off at the next tick (≤ 
  /portal, which explains why (last session ended < 15 min ago)
 ```
 
+## Free access and SMS login
+
+```
+ portal "Accès gratuit" / password / SMS code ─► FreeAccessService.GrantAsync
+     ├─ device still has a valid free voucher of this mode ─► log in with it
+     └─ else, under the daily limit ─► VoucherService.CreateForDeviceAsync (hidden: Source = Free/SharedPassword/Sms)
+                                       ─► SessionService voucher login (Method = Free/SharedPassword/Sms)
+ SMS: SmsLoginService (number rules, limits, code hash, 10 min) ─► SmsService (log) ─► ISmsTransport
+          ├─ ModemSmsTransport (Network, COM port) ─► AtModem (AT+CMGF=1, AT+CMGS…)
+          └─ HttpSmsTransport (URL/body template)
+```
+
+Secret settings (the provider URL with its API key) go through `ISecretProtector` (ASP.NET Data Protection,
+DPAPI-protected keys on Windows).
+
 ## Speed limits
 
 Per authorised device and direction, `PacketProcessor.Shape` runs a GCRA token bucket (theoretical arrival time,

@@ -8,6 +8,7 @@ using StonesHotspot.Network.Gate.WinDivert;
 using StonesHotspot.Network.Ics;
 using StonesHotspot.Network.Neighbors;
 using StonesHotspot.Network.Setup;
+using StonesHotspot.Network.Sms;
 
 namespace StonesHotspot.Network;
 
@@ -29,6 +30,7 @@ public static class NetworkServiceCollectionExtensions
         services.AddSingleton<PortalLocation>();
         services.AddSingleton<LiveTrafficMonitor>();
         services.AddSingleton<AccessRefreshSignal>();
+        services.AddSingleton<StonesHotspot.Core.Sms.ISmsTransportFactory>(_ => new SmsTransportFactory(new HttpClient { Timeout = TimeSpan.FromSeconds(20) }));
         services.AddSingleton<ClientIdentityResolver>();
         services.AddSingleton<DnsResponder>();
         services.AddSingleton<IDnsUpstream>(sp => new UdpDnsUpstream(() => WanDnsServers(sp), sp.GetRequiredService<ILogger<UdpDnsUpstream>>()));

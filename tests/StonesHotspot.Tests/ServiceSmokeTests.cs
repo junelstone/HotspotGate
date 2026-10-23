@@ -33,6 +33,7 @@ public sealed class ServiceSmokeTests : IClassFixture<ServiceSmokeTests.Factory>
         public FakeAdapterProvider Adapters { get; } = new(FakeAdapters.TypicalPc());
         public FakeNeighborTable Neighbors { get; } = new();
         public FakeLicenseService Licence { get; } = new();
+        public FakeSmsTransportFactory Sms { get; } = new();
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -45,6 +46,7 @@ public sealed class ServiceSmokeTests : IClassFixture<ServiceSmokeTests.Factory>
                 services.AddSingleton<IPacketGate>(sp => new FakePacketGate(sp.GetRequiredService<PacketProcessor>()));
                 services.AddSingleton<IPrivilegeChecker>(new FakePrivileges());
                 services.AddSingleton<StonesHotspot.Licensing.ILicenseService>(Licence);
+                services.AddSingleton<StonesHotspot.Core.Sms.ISmsTransportFactory>(Sms);
                 services.AddSingleton<IStartupFilter, RemoteIpStartupFilter>();
             });
         }
