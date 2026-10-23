@@ -1,9 +1,13 @@
 using StonesHotspot.Core.Data;
+using StonesHotspot.Core.Services;
 
 namespace StonesHotspot.Service;
 
-/// <summary>Daily automatic database backup (the first one 10 minutes after start), keeping the 14 latest.</summary>
-public sealed class BackupScheduler(IServiceScopeFactory scopes, ILogger<BackupScheduler> logger) : BackgroundService
+/// <summary>
+/// Once a day (the first time 10 minutes after start): automatic database backup (the 14 latest kept), then removal
+/// of personal data older than the retention setting from the connection logs.
+/// </summary>
+public sealed class DailyMaintenance(IServiceScopeFactory scopes, ILogger<DailyMaintenance> logger) : BackgroundService
 {
     public static readonly TimeSpan FirstDelay = TimeSpan.FromMinutes(10);
     public static readonly TimeSpan Interval = TimeSpan.FromHours(24);
@@ -35,6 +39,20 @@ public sealed class BackupScheduler(IServiceScopeFactory scopes, ILogger<BackupS
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or Microsoft.Data.Sqlite.SqliteException)
         {
             logger.LogError(ex, "Automatic backup failed");
+        }
+
+        // After the backup, so the backup of the day still has what the retention removes today.
+        try
+        {
+            await using var scope = scopes.CreateAsyncScope();
+            var result = await scope.ServiceProvider.GetRequiredService<RetentionService>().ApplyAsync(ct);
+            if (result.Total > 0)
+                logger.LogInformation("Connection logs past retention: {Sessions} session IPs removed, {Devices} devices anonymised, {Masked} phone numbers masked",
+                    result.Sessions, result.Devices, result.Phones);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogError(ex, "Retention of connection logs failed");
         }
     }
 }

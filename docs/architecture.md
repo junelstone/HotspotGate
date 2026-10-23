@@ -115,7 +115,8 @@ Operator access tokens are cached until they expire (`TokenCache`). Keys go thro
  service first start ─► database + admin (random password) + Setup.Completed=false + https.pfx (self-signed, DPAPI)
  /setup (loopback only, SetupWizardFilter sends every /admin page there) ─► language, business, admin password,
      NetworkSetupService.ApplyAsync (ICS/hotspot + firewall rules on the LAN adapter), plan prices ─► Setup.Completed=true
- BackupScheduler: 10 min after start, then daily ─► BackupService.CreateAutomaticAsync (keeps 14 "-auto")
+ DailyMaintenance: 10 min after start, then daily ─► BackupService.CreateAutomaticAsync (keeps 14 "-auto")
+     ─► RetentionService.ApplyAsync (connection logs older than the setting: IP removed, MAC → ANON-n, phones masked)
  UpdateCheckService (daily) ─► GET licence-server /api/v1/update ─► SignedUpdate.Verify(server public key)
      ─► UpdateStatus ─► dashboard banner + /health "update" ─► tray: InstallerDownload (SHA-256) ─► installer (UAC)
 ```
@@ -156,6 +157,22 @@ Windows. Printing is HTML + print CSS with inline-SVG QR codes (QRCoder).
   accents), Flate-compressed pages, text/lines/rectangles; no third-party PDF library.
 - All printing is A4 (decided with the customer): browser print or PDF, no receipt-printer driver to support.
 
+## Security layers
+
+```
+ request ─► SecurityHeaders (CSP, no framing, nosniff, no referrer)
+         ─► localization ─► DashboardAccessMiddleware (/admin, /setup, /health: loopback, LAN subnet, AdminNetworks; else 404)
+         ─► RateLimiter (login posts: 10/min per address, 300/min in total → 429)
+         ─► captive portal redirect ─► routing ─► cookie auth (2 h sliding, account re-checked every request)
+         ─► page filters: forced password change, setup wizard, licence gate ─► anti-forgery on every form
+```
+
+- Passwords: BCrypt (work factor 11); SMS codes hashed; operator keys and SMS provider details encrypted with Data
+  Protection (DPAPI on Windows); setting keys in `SettingKeys.Secrets` never reach the audit log in clear; phone
+  numbers masked in logs (`HardeningTests` scans every log call of the source).
+- Retention: `RetentionService` (run by `DailyMaintenance` after the backup) removes IP/MAC/phone from connection
+  records older than `Privacy.LogRetentionDays`; money records are never touched.
+
 ## Fail-closed rules
 
 - Gate started before ICS; gate failure → ICS switched off.
@@ -172,7 +189,7 @@ Windows. Printing is HTML + print CSS with inline-SVG QR codes (QRCoder).
 | Core | entities + EF Core (`Data`), rules (`Rules`), services (`Services`: sessions, vouchers, accounts, cash, sales, products, reports, web filter…), PDF/CSV (`Documents`) |
 | Network | adapters, ICS, neighbour table, setup/reconcile, gate (`Gate`), DNS (`Dns`), Windows Firewall rules (`Firewall`) |
 | Web | Razor Pages: portal (`Pages/Portal`), dashboard (`Pages/Admin`), captive-portal middleware, receipt/report layouts (`Documents`) |
-| Service | host, `HotspotEngineService`, `DeviceDiscoveryService`, `BackupScheduler`, `UpdateCheckService`, `HttpsCertificate`, Kestrel ports, logging, `--reset-admin-password` |
+| Service | host, `HotspotEngineService`, `DeviceDiscoveryService`, `DailyMaintenance`, `UpdateCheckService`, `HttpsCertificate`, Kestrel ports, logging, `--reset-admin-password` |
 | Licensing | `ILicenseService` → `LicenseService` (codes, Machine ID, trial store, monotonic time, server answers), `Online` client |
 | LicenseServer | API + SQLite + owner page; signs answers with the server key |
 | tools/LicenseIssuer, LicenseManager | owner-only: key vault, licence book, signing, sync |

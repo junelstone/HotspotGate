@@ -27,6 +27,7 @@ public sealed partial class SettingsModel(SettingsService settings, AppPaths pat
     [BindProperty] public string? TermsEn { get; set; }
     [BindProperty] public string DefaultLanguage { get; set; } = Languages.French;
     [BindProperty] public int IdleTimeout { get; set; } = 10;
+    [BindProperty] public int RetentionDays { get; set; } = RetentionService.DefaultDays;
     [BindProperty] public string? ReceiptHeader { get; set; }
     [BindProperty] public string? ReceiptFooter { get; set; }
     [BindProperty] public IFormFile? Logo { get; set; }
@@ -45,6 +46,7 @@ public sealed partial class SettingsModel(SettingsService settings, AppPaths pat
         TermsEn = await settings.GetAsync(SettingKeys.PortalTermsEn, ct);
         DefaultLanguage = await settings.GetAsync(SettingKeys.DefaultLanguage, ct) ?? Languages.French;
         IdleTimeout = await settings.GetIntAsync(SettingKeys.DefaultIdleTimeoutMinutes, 10, ct);
+        RetentionDays = await settings.GetIntAsync(SettingKeys.LogRetentionDays, RetentionService.DefaultDays, ct);
         ReceiptHeader = await settings.GetAsync(SettingKeys.ReceiptHeader, ct);
         ReceiptFooter = await settings.GetAsync(SettingKeys.ReceiptFooter, ct);
         HasLogo = PortalBranding.FindLogo(paths) is not null;
@@ -61,6 +63,8 @@ public sealed partial class SettingsModel(SettingsService settings, AppPaths pat
             Error = Strings.Settings_InvalidUrl;
         else if (IdleTimeout is < 1 or > 1440)
             Error = Strings.Settings_InvalidIdle;
+        else if (RetentionDays is < RetentionService.MinDays or > RetentionService.MaxDays)
+            Error = string.Format(Strings.Settings_InvalidRetention, RetentionService.MinDays, RetentionService.MaxDays);
         else if (DefaultLanguage is not (Languages.French or Languages.English))
             Error = Strings.Settings_InvalidLanguage;
         else if (ReceiptHeader?.Length > MaxReceiptText || ReceiptFooter?.Length > MaxReceiptText)
@@ -91,6 +95,7 @@ public sealed partial class SettingsModel(SettingsService settings, AppPaths pat
         await Save(SettingKeys.ReceiptHeader, ReceiptHeader?.Replace("\r", ""));
         await Save(SettingKeys.ReceiptFooter, ReceiptFooter?.Replace("\r", ""));
         await Save(SettingKeys.DefaultIdleTimeoutMinutes, IdleTimeout.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        await Save(SettingKeys.LogRetentionDays, RetentionDays.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
         if (Logo is not null)
         {

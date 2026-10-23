@@ -3,11 +3,11 @@
 Windows Wi-Fi hotspot manager (captive portal) by **Stone's IT Consulting**: turns a Windows 10/11 PC into a
 managed, paid Wi-Fi hotspot — vouchers, user accounts, tariffs, Mobile Money, admin dashboard.
 
-> **Status: Phase 11 — installer and updates.** `StonesHotspot-Setup.exe` installs the Windows service (restarted
-> automatically after a crash), the tray app and the firewall rules; a first-run wizard sets up language, business,
-> admin password, network and prices; daily backups; signed updates from the licence server. The owner's
-> `LicenseManager-Setup.exe` is a separate installer, and the build refuses to put owner files or development keys in
-> the customer installer. See [Installing](#installing-on-the-hotspot-pc) and [Build phases](#build-phases).
+> **Status: Phase 12 — hardening and final testing, all phases built.** Dashboard reachable only from the PC and
+> the customer network, rate limits on every login form, browser security headers, configurable retention of
+> connection logs, 50-device load test. User manuals: [français](docs/manual-fr.md) · [English](docs/manual-en.md).
+> Before going live: the owner's keys and licence server, the operators' keys, and the real-device checklist
+> [`phase-12-final.md`](docs/manual-tests/phase-12-final.md). See [Build phases](#build-phases).
 
 ## Requirements
 
@@ -69,13 +69,14 @@ Run `StonesHotspot-Setup-x.y.z.exe` (administrator; nothing else to install, .NE
 service started; data, settings and licence stay. **Uninstall** (Settings → Apps): stops and removes the service
 (internet sharing off), removes the firewall rules and the tray start-up, then asks whether to delete the data
 (default **No**). The trial/licence records are always kept. Manual checklist:
-[`phase-11-installer.md`](docs/manual-tests/phase-11-installer.md).
+[`phase-11-installer.md`](docs/manual-tests/phase-11-installer.md),
+[`phase-12-final.md`](docs/manual-tests/phase-12-final.md) (real devices, failures, security, 50 devices).
 
 ## Configuration
 
 | File | Committed? | Purpose |
 |---|---|---|
-| `src/StonesHotspot.Service/appsettings.json` | yes | Defaults: `StonesHotspot:AdminPort` (8080), `PortalPort` (80), `HttpsPort` (443, 0 = off), `LocalhostOnly`, `DataDirectory` (empty = `%ProgramData%\StonesHotspot`), `SetupWizard` (true), `Licensing:ServerUrl` (licence server, also used for updates), log levels |
+| `src/StonesHotspot.Service/appsettings.json` | yes | Defaults: `StonesHotspot:AdminPort` (8080), `PortalPort` (80), `HttpsPort` (443, 0 = off), `LocalhostOnly`, `DataDirectory` (empty = `%ProgramData%\StonesHotspot`), `SetupWizard` (true), `AdminNetworks` (extra networks allowed to open the dashboard, e.g. `["10.0.0.0/24"]`), `LoginRateLimit:PerAddress` (10 login posts per minute) and `:Total` (300), `Licensing:ServerUrl` (licence server, also used for updates), log levels |
 | `appsettings.Local.json` | **no** (git-ignored) | Secrets (SMS, Mobile Money keys). Copy `appsettings.Local.example.json`. Read from the exe folder and from `%ProgramData%\StonesHotspot\` |
 
 Never put API keys or passwords in `appsettings.json`.
@@ -104,7 +105,10 @@ password to `initial-admin-password.txt` (to be changed at the next sign-in).
 
 ## Dashboard
 
-`http://localhost:8080/admin` on the PC, `http://192.168.137.1:8080/admin` from a phone on the hotspot Wi-Fi.
+`http://localhost:8080/admin` on the PC, `http://192.168.137.1:8080/admin` from a phone on the hotspot Wi-Fi. From
+any other network (the internet box side, the internet) the dashboard, the setup and `/health` answer 404, whatever
+the firewall allows; add an office network with `StonesHotspot:AdminNetworks`. Day-to-day use is described in the
+user manuals ([français](docs/manual-fr.md), [English](docs/manual-en.md)).
 
 | Role | Can use |
 |---|---|
@@ -113,6 +117,12 @@ password to `initial-admin-password.txt` (to be changed at the next sign-in).
 
 - Sign-in ends after 2 hours without activity; 5 wrong passwords from one address → 5 minutes wait. New staff
   and reset passwords are temporary: they must be changed at first sign-in.
+- Every login form (staff, portal codes/accounts/free access/SMS/Mobile Money, wizard) accepts at most 10 posts per
+  minute per address and 300 in total ("Trop d'essais"), on top of the per-device locks.
+- Pages send `Content-Security-Policy` (own scripts only), `X-Frame-Options: DENY`, `nosniff`, `no-referrer`.
+- **Connection logs retention** (**Paramètres**, default 365 days): each night, older sessions lose their IP, old
+  devices become `ANON-n`, phone numbers in SMS records, SMS codes and Mobile Money payments are masked. Sales,
+  amounts and reports are kept. Whitelisted/blocked/annotated devices are rules and stay.
 - Shifts, the till, products, receipts, the Pro reports and extra staff accounts are Pro features (included in the
   trial). Basic keeps **Vendre**, sales by plan and the sessions report.
 - Printing is always on **A4**, through the browser's print dialog (Ctrl+P on the PC, Share → Print on a phone) or
@@ -298,8 +308,8 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 | 8 | Free access and SMS login | done — SMS to be verified with the real modem or provider |
 | 9 | Mobile Money payments | done — to be verified with the operators' sandbox, then production keys |
 | 10 | Licensing, trial and activation | done — owner keys and server hosting to be set up |
-| 11 | Windows service, installer and updates | **done** — installers to be built and tried on a clean Windows 11 |
-| 12 | Hardening and final testing | — |
+| 11 | Windows service, installer and updates | done — installers to be built and tried on a clean Windows 11 |
+| 12 | Hardening and final testing | **done** — final checklist to run on the real shop set-up |
 
 Plans for each phase are in `docs/phase-N-plan.md`.
 
@@ -326,5 +336,7 @@ Plans for each phase are in `docs/phase-N-plan.md`.
 | Speed test in **Débit** fails | The PC has no internet, or speed.cloudflare.com is blocked: set other URLs in `appsettings.json` → `Bandwidth` |
 | Customers slower than their plan | Check **Débit**: fair share may give them less (many active devices or totals set too low). The gate page shows delayed/dropped packets |
 | A blocked site still opens | The phone cached the address: switch its Wi-Fi off and on. Apps using their own encrypted DNS (DoH) can bypass domain blocking; add the site's IP range as well |
+| Dashboard gives 404 from an office PC | Only the PC and the hotspot Wi-Fi may open it: add the office network to `StonesHotspot:AdminNetworks` in `%ProgramData%\StonesHotspot\appsettings.Local.json` (e.g. `{"StonesHotspot":{"AdminNetworks":["10.0.0.0/24"]}}`), restart the service |
+| "Trop d'essais" / "Too many tries" | More than 10 login attempts in a minute from one address: wait a minute. Raise `StonesHotspot:LoginRateLimit:PerAddress` only if many customers share one address |
 | Dashboard says "Accès refusé" | The page is for administrators; sign in with an admin account |
 | Tray "Start/Stop" shows an administrator message | Starting or stopping a Windows service needs administrator rights: right-click the tray icon's program → Run as administrator, or use Services (services.msc). The service restarts by itself after a crash |

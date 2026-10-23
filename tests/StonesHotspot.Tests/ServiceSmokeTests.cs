@@ -38,11 +38,16 @@ public sealed class ServiceSmokeTests : IClassFixture<ServiceSmokeTests.Factory>
 
         protected virtual bool SetupWizard => false;
 
+        protected virtual int LoginRateLimit => 100_000;
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseSetting("StonesHotspot:DataDirectory", DataDirectory);
             // The first-run wizard has its own tests (SetupWizardTests); elsewhere the dashboard is used directly.
             builder.UseSetting("StonesHotspot:SetupWizard", SetupWizard ? "true" : "false");
+            // Tests sign in many times a minute from one address; HardeningTests checks the real limits.
+            builder.UseSetting("StonesHotspot:LoginRateLimit:PerAddress", LoginRateLimit.ToString());
+            builder.UseSetting("StonesHotspot:LoginRateLimit:Total", (LoginRateLimit * 30).ToString());
             builder.ConfigureServices(services =>
             {
                 services.AddSingleton<IIcsController>(Ics);
@@ -140,6 +145,11 @@ public sealed class ServiceSmokeTests : IClassFixture<ServiceSmokeTests.Factory>
     [InlineData("/admin/settings")]
     public async Task Setup_pages_need_an_administrator(string url)
     {
+        // Phones reach the dashboard once the hotspot network (LAN 192.168.137.0/24) is set up.
+        await using (var scope = _factory.Services.CreateAsyncScope())
+            Assert.True((await scope.ServiceProvider.GetRequiredService<NetworkSetupService>().ApplyAsync(FakeAdapters.EthernetId, FakeAdapters.LanId, null)).Succeeded);
+        await _factory.Services.GetServices<IHostedService>().OfType<HotspotEngineService>().Single().TickAsync(CancellationToken.None);
+
         // Anyone on the Wi-Fi: sent to the sign-in page.
         var anonymous = await StaffSignIn.Client(_factory, "192.168.137.23").GetAsync(url);
         Assert.Equal(HttpStatusCode.Redirect, anonymous.StatusCode);

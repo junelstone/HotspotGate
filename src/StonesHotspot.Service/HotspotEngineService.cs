@@ -81,9 +81,14 @@ internal sealed class HotspotEngineService(
         }
     }
 
+    private int _stopped;
+
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         await base.StopAsync(cancellationToken);
+        // The host may call this twice (stop, then dispose): sharing is switched off once, while services still exist.
+        if (Interlocked.Exchange(ref _stopped, 1) == 1)
+            return;
         try
         {
             await using var scope = scopes.CreateAsyncScope();

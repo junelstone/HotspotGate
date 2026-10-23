@@ -27,7 +27,9 @@
             <select asp-for="DefaultLanguage"><option value="fr">Français</option><option value="en">English</option></select>
         </div>
         <div><label for="IdleTimeout">@Strings.Settings_Idle</label><input asp-for="IdleTimeout" type="number" min="1" max="1440"></div>
+        <div><label for="RetentionDays">@Strings.Settings_Retention</label><input asp-for="RetentionDays" type="number" min="@StonesHotspot.Core.Services.RetentionService.MinDays" max="@StonesHotspot.Core.Services.RetentionService.MaxDays"></div>
     </div>
+    <p class="muted">@Strings.Settings_RetentionHelp</p>
     <label for="WelcomeUrl">@Strings.Settings_WelcomeUrl</label>
     <input asp-for="WelcomeUrl" type="url" placeholder="https://…">
     <p class="muted">@Strings.Settings_WelcomeHelp</p>

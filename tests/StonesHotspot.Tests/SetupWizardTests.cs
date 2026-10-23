@@ -32,8 +32,8 @@ public sealed class SetupWizardTests(SetupWizardTests.WizardFactory factory) : I
         // Dashboard leads to the wizard; another device is told to use the PC.
         var login = await local.GetAsync("/admin/login");
         Assert.Equal("/setup", login.Headers.Location?.OriginalString);
-        var fromPhone = await remote.GetStringAsync("http://localhost/setup");
-        Assert.DoesNotContain("name=\"Language\"", fromPhone);
+        // Before the network is set up a phone cannot even reach the dashboard port.
+        Assert.Equal(HttpStatusCode.NotFound, (await remote.GetAsync("http://localhost/setup")).StatusCode);
 
         Assert.Equal(HttpStatusCode.Redirect, (await Post(local, 1, "Language", new() { ["Language"] = "en" })).StatusCode);
         Assert.Equal("/setup?step=3", (await Post(local, 2, "Business", new() { ["BusinessName"] = "Cyber Stone", ["WifiName"] = "Stone-WiFi" })).Headers.Location?.OriginalString);
@@ -48,6 +48,9 @@ public sealed class SetupWizardTests(SetupWizardTests.WizardFactory factory) : I
         // Network: WAN = Ethernet, LAN = Ethernet 2 → firewall rules on the LAN adapter.
         Assert.Equal("/setup?step=5", (await Post(local, 4, "Network", new() { ["WanId"] = FakeAdapters.EthernetId, ["LanId"] = FakeAdapters.LanId })).Headers.Location?.OriginalString);
         var firewall = (NoFirewall)factory.Services.GetRequiredService<IFirewallManager>();
+        await factory.Services.GetServices<Microsoft.Extensions.Hosting.IHostedService>().OfType<StonesHotspot.Service.HotspotEngineService>().Single().TickAsync(CancellationToken.None);
+        var fromPhone = await remote.GetStringAsync("http://localhost/setup");   // now on the customer network
+        Assert.DoesNotContain("name=\"Password\"", fromPhone);
         Assert.Contains(firewall.Applied, r => r.InterfaceName == "Ethernet 2" && r.Port == 53);
 
         int hourPlan;

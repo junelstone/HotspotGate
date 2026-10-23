@@ -755,4 +755,8 @@ Le hotspot s'arrête une minute pendant l'installation. Vos données sont conser
   <data name="Setup_Back" xml:space="preserve"><value>Retour</value></data>
   <data name="Setup_Done" xml:space="preserve"><value>Installation terminée. Connectez-vous avec le compte admin.</value></data>
   <data name="Setup_OnThePc" xml:space="preserve"><value>La première installation n'est pas terminée. Terminez-la sur le PC du hotspot (icône « Stone's Hotspot » sur le bureau).</value></data>
+  <data name="Common_TooManyTries" xml:space="preserve"><value>Trop d'essais. Réessayez dans une minute.</value></data>
+  <data name="Settings_Retention" xml:space="preserve"><value>Conserver les journaux de connexion (jours)</value></data>
+  <data name="Settings_RetentionHelp" xml:space="preserve"><value>Après ce délai, les connexions perdent ce qui identifie le client (adresse MAC, adresse IP, numéro de téléphone masqué). Les ventes, montants et rapports sont gardés. Vérifiez la durée exigée par la loi.</value></data>
+  <data name="Settings_InvalidRetention" xml:space="preserve"><value>La durée de conservation doit être entre {0} et {1} jours.</value></data>
 </root>

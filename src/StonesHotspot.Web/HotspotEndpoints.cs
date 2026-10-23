@@ -40,6 +40,9 @@ public static class HotspotEndpoints
             });
         });
 
+        // Browsers ask for it on every site; no icon, and no 404 in the log.
+        app.MapGet("/favicon.ico", () => Results.NoContent());
+
         // Business logo for the portal (uploaded in the dashboard, phase 5).
         app.MapGet("/portal/logo", (AppPaths paths) =>
         {

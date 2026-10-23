@@ -11,6 +11,7 @@ using StonesHotspot.Network;
 using StonesHotspot.Network.Setup;
 using StonesHotspot.Service;
 using StonesHotspot.Web;
+using StonesHotspot.Web.Auth;
 
 // When started by the Service Control Manager the working directory is System32, so point the
 // content root at the install folder to find appsettings.json.
@@ -32,6 +33,7 @@ builder.Configuration.AddJsonFile(Path.Combine(paths.Root, "appsettings.Local.js
 var ports = ListenPorts.From(builder.Configuration);
 builder.WebHost.ConfigureKestrel(kestrel =>
 {
+    kestrel.AddServerHeader = false;
     foreach (var port in ports.All)
     {
         if (ports.LocalhostOnly)
@@ -82,9 +84,10 @@ try
     builder.Services.AddHostedService<HotspotEngineService>();
     builder.Services.AddHostedService<DeviceDiscoveryService>();
     builder.Services.AddHostedService<PaymentWatcherService>();
-    builder.Services.AddHostedService<BackupScheduler>();
+    builder.Services.AddHostedService<DailyMaintenance>();
     builder.Services.AddHostedService<UpdateCheckService>();
     builder.Services.AddHotspotWeb();
+    builder.Services.AddLoginRateLimiting(builder.Configuration);
     // Keys for sign-in cookies and form tokens: kept in the data folder so they survive restarts.
     var keys = builder.Services.AddDataProtection().SetApplicationName("StonesHotspot")
         .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(paths.Root, "keys")));
@@ -103,7 +106,10 @@ try
     await app.InitializeDatabaseAsync();
 
     app.UseSerilogRequestLogging();
+    app.UseSecurityHeaders();
     app.UseHotspotLocalization();
+    app.UseDashboardAccessRestriction();   // dashboard only from the PC and the customer network
+    app.UseRateLimiter();                  // login forms
     app.UseCaptivePortal();   // before routing: may send the request to the portal or the "site blocked" page
     app.UseRouting();
     app.UseAuthentication();

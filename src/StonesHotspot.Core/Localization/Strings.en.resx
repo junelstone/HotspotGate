@@ -755,4 +755,8 @@ The hotspot stops for a minute during the installation. Your data is kept.</valu
   <data name="Setup_Back" xml:space="preserve"><value>Back</value></data>
   <data name="Setup_Done" xml:space="preserve"><value>Setup finished. Sign in with the admin account.</value></data>
   <data name="Setup_OnThePc" xml:space="preserve"><value>The first-time setup is not finished. Finish it on the hotspot PC ("Stone's Hotspot" icon on the desktop).</value></data>
+  <data name="Common_TooManyTries" xml:space="preserve"><value>Too many tries. Try again in a minute.</value></data>
+  <data name="Settings_Retention" xml:space="preserve"><value>Keep connection logs (days)</value></data>
+  <data name="Settings_RetentionHelp" xml:space="preserve"><value>After this time, connections lose what identifies the customer (MAC address, IP address, phone number masked). Sales, amounts and reports are kept. Check the duration required by law.</value></data>
+  <data name="Settings_InvalidRetention" xml:space="preserve"><value>The retention must be between {0} and {1} days.</value></data>
 </root>

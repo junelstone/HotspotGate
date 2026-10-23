@@ -34,6 +34,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<AccountService>();
         services.AddScoped<StaffService>();
         services.AddScoped<SetupService>();
+        services.AddScoped<RetentionService>();
         services.AddSingleton<SetupState>();
         services.AddScoped<DeviceService>();
         services.AddScoped<SessionService>();

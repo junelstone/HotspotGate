@@ -69,6 +69,15 @@ public static class SettingKeys
     public const string ReceiptFooter = "Receipts.Footer";
     /// <summary>"true" once the first-run wizard is finished (not in <see cref="Defaults"/>: set by the database initializer).</summary>
     public const string SetupCompleted = "Setup.Completed";
+    /// <summary>Days the connection logs (MAC, IP, phone) are kept; see <see cref="RetentionService"/>.</summary>
+    public const string LogRetentionDays = "Privacy.LogRetentionDays";
+
+    /// <summary>Settings holding passwords, keys or provider addresses: never written in clear to the audit log.</summary>
+    public static IReadOnlySet<string> Secrets { get; } = new HashSet<string>
+    {
+        PasswordValue, PasswordSecret, SmsHttpUrl, SmsHttpBody,
+        MtnSubscriptionKey, MtnApiUser, MtnApiKey, AirtelClientId, AirtelClientSecret,
+    };
 
     /// <summary>Values written on first start; existing values are never overwritten.</summary>
     public static IReadOnlyDictionary<string, string> Defaults { get; } = new Dictionary<string, string>
@@ -76,6 +85,7 @@ public static class SettingKeys
         [BusinessName] = "Stone's Hotspot",
         [DefaultLanguage] = "fr",
         [DefaultIdleTimeoutMinutes] = "10",
+        [LogRetentionDays] = "365",
         [FairShareEnabled] = "false",
         [FairShareMinKbps] = "256",
         [FairShareMaxKbps] = "4096",
@@ -125,7 +135,7 @@ public sealed class SettingsService(HotspotDbContext db, AuditService audit)
         else
             setting.Value = value;
 
-        audit.Record(actor, "Setting.Changed", secret ? $"{key}: (secret changed)" : $"{key}: '{old}' → '{value}'");
+        audit.Record(actor, "Setting.Changed", secret || SettingKeys.Secrets.Contains(key) ? $"{key}: (secret changed)" : $"{key}: '{old}' → '{value}'");
         await db.SaveChangesAsync(ct);
     }
 
