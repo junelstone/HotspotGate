@@ -6,6 +6,7 @@ using Microsoft.Extensions.WebEncoders;
 using Serilog;
 using StonesHotspot.Core;
 using StonesHotspot.Licensing;
+using StonesHotspot.Licensing.Machine;
 using StonesHotspot.Network;
 using StonesHotspot.Network.Setup;
 using StonesHotspot.Service;
@@ -55,7 +56,16 @@ try
     builder.Services.AddSerilog();
     builder.Services.AddSingleton(paths);
     builder.Services.AddSingleton(TimeProvider.System);
-    builder.Services.AddSingleton<ILicenseService, TrialStubLicenseService>();
+    builder.Services.AddSingleton(LicensingOptions.WithEmbeddedKeys(paths.Root));
+    builder.Services.AddSingleton(MachineIdentity.ForThisComputer());
+    builder.Services.AddSingleton<ITrialStore>(OperatingSystem.IsWindows()
+        ? new WindowsTrialStore()
+        : new FileTrialStore(Path.Combine(paths.Root, ".trial")));   // running from source on Linux/macOS
+    builder.Services.AddSingleton<LicenseService>();
+    builder.Services.AddSingleton<ILicenseService>(sp => sp.GetRequiredService<LicenseService>());
+    builder.Services.AddSingleton<LicenceSignals>();
+    builder.Services.AddSingleton<LicenceCheckInService>();
+    builder.Services.AddHostedService(sp => sp.GetRequiredService<LicenceCheckInService>());
     builder.Services.AddHotspotCore(paths.DatabaseFile);
     builder.Services.AddHotspotNetwork(
         new HotspotNetworkOptions { PortalPort = (ushort)ports.Portal },

@@ -10,7 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\StonesHotspot.Licensing\StonesHotspot.Licensing.csproj" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StonesHotspot.LicenseIssuer\StonesHotspot.LicenseIssuer.csproj" />
   </ItemGroup>
 
 </Project>

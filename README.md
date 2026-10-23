@@ -3,10 +3,9 @@
 Windows Wi-Fi hotspot manager (captive portal) by **Stone's IT Consulting**: turns a Windows 10/11 PC into a
 managed, paid Wi-Fi hotspot — vouchers, user accounts, tariffs, Mobile Money, admin dashboard.
 
-> **Status: Phase 9 — Mobile Money.** Customers buy a plan on the portal with MTN MoMo or Airtel Money, approve
-> with their PIN and are online with a code also sent by SMS; payments are followed until they end, appear in the
-> reports and in a daily Mobile Money reconciliation. Ready for the operators' keys (sandbox first). See
-> [Build phases](#build-phases). See [Build phases](#build-phases).
+> **Status: Phase 10 — licensing.** 30-day Pro trial, then a signed licence code per PC (Basic or Pro), warnings,
+> 7-day grace, stop; LicenseManager (owner-only) issues, renews and revokes licences; a licence server registers trials
+> and does daily check-ins. Development keys until the owner creates the real ones. See [Licence](#licence). See [Build phases](#build-phases).
 
 ## Requirements
 
@@ -187,6 +186,19 @@ to the page they first asked for. Business name, accent colour (`Portal.AccentCo
 - Sandbox: MTN `https://sandbox.momodeveloper.mtn.com`, environment `sandbox`, currency EUR (the defaults);
   Airtel `https://openapiuat.airtel.africa`.
 
+### Licence
+
+- 30-day **trial** with every Pro feature from the first start on the PC (kept across reinstalls), then a **licence
+  code** (`SHS1-…`) made by Stone's IT Consulting for this PC's **Machine ID** (`MID-XXXX-XXXX-XXXX`), Basic or Pro,
+  usually one year. **Licence** page (dashboard): Machine ID with Copy / WhatsApp, paste a code or import a `.lic`.
+- Warnings 30/14/7/3/1 days before the end (dashboard banner, tray balloon), then 7 days of grace (red banner), then
+  the hotspot stops: customers see "Service temporairement indisponible", the dashboard keeps Licence, Reports,
+  Backup and Audit log. No data is deleted or locked; a valid code works at once.
+- Optional licence server (`Licensing:ServerUrl`): registers the trial, checks the licence daily, brings renewals
+  automatically, applies revocations (7 days of grace). Offline, a licence works until its end date.
+- Owner side: LicenseManager (password-protected, never shipped) and the licence server. Setup, key handover and the
+  honest limits of the protection: [`docs/licensing.md`](docs/licensing.md).
+
 ### Packet gate (WinDivert)
 
 `build.ps1` downloads **WinDivert 2.2.2** from its official release (SHA-256 checked, see
@@ -205,7 +217,8 @@ Manual tests: [`phase-2-network.md`](docs/manual-tests/phase-2-network.md),
 [`phase-6-bandwidth-filter.md`](docs/manual-tests/phase-6-bandwidth-filter.md),
 [`phase-7-business-tools.md`](docs/manual-tests/phase-7-business-tools.md),
 [`phase-8-free-sms.md`](docs/manual-tests/phase-8-free-sms.md),
-[`phase-9-mobile-money.md`](docs/manual-tests/phase-9-mobile-money.md).
+[`phase-9-mobile-money.md`](docs/manual-tests/phase-9-mobile-money.md),
+[`phase-10-licensing.md`](docs/manual-tests/phase-10-licensing.md).
 
 ## Database
 
@@ -224,13 +237,14 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 | Project | Purpose |
 |---|---|
 | `src/StonesHotspot.Core` | Domain and business rules, no Windows dependency: EF Core model + migrations (`Data/`), rules (`Rules/`), services (`Services/`: tariffs, vouchers, sessions, accounts, cash, staff, devices, settings, audit). FR/EN resources, `Xaf` money type |
-| `src/StonesHotspot.Licensing` | `ILicenseService` (the single "is this feature allowed?" gate), editions, Basic/Pro feature table. Phase 0: always "Pro trial" |
+| `src/StonesHotspot.Licensing` | `ILicenseService` (the single "is this feature allowed?" gate), editions and the Basic/Pro feature table, licence codes, Machine ID, trial and clock protection, licence-server client. Public keys only |
 | `src/StonesHotspot.Network` | Adapters, ICS (`HNetCfg.HNetShare` COM), neighbour/ARP table, connected-device scan; WinDivert packet gate and DNS in phase 3 |
 | `src/StonesHotspot.Web` | Razor Pages: captive portal and admin dashboard (today: home, network setup, connected devices) |
 | `src/StonesHotspot.Service` | Windows Service host (Kestrel, Serilog, DI) |
 | `src/StonesHotspot.Tray` | Tray icon: status, Start/Stop, Open dashboard |
-| `src/StonesHotspot.LicenseServer` | Online licence API (skeleton) |
-| `tools/StonesHotspot.LicenseManager` | **Owner-only** licence generator. Never shipped to customers |
+| `src/StonesHotspot.LicenseServer` | Licence server: trial registration, activation, daily check-in, renewals, revocations, owner page (`/admin`) |
+| `tools/StonesHotspot.LicenseIssuer` | **Owner-only** library: key vault, licence book, signing, sync. Never shipped |
+| `tools/StonesHotspot.LicenseManager` | **Owner-only** Windows app over the issuer library. Never shipped to customers |
 | `tests/StonesHotspot.Tests` | xUnit tests |
 | `legacy/python-prototype` | The earlier Python *HotspotGate* prototype, kept for reference only |
 
@@ -255,8 +269,8 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 | 6 | Bandwidth control and web filter | done — speeds to be verified on Windows |
 | 7 | Business tools (products, till, A4 receipts, reports) | done |
 | 8 | Free access and SMS login | done — SMS to be verified with the real modem or provider |
-| 9 | Mobile Money payments | **done** — to be verified with the operators' sandbox, then production keys |
-| 10 | Licensing, trial and activation | — |
+| 9 | Mobile Money payments | done — to be verified with the operators' sandbox, then production keys |
+| 10 | Licensing, trial and activation | **done** — owner keys and server hosting to be set up |
 | 11 | Windows service, installer and updates | — |
 | 12 | Hardening and final testing | — |
 

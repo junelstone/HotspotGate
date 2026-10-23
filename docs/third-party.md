@@ -8,6 +8,10 @@
 | BCrypt.Net-Next | 4.0.3 | MIT | Password hashing | NuGet |
 | QRCoder | 1.6.0 | MIT | QR codes on printed vouchers and receipt PDFs (rendered by our code) | NuGet |
 | System.IO.Ports | 8.0.0 | MIT | USB GSM modem (COM port) for SMS | NuGet |
+| BouncyCastle.Cryptography | 2.4.0 | MIT | Ed25519 signatures of licence codes and licence-server answers | NuGet |
+| System.Management | 8.0.0 | MIT | Hardware serial numbers for the Machine ID (WMI) | NuGet |
+| System.Security.Cryptography.ProtectedData | 8.0.0 | MIT | DPAPI protection of the trial record | NuGet |
+| Microsoft.Data.Sqlite | 8.0.11 | MIT | Licence server and LicenseManager databases | NuGet |
 
 WinDivert is used unmodified and loaded dynamically (`WinDivert.dll`), which the LGPL allows in a closed-source
 product as long as its licence text is shipped and users can replace the DLL/driver with their own build.

@@ -1,0 +1,3 @@
+# DEVELOPMENT server public key. Replace with the owner's key (LicenseManager → Clés) before any release.
+# Its private half is in tools/dev-keys (never committed).
+E8+Cj5uV21x16aBq6T1bx0kldKrY1293YRm+Z9qPIrE=

@@ -23,6 +23,8 @@
     <ProjectReference Include="..\..\src\StonesHotspot.Core\StonesHotspot.Core.csproj" />
     <ProjectReference Include="..\..\src\StonesHotspot.Licensing\StonesHotspot.Licensing.csproj" />
     <ProjectReference Include="..\..\src\StonesHotspot.Service\StonesHotspot.Service.csproj" />
+    <ProjectReference Include="..\..\src\StonesHotspot.LicenseServer\StonesHotspot.LicenseServer.csproj" />
+    <ProjectReference Include="..\..\tools\StonesHotspot.LicenseIssuer\StonesHotspot.LicenseIssuer.csproj" />
   </ItemGroup>
 
 </Project>

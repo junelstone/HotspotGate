@@ -31,6 +31,9 @@ public static class HotspotEndpoints
                 edition = status.Edition.ToString(),
                 daysLeft = status.DaysLeft(clock.GetUtcNow()),
                 hotspotAllowed = status.HotspotAllowed,
+                inGracePeriod = status.InGracePeriod,
+                warningDaysLeft = status.WarningDaysLeft,
+                licensedEdition = status.LicensedEdition.ToString(),
             });
         });
 

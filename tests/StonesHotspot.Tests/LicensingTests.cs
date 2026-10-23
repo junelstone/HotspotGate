@@ -21,13 +21,13 @@ public class LicensingTests
         Assert.Equal(expected, EditionFeatures.Includes(edition, feature));
 
     [Fact]
-    public void Stub_reports_a_30_day_pro_trial()
+    public void Embedded_public_keys_load_and_are_marked_as_development()
     {
-        var licence = new TrialStubLicenseService(TimeProvider.System);
-        var status = licence.GetStatus();
-
-        Assert.Equal(Edition.Trial, status.Edition);
-        Assert.Equal(30, status.DaysLeft(DateTimeOffset.UtcNow));
-        Assert.True(licence.IsAllowed(Feature.SmsLogin));
+        var options = LicensingOptions.WithEmbeddedKeys("x");
+        Assert.Equal(32, options.LicencePublicKey.Length);
+        Assert.Equal(32, options.ServerPublicKey.Length);
+        Assert.NotEqual(options.LicencePublicKey, options.ServerPublicKey);
+        // Until the owner's keys are put in src/StonesHotspot.Licensing/Keys, this build must not be released (Phase 11 checks it).
+        Assert.True(LicensingOptions.UsesDevelopmentKeys);
     }
 }

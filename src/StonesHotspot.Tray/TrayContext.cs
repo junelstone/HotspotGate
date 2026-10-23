@@ -17,6 +17,9 @@ internal sealed class TrayContext : ApplicationContext
     private readonly ToolStripMenuItem _startItem;
     private readonly ToolStripMenuItem _stopItem;
     private readonly System.Windows.Forms.Timer _timer;
+    private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(5) };
+    private DateTime _nextLicenceCheck = DateTime.MinValue;
+    private string? _lastLicenceNotice;
 
     public TrayContext()
     {
@@ -63,6 +66,40 @@ internal sealed class TrayContext : ApplicationContext
         _icon.Text = $"{Strings.AppName} — {text}";
         _startItem.Enabled = status == ServiceControllerStatus.Stopped;
         _stopItem.Enabled = status == ServiceControllerStatus.Running;
+        if (status == ServiceControllerStatus.Running && DateTime.UtcNow >= _nextLicenceCheck)
+        {
+            _nextLicenceCheck = DateTime.UtcNow.AddMinutes(10);
+            _ = CheckLicenceAsync();
+        }
+    }
+
+    private sealed record Health(bool HotspotAllowed, bool InGracePeriod, int? WarningDaysLeft);
+
+    /// <summary>Licence warnings as a balloon at 30, 14, 7, 3 and 1 day(s) before the end, during the grace period, and once stopped.</summary>
+    private async Task CheckLicenceAsync()
+    {
+        Health? health;
+        try
+        {
+            health = await System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<Health>(_http, $"http://localhost:{ProductInfo.DefaultAdminPort}/health");
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
+        {
+            return;
+        }
+        if (health is null)
+            return;
+
+        string? notice = !health.HotspotAllowed ? Strings.Licence_BannerStopped
+            : health.InGracePeriod ? Strings.Tray_LicenceGrace
+            : health.WarningDaysLeft is { } days && Array.Exists([30, 14, 7, 3, 1], d => d == days) ? string.Format(Strings.Tray_LicenceEnds, days)
+            : null;
+        // Each notice once per day, so the cashier is reminded without being harassed.
+        var key = notice is null ? null : $"{DateTime.Today:yyyyMMdd}|{notice}";
+        if (notice is null || key == _lastLicenceNotice)
+            return;
+        _lastLicenceNotice = key;
+        _icon.ShowBalloonTip(15_000, Strings.AppName, notice, health.HotspotAllowed ? ToolTipIcon.Warning : ToolTipIcon.Error);
     }
 
     private static ServiceControllerStatus? ReadServiceStatus()
@@ -108,6 +145,7 @@ internal sealed class TrayContext : ApplicationContext
         if (disposing)
         {
             _timer.Dispose();
+            _http.Dispose();
             _icon.Visible = false;
             _icon.Dispose();
         }

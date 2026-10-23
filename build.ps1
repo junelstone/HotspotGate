@@ -42,6 +42,8 @@ Invoke-Step 'dotnet --version' { dotnet --version }
 Invoke-Step 'WinDivert (packet filter driver)' { & (Join-Path $root 'tools\Get-WinDivert.ps1'); $global:LASTEXITCODE = 0 }
 Invoke-Step 'Restore' { dotnet restore $solution }
 Invoke-Step "Build ($Configuration)" { dotnet build $solution --configuration $Configuration --no-restore }
+# Owner-only licence tool: built to catch errors, never published or packaged.
+Invoke-Step 'Build LicenseManager (owner tool)' { dotnet build (Join-Path $root 'tools/StonesHotspot.LicenseManager') --configuration $Configuration }
 
 if (-not $SkipTests) {
     $results = Join-Path $artifacts 'test-results'

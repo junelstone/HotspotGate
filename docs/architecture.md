@@ -96,6 +96,18 @@ DPAPI-protected keys on Windows).
 
 Operator access tokens are cached until they expire (`TokenCache`). Keys go through `ISecretProtector`.
 
+## Licensing
+
+```
+ LicenseManager (owner) ── signs SHS1 code with licence private key ──► WhatsApp ──► hotspot Licence page
+        │ sync (token)                                                             │ LicenseService.Activate:
+        ▼                                                                          │  signature (licence public key),
+ Licence server ◄── trial / activate / daily check-in (nonce) ──── LicenceCheckInService  Machine ID 3-of-4, expiry
+        └── signed answer (server key): valid / revoked / renewed + code, server time ──► ApplyServerAnswer
+ Trial record (first run, latest time seen): DPAPI file %ProgramData%\StonesHotspot.Licence + HKLM registry, HMAC-sealed
+ Status: trial or licence end → warnings (≤ 30 days) → 7 days grace → stopped (HotspotAllowed = false)
+```
+
 ## Speed limits
 
 Per authorised device and direction, `PacketProcessor.Shape` runs a GCRA token bucket (theoretical arrival time,
@@ -133,7 +145,8 @@ Windows. Printing is HTML + print CSS with inline-SVG QR codes (QRCoder).
 - Service stop → ICS switched off, gate closed.
 - Crash → ICS stays on without filter until the service restarts (phase 11: automatic restart on failure). With
   Windows Mobile hotspot mode the service cannot switch the hotspot off.
-- Licence stopped (phase 10) → empty access table: nobody passes, the portal shows "service unavailable".
+- Licence stopped (trial or licence ended + 7 days of grace, or revoked + 7 days) → empty access table: nobody passes,
+  the portal shows "service unavailable", the dashboard keeps Licence, Reports, Backup and Audit (`LicenceGateFilter`).
 
 ## Code map
 
@@ -143,4 +156,6 @@ Windows. Printing is HTML + print CSS with inline-SVG QR codes (QRCoder).
 | Network | adapters, ICS, neighbour table, setup/reconcile, gate (`Gate`), DNS (`Dns`) |
 | Web | Razor Pages: portal (`Pages/Portal`), dashboard (`Pages/Admin`), captive-portal middleware, receipt/report layouts (`Documents`) |
 | Service | host, `HotspotEngineService`, `DeviceDiscoveryService`, Kestrel ports, logging |
-| Licensing | `ILicenseService` (stub until phase 10) |
+| Licensing | `ILicenseService` → `LicenseService` (codes, Machine ID, trial store, monotonic time, server answers), `Online` client |
+| LicenseServer | API + SQLite + owner page; signs answers with the server key |
+| tools/LicenseIssuer, LicenseManager | owner-only: key vault, licence book, signing, sync |

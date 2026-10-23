@@ -687,4 +687,39 @@ L'établissement peut couper un accès en cas d'abus. Le service est fourni sans
   <data name="Report_MobileMoney" xml:space="preserve"><value>Mobile Money</value></data>
   <data name="Report_MobileMoneyByDay" xml:space="preserve"><value>Par jour et par opérateur</value></data>
   <data name="Report_MobileMoneyList" xml:space="preserve"><value>Tous les paiements</value></data>
+  <data name="Nav_Licence" xml:space="preserve"><value>Licence</value></data>
+  <data name="Licence_Activate" xml:space="preserve"><value>Activer une licence</value></data>
+  <data name="Licence_ActivateButton" xml:space="preserve"><value>Activer</value></data>
+  <data name="Licence_Activated" xml:space="preserve"><value>Licence activée : {0}, valable jusqu'au {1}.</value></data>
+  <data name="Licence_BannerClock" xml:space="preserve"><value>L'horloge de ce PC a été reculée de plus d'un jour. Remettez la bonne date et la bonne heure : les durées sont comptées depuis la date la plus récente déjà vue.</value></data>
+  <data name="Licence_BannerEnds" xml:space="preserve"><value>Votre licence se termine dans {0} jour(s) (le {1}). Contactez Stone's IT Consulting pour la renouveler.</value></data>
+  <data name="Licence_BannerGrace" xml:space="preserve"><value>Licence ou essai terminé : le hotspot s'arrêtera le {0}. Activez une licence pour continuer.</value></data>
+  <data name="Licence_BannerRevoked" xml:space="preserve"><value>Cette licence a été révoquée : le hotspot s'arrêtera le {0}. Contactez Stone's IT Consulting.</value></data>
+  <data name="Licence_BannerStopped" xml:space="preserve"><value>Service arrêté : la licence ou l'essai est terminé. Les clients n'ont plus Internet. Vos données sont conservées (rapports et sauvegarde restent disponibles).</value></data>
+  <data name="Licence_BannerTrialEnds" xml:space="preserve"><value>Votre essai gratuit se termine dans {0} jour(s) (le {1}). Demandez une licence à Stone's IT Consulting.</value></data>
+  <data name="Licence_CodeLabel" xml:space="preserve"><value>Code de licence (reçu par WhatsApp, SMS ou e-mail)</value></data>
+  <data name="Licence_Copy" xml:space="preserve"><value>Copier</value></data>
+  <data name="Licence_DaysLeft" xml:space="preserve"><value>encore {0} jour(s)</value></data>
+  <data name="Licence_Edition" xml:space="preserve"><value>Édition</value></data>
+  <data name="Licence_EditionNone" xml:space="preserve"><value>Aucune</value></data>
+  <data name="Licence_EditionTrial" xml:space="preserve"><value>Essai (toutes les fonctions Pro)</value></data>
+  <data name="Licence_Ends" xml:space="preserve"><value>Valable jusqu'au</value></data>
+  <data name="Licence_ExpiredCode" xml:space="preserve"><value>Ce code de licence est déjà expiré. Demandez un code renouvelé.</value></data>
+  <data name="Licence_FileLabel" xml:space="preserve"><value>ou fichier .lic</value></data>
+  <data name="Licence_Help" xml:space="preserve"><value>Pour obtenir ou renouveler une licence : envoyez le Machine ID à Stone's IT Consulting, puis collez ici le code reçu. Le code ne marche que sur ce PC. Pour changer de PC, demandez un nouveau code.</value></data>
+  <data name="Licence_InvalidCode" xml:space="preserve"><value>Code invalide : vérifiez qu'il est complet (il commence par SHS1-) et copié sans modification.</value></data>
+  <data name="Licence_LastCheckIn" xml:space="preserve"><value>Dernière vérification en ligne</value></data>
+  <data name="Licence_MachineId" xml:space="preserve"><value>Machine ID de ce PC</value></data>
+  <data name="Licence_MachineIdHelp" xml:space="preserve"><value>Envoyez ce numéro à Stone's IT Consulting pour recevoir votre code de licence.</value></data>
+  <data name="Licence_OlderCode" xml:space="preserve"><value>Ce code est une ancienne version de votre licence actuelle : rien n'a changé.</value></data>
+  <data name="Licence_OtherMachine" xml:space="preserve"><value>Ce code a été fait pour un autre PC. Envoyez le Machine ID affiché ici et demandez un nouveau code.</value></data>
+  <data name="Licence_Revoked" xml:space="preserve"><value>Révoquée le</value></data>
+  <data name="Licence_SendWhatsApp" xml:space="preserve"><value>Envoyer par WhatsApp</value></data>
+  <data name="Licence_StateActive" xml:space="preserve"><value>Active</value></data>
+  <data name="Licence_StateGrace" xml:space="preserve"><value>Période de grâce : arrêt le {0}</value></data>
+  <data name="Licence_StateStopped" xml:space="preserve"><value>Arrêté</value></data>
+  <data name="Licence_TrialEnds" xml:space="preserve"><value>Essai jusqu'au</value></data>
+  <data name="Licence_WhatsAppText" xml:space="preserve"><value>Bonjour, je souhaite une licence Stone's Hotspot pour {0}. Machine ID : {1}</value></data>
+  <data name="Tray_LicenceEnds" xml:space="preserve"><value>La licence de Stone's Hotspot se termine dans {0} jour(s). Ouvrez le tableau de bord → Licence.</value></data>
+  <data name="Tray_LicenceGrace" xml:space="preserve"><value>Licence terminée : le hotspot va bientôt s'arrêter. Ouvrez le tableau de bord → Licence.</value></data>
 </root>

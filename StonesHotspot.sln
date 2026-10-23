@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{DEA4BF72
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StonesHotspot.LicenseManager", "tools\StonesHotspot.LicenseManager\StonesHotspot.LicenseManager.csproj", "{57145CB1-7A52-4510-8349-ED7DB8504F03}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StonesHotspot.LicenseIssuer", "tools\StonesHotspot.LicenseIssuer\StonesHotspot.LicenseIssuer.csproj", "{18DB0A92-B732-438D-8E1C-4F65BDA42882}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +74,10 @@ Global
 		{57145CB1-7A52-4510-8349-ED7DB8504F03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57145CB1-7A52-4510-8349-ED7DB8504F03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57145CB1-7A52-4510-8349-ED7DB8504F03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18DB0A92-B732-438D-8E1C-4F65BDA42882}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18DB0A92-B732-438D-8E1C-4F65BDA42882}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18DB0A92-B732-438D-8E1C-4F65BDA42882}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18DB0A92-B732-438D-8E1C-4F65BDA42882}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6A3E5CC1-B23E-4E52-A2F3-F72BD9270E1D} = {CA3846D4-7EFC-466C-A701-9A7FEB21284B}
@@ -83,5 +89,6 @@ Global
 		{389EC857-3E37-4DEC-AA71-8BD5D4ECD95A} = {D21BF1E5-0CC1-49BB-BECE-A7D588B58788}
 		{A8513985-2FE2-4B06-BFEA-E3009E26F9CE} = {CA3846D4-7EFC-466C-A701-9A7FEB21284B}
 		{57145CB1-7A52-4510-8349-ED7DB8504F03} = {DEA4BF72-36B1-4F5D-8FAC-66C26CB0838F}
+		{18DB0A92-B732-438D-8E1C-4F65BDA42882} = {DEA4BF72-36B1-4F5D-8FAC-66C26CB0838F}
 	EndGlobalSection
 EndGlobal

@@ -129,7 +129,21 @@ public sealed class FakeLicenseService : StonesHotspot.Licensing.ILicenseService
     public StonesHotspot.Licensing.Edition Edition { get; set; } = StonesHotspot.Licensing.Edition.Trial;
 
     public StonesHotspot.Licensing.LicenseStatus GetStatus() =>
-        new(Edition, DateTimeOffset.UtcNow.AddDays(30), InGracePeriod: false, HotspotAllowed);
+        new(HotspotAllowed ? Edition : StonesHotspot.Licensing.Edition.None, DateTimeOffset.UtcNow.AddDays(30), InGracePeriod: false, HotspotAllowed)
+        {
+            LicensedEdition = Edition,
+            MachineId = MachineId,
+        };
+
+    public string MachineId => "MID-AAAA-BBBB-CCCC";
+
+    public string? LastActivatedCode { get; private set; }
+
+    public StonesHotspot.Licensing.ActivationResult Activate(string code)
+    {
+        LastActivatedCode = code;
+        return code.StartsWith("SHS1-", StringComparison.Ordinal) ? StonesHotspot.Licensing.ActivationResult.Activated : StonesHotspot.Licensing.ActivationResult.Invalid;
+    }
 
     public bool IsAllowed(StonesHotspot.Licensing.Feature feature) =>
         HotspotAllowed && StonesHotspot.Licensing.EditionFeatures.Includes(Edition, feature);

@@ -1,0 +1,45 @@
+@page "/admin/licence"
+@model StonesHotspot.Web.Pages.Admin.LicenceModel
+@using StonesHotspot.Licensing
+@using StonesHotspot.Web.Auth
+@{
+    ViewData["Title"] = Strings.Nav_Licence;
+    var s = Model.Status;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+    var lastDay = s.ExpiresAt?.AddDays(-1).ToLocalTime().ToString("D", culture);
+}
+<h1>@Strings.Nav_Licence</h1>
+@if (Model.Error is not null)
+{
+    <div class="msg error">@Model.Error</div>
+}
+<div class="card">
+    <table>
+        <tr><th>@Strings.Licence_Edition</th><td><strong>@StonesHotspot.Web.Pages.Admin.LicenceModel.EditionName(s.LicensedEdition)</strong>@if (s.LicenceId is { } id) { <span class="muted"> · n° @id · @s.Customer</span> }</td></tr>
+        <tr><th>@(s.Kind == LicenceKind.Trial ? Strings.Licence_TrialEnds : Strings.Licence_Ends)</th><td>@lastDay @if (s.DaysLeft(Model.Now) is { } d && d > 0) { <span class="muted">(@string.Format(Strings.Licence_DaysLeft, d))</span> }</td></tr>
+        <tr><th>@Strings.Col_State</th><td>@(s.Stopped ? Strings.Licence_StateStopped : s.InGracePeriod ? string.Format(Strings.Licence_StateGrace, s.StopsAt?.ToLocalTime().ToString("D", culture)) : Strings.Licence_StateActive)</td></tr>
+        @if (s.RevokedAt is { } revoked) { <tr><th>@Strings.Licence_Revoked</th><td>@revoked.ToLocalTime().ToString("D", culture)</td></tr> }
+        <tr><th>@Strings.Licence_LastCheckIn</th><td>@(s.LastCheckIn?.ToLocalTime().ToString("g", culture) ?? "—")</td></tr>
+    </table>
+</div>
+
+<div class="card">
+    <h2 style="margin-top:0">@Strings.Licence_MachineId</h2>
+    <p class="muted">@Strings.Licence_MachineIdHelp</p>
+    <p><code id="mid" style="font-size:1.4rem;letter-spacing:.05em">@s.MachineId</code></p>
+    <button type="button" class="secondary" onclick="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('mid').textContent).then(function(){ this.textContent='✓'; }.bind(this))">@Strings.Licence_Copy</button>
+    <a class="button" href="@Model.WhatsAppLink" target="_blank" rel="noopener">@Strings.Licence_SendWhatsApp</a>
+</div>
+
+@if (User.IsAdmin())
+{
+    <form method="post" enctype="multipart/form-data" class="card">
+        <h2 style="margin-top:0">@Strings.Licence_Activate</h2>
+        <label for="Code">@Strings.Licence_CodeLabel</label>
+        <textarea asp-for="Code" class="code" style="min-height:7rem" spellcheck="false" autocomplete="off" placeholder="SHS1-XXXXX-XXXXX-…"></textarea>
+        <label for="LicenceFile">@Strings.Licence_FileLabel</label>
+        <input asp-for="LicenceFile" type="file" accept=".lic,.txt">
+        <button type="submit">@Strings.Licence_ActivateButton</button>
+    </form>
+}
+<p class="muted">@Strings.Licence_Help</p>

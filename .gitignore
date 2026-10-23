@@ -33,3 +33,6 @@ installer/Output/
 
 # Downloaded by tools/Get-WinDivert.ps1 (checked against a pinned SHA-256)
 third_party/
+
+# Development private keys (signing licences / server answers on a developer PC only)
+tools/dev-keys/

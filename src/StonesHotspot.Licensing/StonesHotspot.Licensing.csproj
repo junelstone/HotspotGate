@@ -5,4 +5,21 @@
     <RootNamespace>StonesHotspot.Licensing</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="BouncyCastle.Cryptography" />
+    <PackageReference Include="System.Management" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Public keys only: the licence key (checks codes) and the licence server key (checks its answers). -->
+    <EmbeddedResource Include="Keys\licence-public.txt" LogicalName="licence-public.txt" />
+    <EmbeddedResource Include="Keys\server-public.txt" LogicalName="server-public.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="StonesHotspot.Tests" />
+  </ItemGroup>
+
 </Project>

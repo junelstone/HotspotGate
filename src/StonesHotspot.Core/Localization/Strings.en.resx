@@ -687,4 +687,39 @@ The business may cut off access in case of abuse. The service is provided withou
   <data name="Report_MobileMoney" xml:space="preserve"><value>Mobile Money</value></data>
   <data name="Report_MobileMoneyByDay" xml:space="preserve"><value>By day and operator</value></data>
   <data name="Report_MobileMoneyList" xml:space="preserve"><value>All payments</value></data>
+  <data name="Nav_Licence" xml:space="preserve"><value>Licence</value></data>
+  <data name="Licence_Activate" xml:space="preserve"><value>Activate a licence</value></data>
+  <data name="Licence_ActivateButton" xml:space="preserve"><value>Activate</value></data>
+  <data name="Licence_Activated" xml:space="preserve"><value>Licence activated: {0}, valid until {1}.</value></data>
+  <data name="Licence_BannerClock" xml:space="preserve"><value>This PC's clock was set back by more than a day. Set the right date and time: durations count from the latest date already seen.</value></data>
+  <data name="Licence_BannerEnds" xml:space="preserve"><value>Your licence ends in {0} day(s) ({1}). Contact Stone's IT Consulting to renew it.</value></data>
+  <data name="Licence_BannerGrace" xml:space="preserve"><value>Licence or trial ended: the hotspot will stop on {0}. Activate a licence to continue.</value></data>
+  <data name="Licence_BannerRevoked" xml:space="preserve"><value>This licence was revoked: the hotspot will stop on {0}. Contact Stone's IT Consulting.</value></data>
+  <data name="Licence_BannerStopped" xml:space="preserve"><value>Service stopped: the licence or trial has ended. Customers no longer get internet. Your data is kept (reports and backup stay available).</value></data>
+  <data name="Licence_BannerTrialEnds" xml:space="preserve"><value>Your free trial ends in {0} day(s) ({1}). Ask Stone's IT Consulting for a licence.</value></data>
+  <data name="Licence_CodeLabel" xml:space="preserve"><value>Licence code (received by WhatsApp, SMS or e-mail)</value></data>
+  <data name="Licence_Copy" xml:space="preserve"><value>Copy</value></data>
+  <data name="Licence_DaysLeft" xml:space="preserve"><value>{0} day(s) left</value></data>
+  <data name="Licence_Edition" xml:space="preserve"><value>Edition</value></data>
+  <data name="Licence_EditionNone" xml:space="preserve"><value>None</value></data>
+  <data name="Licence_EditionTrial" xml:space="preserve"><value>Trial (all Pro features)</value></data>
+  <data name="Licence_Ends" xml:space="preserve"><value>Valid until</value></data>
+  <data name="Licence_ExpiredCode" xml:space="preserve"><value>This licence code has already expired. Ask for a renewed code.</value></data>
+  <data name="Licence_FileLabel" xml:space="preserve"><value>or .lic file</value></data>
+  <data name="Licence_Help" xml:space="preserve"><value>To get or renew a licence: send the Machine ID to Stone's IT Consulting, then paste the code you receive here. The code only works on this PC. To move to another PC, ask for a new code.</value></data>
+  <data name="Licence_InvalidCode" xml:space="preserve"><value>Invalid code: check that it is complete (it starts with SHS1-) and copied unchanged.</value></data>
+  <data name="Licence_LastCheckIn" xml:space="preserve"><value>Last online check</value></data>
+  <data name="Licence_MachineId" xml:space="preserve"><value>This PC's Machine ID</value></data>
+  <data name="Licence_MachineIdHelp" xml:space="preserve"><value>Send this number to Stone's IT Consulting to receive your licence code.</value></data>
+  <data name="Licence_OlderCode" xml:space="preserve"><value>This code is an older version of your current licence: nothing changed.</value></data>
+  <data name="Licence_OtherMachine" xml:space="preserve"><value>This code was made for another PC. Send the Machine ID shown here and ask for a new code.</value></data>
+  <data name="Licence_Revoked" xml:space="preserve"><value>Revoked on</value></data>
+  <data name="Licence_SendWhatsApp" xml:space="preserve"><value>Send by WhatsApp</value></data>
+  <data name="Licence_StateActive" xml:space="preserve"><value>Active</value></data>
+  <data name="Licence_StateGrace" xml:space="preserve"><value>Grace period: stops on {0}</value></data>
+  <data name="Licence_StateStopped" xml:space="preserve"><value>Stopped</value></data>
+  <data name="Licence_TrialEnds" xml:space="preserve"><value>Trial until</value></data>
+  <data name="Licence_WhatsAppText" xml:space="preserve"><value>Hello, I would like a Stone's Hotspot licence for {0}. Machine ID: {1}</value></data>
+  <data name="Tray_LicenceEnds" xml:space="preserve"><value>The Stone's Hotspot licence ends in {0} day(s). Open the dashboard → Licence.</value></data>
+  <data name="Tray_LicenceGrace" xml:space="preserve"><value>Licence ended: the hotspot will stop soon. Open the dashboard → Licence.</value></data>
 </root>

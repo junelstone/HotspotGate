@@ -1,11 +1,17 @@
 @using StonesHotspot.Web.Admin
 @using StonesHotspot.Web.Auth
+@using StonesHotspot.Licensing
+@inject ILicenseService Licence
+@inject TimeProvider Clock
 @{
     var lang = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var path = Context.Request.Path;
     var user = Context.User;
     var signedIn = user.Identity?.IsAuthenticated == true && user.FindFirst(StaffClaims.MustChangePassword)?.Value != "1";
     var admin = user.IsAdmin();
+    var licence = signedIn ? Licence.GetStatus() : null;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+    string Day(DateTimeOffset? d) => d?.ToLocalTime().ToString("D", culture) ?? "";
     string Active(string href) => path.StartsWithSegments(href) && (href != "/admin" || path == "/admin" || path == "/admin/") ? "active" : "";
 }
 <!doctype html>
@@ -96,6 +102,7 @@
                 <a class="@Active("/admin/settings")" href="/admin/settings">@Strings.Nav_Settings</a>
                 <a class="@Active("/admin/audit")" href="/admin/audit">@Strings.Nav_Audit</a>
                 <a class="@Active("/admin/backup")" href="/admin/backup">@Strings.Nav_Backup</a>
+                <a class="@Active("/admin/licence")" href="/admin/licence">@Strings.Nav_Licence</a>
                 <a class="@Active("/admin/network")" href="/admin/network">@Strings.Nav_Network</a>
                 <a class="@Active("/admin/devices")" href="/admin/devices">@Strings.Nav_Devices</a>
                 <a class="@Active("/admin/gate")" href="/admin/gate">@Strings.Nav_Gate</a>
@@ -112,6 +119,25 @@
     </span>
 </header>
 <main>
+    @if (licence is not null)
+    {
+        @if (licence.Stopped)
+        {
+            <div class="msg error"><strong>@Strings.Licence_BannerStopped</strong> <a href="/admin/licence">@Strings.Licence_Activate</a></div>
+        }
+        else if (licence.InGracePeriod)
+        {
+            <div class="msg error">@string.Format(licence.RevokedAt is null ? Strings.Licence_BannerGrace : Strings.Licence_BannerRevoked, Day(licence.StopsAt)) <a href="/admin/licence">@Strings.Licence_Activate</a></div>
+        }
+        else if (licence.WarningDaysLeft is { } left)
+        {
+            <div class="msg warning">@string.Format(licence.Kind == LicenceKind.Trial ? Strings.Licence_BannerTrialEnds : Strings.Licence_BannerEnds, left, Day(licence.ExpiresAt?.AddDays(-1))) <a href="/admin/licence">@Strings.Nav_Licence</a></div>
+        }
+        @if (licence.ClockProblem)
+        {
+            <div class="msg warning">@Strings.Licence_BannerClock</div>
+        }
+    }
     @if (TempData[Flash.SuccessKey] is string ok)
     {
         <div class="msg ok">@ok</div>
