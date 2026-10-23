@@ -1,0 +1,63 @@
+name: Release
+
+# Push a tag "v1.2.3" (same version as <Version> in Directory.Build.props) to build the CUSTOMER installer and attach it
+# to a GitHub Release. The owner's LicenseManager installer is never built here: this repository is public.
+# The release check refuses the development keys, so the owner's public keys must be committed first
+# (docs/licensing.md → "Before the first release").
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Tag matches the version
+        shell: pwsh
+        run: |
+          $version = ([xml](Get-Content Directory.Build.props)).Project.PropertyGroup.Version
+          if ("v$version" -ne $env:GITHUB_REF_NAME) { throw "Tag $env:GITHUB_REF_NAME does not match <Version>$version</Version> in Directory.Build.props" }
+          "VERSION=$version" | Out-File -Append $env:GITHUB_ENV
+
+      - name: Build, test, publish
+        shell: pwsh
+        run: ./build.ps1 -Publish
+
+      - name: Release check (owner keys only, nothing of the owner inside)
+        shell: pwsh
+        run: ./tools/Test-ReleaseContent.ps1 -Path artifacts/publish
+
+      - name: Customer installer
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$env:VERSION" "/DPublishDir=$PWD\artifacts\publish" installer\StonesHotspot.iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed" }
+
+      - name: GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $file = "installer\Output\StonesHotspot-Setup-$env:VERSION.exe"
+          $hash = (Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant()
+          $url = "https://github.com/$env:GITHUB_REPOSITORY/releases/download/$env:GITHUB_REF_NAME/StonesHotspot-Setup-$env:VERSION.exe"
+          $notes = @"
+          Stone's Hotspot $env:VERSION
+
+          To offer this version to the hotspots, fill the row of the ``update_manifest`` table (Supabase → Table Editor):
+          - version: ``$env:VERSION``
+          - url: ``$url``
+          - sha256: ``$hash``
+          - notes: what changed (shown to the shop)
+          "@
+          gh release create $env:GITHUB_REF_NAME $file --title "Stone's Hotspot $env:VERSION" --notes $notes

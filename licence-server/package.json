@@ -1,0 +1,6 @@
+{
+  "name": "stoneshotspot-licence-server",
+  "private": true,
+  "type": "module",
+  "description": "Stone's Hotspot licence server as a Supabase Edge Function. Tests run from tests/StonesHotspot.Tests (SupabaseLicenceServerTests)."
+}

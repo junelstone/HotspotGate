@@ -191,6 +191,7 @@ Windows. Printing is HTML + print CSS with inline-SVG QR codes (QRCoder).
 | Web | Razor Pages: portal (`Pages/Portal`), dashboard (`Pages/Admin`), captive-portal middleware, receipt/report layouts (`Documents`) |
 | Service | host, `HotspotEngineService`, `DeviceDiscoveryService`, `DailyMaintenance`, `UpdateCheckService`, `HttpsCertificate`, Kestrel ports, logging, `--reset-admin-password` |
 | Licensing | `ILicenseService` → `LicenseService` (codes, Machine ID, trial store, monotonic time, server answers), `Online` client |
-| LicenseServer | API + SQLite + owner page; signs answers with the server key |
+| licence-server (Supabase) | Edge Function `licence` (TypeScript, same protocol) + Postgres tables; owner reads them in the Supabase Table Editor |
+| LicenseServer | C# version: API + SQLite + owner page; signs answers with the server key |
 | tools/LicenseIssuer, LicenseManager | owner-only: key vault, licence book, signing, sync |
 | installer, tools/Test-ReleaseContent.ps1 | Inno Setup scripts (customer, owner) and the release content check |

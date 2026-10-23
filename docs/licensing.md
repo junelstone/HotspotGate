@@ -26,16 +26,21 @@ shipped (Phase 11 makes the release build fail).
 
 ## Publishing an update
 
-1. Raise `<Version>` in `Directory.Build.props`, build the installer, note the SHA-256 printed by `build.ps1`.
-2. Upload `StonesHotspot-Setup-x.y.z.exe` to an HTTPS address (the licence server's host, or any file host).
-3. On the licence server, fill `LicenceServer:Update` in `appsettings.Local.json` (`Version`, `Url`, `Sha256`,
-   `Notes`) and restart it. Hotspots see it within a day: admins get a banner, the tray offers
+1. Raise `<Version>` in `Directory.Build.props`, commit, push a tag `vX.Y.Z`: the **Release** workflow builds the
+   customer installer, attaches it to a GitHub Release and writes its address and SHA-256 in the release notes.
+2. Supabase → Table Editor → `update_manifest`: fill `version`, `url`, `sha256`, `notes`. (C# server instead:
+   `LicenceServer:Update` in `appsettings.Local.json`, then restart it.)
+3. That is all: hotspots see it within a day: admins get a banner, the tray offers
    **Installer la mise à jour**; the downloaded file is run only if its SHA-256 matches the signed information.
 
 ## Licence server deployment
 
-ASP.NET Core app with its own SQLite database. Runs on a small Linux VPS (or Windows) behind HTTPS (e.g. Caddy or
-nginx with a Let's Encrypt certificate). Settings in `appsettings.Local.json` (see the example file): server private
+**Chosen hosting: Supabase** (Edge Function + Postgres, free plan to start) — step by step in
+[`licence-server/README.md`](../licence-server/README.md). Address: `https://<project-ref>.supabase.co/functions/v1/licence/`,
+no domain needed. Installer downloads for updates: GitHub Releases (`.github/workflows/release.yml`).
+
+Alternative, same protocol: the ASP.NET Core app `src/StonesHotspot.LicenseServer` with its own SQLite database, on
+a small Linux VPS (or Windows) behind HTTPS (e.g. Caddy or nginx with a Let's Encrypt certificate). Settings in `appsettings.Local.json` (see the example file): server private
 key, owner page password, LicenseManager token, database path. Hotspots find it through
 `Licensing:ServerUrl` in their `appsettings.json` (`https://licences.example.cg/`); LicenseManager through its
 **Serveur** tab. Owner page: `https://…/admin` (any user name + the password). Back up the server database like any

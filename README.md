@@ -228,7 +228,7 @@ to the page they first asked for. Business name, accent colour (`Portal.AccentCo
 - Warnings 30/14/7/3/1 days before the end (dashboard banner, tray balloon), then 7 days of grace (red banner), then
   the hotspot stops: customers see "Service temporairement indisponible", the dashboard keeps Licence, Reports,
   Backup and Audit log. No data is deleted or locked; a valid code works at once.
-- Optional licence server (`Licensing:ServerUrl`): registers the trial, checks the licence daily, brings renewals
+- Licence server on **Supabase** ([`licence-server/README.md`](licence-server/README.md)), set in `Licensing:ServerUrl`: registers the trial, checks the licence daily, brings renewals
   automatically, applies revocations (7 days of grace). Offline, a licence works until its end date.
 - Owner side: LicenseManager (password-protected, never shipped) and the licence server. Setup, key handover and the
   honest limits of the protection: [`docs/licensing.md`](docs/licensing.md).
@@ -277,7 +277,8 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 | `src/StonesHotspot.Web` | Razor Pages: captive portal and admin dashboard (today: home, network setup, connected devices) |
 | `src/StonesHotspot.Service` | Windows Service host (Kestrel, Serilog, DI) |
 | `src/StonesHotspot.Tray` | Tray icon: status, Start/Stop, Open dashboard |
-| `src/StonesHotspot.LicenseServer` | Licence server: trial registration, activation, daily check-in, renewals, revocations, owner page (`/admin`) |
+| `licence-server/` | **The licence server as deployed**: Supabase Edge Function (TypeScript) + Postgres migration — see its [README](licence-server/README.md) |
+| `src/StonesHotspot.LicenseServer` | Same licence server in C# (VPS alternative, reference for the protocol): trial registration, activation, daily check-in, renewals, revocations, owner page (`/admin`) |
 | `tools/StonesHotspot.LicenseIssuer` | **Owner-only** library: key vault, licence book, signing, sync. Never shipped |
 | `tools/StonesHotspot.LicenseManager` | **Owner-only** Windows app over the issuer library. Never shipped to customers |
 | `tests/StonesHotspot.Tests` | xUnit tests |

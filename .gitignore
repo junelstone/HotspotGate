@@ -36,3 +36,8 @@ third_party/
 
 # Development private keys (signing licences / server answers on a developer PC only)
 tools/dev-keys/
+
+# Supabase CLI local state
+licence-server/supabase/.temp/
+licence-server/supabase/.branches/
+licence-server/node_modules/
