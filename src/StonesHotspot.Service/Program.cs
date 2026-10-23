@@ -1,5 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.WebEncoders;
 using Serilog;
@@ -60,6 +61,11 @@ try
     builder.Services.AddHostedService<HotspotEngineService>();
     builder.Services.AddHostedService<DeviceDiscoveryService>();
     builder.Services.AddHotspotWeb();
+    // Keys for sign-in cookies and form tokens: kept in the data folder so they survive restarts.
+    var keys = builder.Services.AddDataProtection().SetApplicationName("StonesHotspot")
+        .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(paths.Root, "keys")));
+    if (OperatingSystem.IsWindows())
+        keys.ProtectKeysWithDpapi(protectToLocalMachine: true);
     // French text as plain UTF-8 instead of &#xE9; entities: lighter pages, same safety.
     builder.Services.Configure<WebEncoderOptions>(o => o.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All));
 
@@ -70,6 +76,8 @@ try
     app.UseHotspotLocalization();
     app.UseCaptivePortal();   // before routing: may send the request to the portal or the "site blocked" page
     app.UseRouting();
+    app.UseAuthentication();
+    app.UseAuthorization();
     app.MapHotspotEndpoints();
     app.MapRazorPages();
 

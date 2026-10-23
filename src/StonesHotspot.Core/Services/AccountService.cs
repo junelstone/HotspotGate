@@ -43,6 +43,40 @@ public sealed class AccountService(HotspotDbContext db, IPasswordHasher hasher, 
         return account;
     }
 
+    /// <summary>Accounts whose username, name or phone contains <paramref name="search"/> (all when empty).</summary>
+    public Task<List<UserAccount>> ListAsync(string? search = null, int take = 200, CancellationToken ct = default)
+    {
+        var query = db.UserAccounts.Include(a => a.Tariff).AsQueryable();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = $"%{search.Trim()}%";
+            query = query.Where(a => EF.Functions.Like(a.Username, term) || EF.Functions.Like(a.FirstName ?? "", term)
+                                     || EF.Functions.Like(a.LastName ?? "", term) || EF.Functions.Like(a.Phone ?? "", term));
+        }
+        return query.OrderBy(a => a.Username).Take(take).ToListAsync(ct);
+    }
+
+    /// <summary>Changes the editable details of an account (not its balance or password).</summary>
+    public async Task<UserAccount> UpdateAsync(int accountId, UserAccount changes, Staff? actor, CancellationToken ct = default)
+    {
+        var account = await FindAsync(accountId, ct) ?? throw NotFound(accountId);
+        if (changes.AllowedOverdraft.IsNegative)
+            throw new BusinessRuleException(ErrorCodes.Invalid, "Overdraft cannot be negative.");
+        if (!await db.Tariffs.AnyAsync(t => t.Id == changes.TariffId, ct))
+            throw new BusinessRuleException(ErrorCodes.NotFound, $"Tariff {changes.TariffId} not found.");
+
+        account.FirstName = changes.FirstName;
+        account.LastName = changes.LastName;
+        account.Phone = changes.Phone;
+        account.TariffId = changes.TariffId;
+        account.ExpiresAt = changes.ExpiresAt;
+        account.AllowedOverdraft = changes.AllowedOverdraft;
+        account.Enabled = changes.Enabled;
+        audit.Record(actor, "Account.Updated", account.Username);
+        await db.SaveChangesAsync(ct);
+        return account;
+    }
+
     public async Task SetPasswordAsync(int accountId, string password, Staff? actor, CancellationToken ct = default)
     {
         if (password.Length < MinPasswordLength)

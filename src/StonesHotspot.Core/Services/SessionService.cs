@@ -76,10 +76,19 @@ public sealed class SessionService(
         if (!MacAddress.TryNormalize(mac, out var normalized))
             return null;
         var session = await ActiveSessions().AsNoTracking().FirstOrDefaultAsync(s => s.Device.Mac == normalized, ct);
-        if (session is null)
-            return null;
+        return session is null ? null : BuildStatus(session, Now);
+    }
 
+    /// <summary>All running sessions with what is left of them (dashboard live view), newest first.</summary>
+    public async Task<IReadOnlyList<SessionStatus>> GetActiveStatusesAsync(CancellationToken ct = default)
+    {
         var now = Now;
+        var sessions = await ActiveSessions().AsNoTracking().OrderByDescending(s => s.StartedAt).ToListAsync(ct);
+        return sessions.Select(s => BuildStatus(s, now)).ToList();
+    }
+
+    private static SessionStatus BuildStatus(Session session, DateTime now)
+    {
         var allowance = session.Voucher?.Allowance ?? session.UserAccount?.Allowance ?? new Allowance();
         var tariff = session.Voucher?.Tariff ?? session.UserAccount?.Tariff ?? session.Tariff;
 
@@ -106,6 +115,43 @@ public sealed class SessionService(
 
         return new SessionStatus(session, tariff, session.Voucher?.Code, session.UserAccount?.Username,
             secondsLeft, allowance.RemainingBytes, endsAt, session.UserAccount?.Balance);
+    }
+
+    /// <summary>
+    /// Staff gives a running session <paramref name="minutes"/> more: added to a time quota, and the end date (if
+    /// any) moves by the same amount. Returns false when there is nothing time-based to extend.
+    /// </summary>
+    public async Task<bool> AddTimeAsync(long sessionId, int minutes, Staff? actor, CancellationToken ct = default)
+    {
+        if (minutes is < 1 or > 7 * 24 * 60)
+            throw new BusinessRuleException(ErrorCodes.Invalid, "Minutes must be between 1 and 10080.");
+        var session = await ActiveSessions().FirstOrDefaultAsync(s => s.Id == sessionId, ct);
+        if (session is null)
+            return false;
+
+        var allowance = session.Voucher?.Allowance ?? session.UserAccount?.Allowance;
+        var tariff = session.Voucher?.Tariff ?? session.UserAccount?.Tariff;
+        if (allowance is null || tariff is null)
+            return false;
+
+        var extra = TimeSpan.FromMinutes(minutes);
+        var changed = false;
+        if (allowance.ExpiresAt is { } expires)
+        {
+            allowance.ExpiresAt = expires + extra;
+            changed = true;
+        }
+        if (tariff.Type == TariffType.TimeBased && allowance.RemainingSeconds is { } remaining)
+        {
+            allowance.RemainingSeconds = remaining + (long)extra.TotalSeconds;
+            changed = true;
+        }
+        if (!changed)
+            return false;
+
+        audit.Record(actor, "Session.TimeAdded", $"{session.Device.Mac}: +{minutes} min (session {session.Id})");
+        await db.SaveChangesAsync(ct);
+        return true;
     }
 
     /// <summary>The device's last session if it ended within <paramref name="within"/> (to tell the customer why).</summary>

@@ -5,6 +5,9 @@ using StonesHotspot.Core.Rules;
 
 namespace StonesHotspot.Core.Services;
 
+/// <summary>One batch of vouchers with how many are in each state.</summary>
+public sealed record BatchSummary(string Name, string TariffName, int Total, int New, int Sold, int Active, int Expired, int Disabled, DateTime CreatedAt);
+
 public sealed class VoucherService(HotspotDbContext db, CashService cash, AuditService audit, TimeProvider clock)
 {
     public const int MaxBatchSize = 1000;
@@ -17,6 +20,74 @@ public sealed class VoucherService(HotspotDbContext db, CashService cash, AuditS
 
     public Task<List<Voucher>> ListBatchAsync(string batchName, CancellationToken ct = default) =>
         db.Vouchers.Include(v => v.Tariff).Where(v => v.BatchName == batchName).OrderBy(v => v.Id).ToListAsync(ct);
+
+    public async Task<List<BatchSummary>> ListBatchesAsync(CancellationToken ct = default)
+    {
+        var groups = await db.Vouchers
+            .GroupBy(v => new { v.BatchName, v.TariffId })
+            .Select(g => new
+            {
+                g.Key.BatchName,
+                g.Key.TariffId,
+                Total = g.Count(),
+                New = g.Count(v => v.Status == VoucherStatus.New),
+                Sold = g.Count(v => v.Status == VoucherStatus.Sold),
+                Active = g.Count(v => v.Status == VoucherStatus.Active),
+                Expired = g.Count(v => v.Status == VoucherStatus.Expired),
+                Disabled = g.Count(v => v.Status == VoucherStatus.Disabled),
+                CreatedAt = g.Min(v => v.CreatedAt),
+            })
+            .ToListAsync(ct);
+        var tariffNames = await db.Tariffs.ToDictionaryAsync(t => t.Id, t => t.Name, ct);
+        return groups
+            .Select(g => new BatchSummary(g.BatchName, tariffNames.GetValueOrDefault(g.TariffId, "?"), g.Total, g.New, g.Sold, g.Active, g.Expired, g.Disabled, g.CreatedAt))
+            .OrderByDescending(b => b.CreatedAt)
+            .ToList();
+    }
+
+    /// <summary>Vouchers sold on one receipt (for printing the customer's ticket).</summary>
+    public Task<List<Voucher>> ListByReceiptAsync(string receiptNumber, CancellationToken ct = default) =>
+        db.Vouchers.Include(v => v.Tariff)
+            .Where(v => db.Transactions.Any(t => t.ReceiptNumber == receiptNumber && t.VoucherId == v.Id))
+            .OrderBy(v => v.Id)
+            .ToListAsync(ct);
+
+    /// <summary>
+    /// Cashier sale: creates <paramref name="quantity"/> codes for the plan and sells them at once (one receipt).
+    /// </summary>
+    public async Task<(string Receipt, List<Voucher> Vouchers)> SellNewAsync(
+        int tariffId, int quantity, PaymentMethod method, Staff seller, CancellationToken ct = default)
+    {
+        if (quantity is < 1 or > 50)
+            throw new BusinessRuleException(ErrorCodes.Invalid, "Quantity must be between 1 and 50.");
+        if (method == PaymentMethod.AccountBalance)
+            throw new BusinessRuleException(ErrorCodes.Invalid, "Vouchers cannot be paid from an account balance.");
+
+        await using var transaction = await db.Database.BeginTransactionAsync(ct);
+        var batch = $"Vente {clock.GetUtcNow().UtcDateTime:yyyy-MM-dd}";
+        var vouchers = await GenerateBatchAsync(tariffId, quantity, batch, singleUse: false, seller, ct);
+        var receipt = await SellAsync(vouchers.Select(v => v.Id).ToList(), method, seller, ct);
+        await transaction.CommitAsync(ct);
+        return (receipt, vouchers);
+    }
+
+    /// <summary>Sells a pre-printed card by its code. Returns the receipt number.</summary>
+    public async Task<string> SellCodeAsync(string code, PaymentMethod method, Staff seller, CancellationToken ct = default)
+    {
+        var voucher = await FindByCodeAsync(code, ct) ?? throw new BusinessRuleException(ErrorCodes.NotFound, $"Code '{code}' not found.");
+        return await SellAsync([voucher.Id], method, seller, ct);
+    }
+
+    /// <summary>Disables the vouchers of a batch that were not used yet (lost or stolen cards).</summary>
+    public async Task<int> DisableUnusedInBatchAsync(string batchName, Staff? actor, CancellationToken ct = default)
+    {
+        var vouchers = await db.Vouchers.Where(v => v.BatchName == batchName && (v.Status == VoucherStatus.New || v.Status == VoucherStatus.Sold)).ToListAsync(ct);
+        foreach (var voucher in vouchers)
+            voucher.Status = VoucherStatus.Disabled;
+        audit.Record(actor, "Vouchers.Disabled", $"{vouchers.Count} unused voucher(s) of batch '{batchName}'");
+        await db.SaveChangesAsync(ct);
+        return vouchers.Count;
+    }
 
     /// <summary>Creates <paramref name="count"/> new vouchers with unique random codes.</summary>
     public async Task<List<Voucher>> GenerateBatchAsync(

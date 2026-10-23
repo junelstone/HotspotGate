@@ -26,6 +26,21 @@ public static class Units
         return $"{secs} s";
     }
 
+    /// <summary>A plan length without zero parts: "30 min", "1 h", "1 h 30 min", "7 j" (English "7 d").</summary>
+    public static string Period(long seconds, CultureInfo culture)
+    {
+        seconds = Math.Max(0, seconds);
+        var parts = new List<string>();
+        var days = seconds / 86400;
+        var hours = seconds % 86400 / 3600;
+        var minutes = seconds % 3600 / 60;
+        if (days > 0) parts.Add($"{days} {(IsFrench(culture) ? "j" : "d")}");
+        if (hours > 0) parts.Add($"{hours} h");
+        if (minutes > 0) parts.Add($"{minutes} min");
+        if (parts.Count == 0) parts.Add($"{seconds % 60} s");
+        return string.Join(" ", parts);
+    }
+
     /// <summary>"850 Ko", "12,5 Mo", "1,2 Go" (English: KB, MB, GB). 1 MB = 1 048 576 bytes, as for quotas.</summary>
     public static string Bytes(long bytes, CultureInfo culture)
     {

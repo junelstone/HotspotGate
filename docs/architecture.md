@@ -65,6 +65,14 @@ not cut the customer off, and a revoked device is cut off at the next tick (≤ 
  /portal, which explains why (last session ended < 15 min ago)
 ```
 
+## Dashboard
+
+Razor Pages under `Web/Pages/Admin`, cookie sign-in (`Web/Auth`): every request re-checks that the staff account
+is still enabled; roles Admin/Cashier map to the policies `Admin`/`Staff`; temporary passwords force the
+change-password page (`ForcePasswordChangeFilter`). Pro features (shifts, extra staff) ask `ILicenseService`.
+Data Protection keys (cookies, form tokens) live in `%ProgramData%\StonesHotspot\keys`, DPAPI-protected on
+Windows. Printing is HTML + print CSS with inline-SVG QR codes (QRCoder).
+
 ## Fail-closed rules
 
 - Gate started before ICS; gate failure → ICS switched off.

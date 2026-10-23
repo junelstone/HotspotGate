@@ -2,14 +2,38 @@
 @model StonesHotspot.Web.Pages.Admin.IndexModel
 @{
     ViewData["Title"] = Strings.Admin_Home_Title;
+    var admin = Model.Me.Role == StonesHotspot.Core.Data.Entities.StaffRole.Admin;
 }
 <h1>@Strings.Admin_Home_Title</h1>
-<div class="card">
-    <p>@string.Format(Strings.Licence_TrialDaysLeft, Model.DaysLeft)</p>
-    <p class="muted">@Strings.Placeholder_ComingSoon</p>
+@if (Model.TrialDaysLeft is { } days)
+{
+    <p class="muted">@string.Format(Strings.Licence_TrialDaysLeft, days)</p>
+}
+
+<div class="cards">
+    <div class="card">
+        <div class="muted">@(admin ? Strings.Home_SalesToday : Strings.Home_MySalesToday)</div>
+        <div class="stat">@Model.SalesToday</div>
+        <div class="muted">@string.Format(Strings.Home_Transactions, Model.SalesCountToday)</div>
+    </div>
+    <div class="card">
+        <div class="muted">@Strings.Home_Online</div>
+        <div class="stat">@Model.ActiveSessions</div>
+        @if (admin) { <a href="/admin/live">@Strings.Nav_Live</a> }
+    </div>
+    <div class="card">
+        <div class="muted">@Strings.Home_DevicesOnWifi</div>
+        <div class="stat">@Model.ConnectedDevices</div>
+    </div>
+    @if (Model.ShiftsEnabled)
+    {
+        <div class="card">
+            <div class="muted">@Strings.Nav_Shift</div>
+            <div class="stat" style="font-size:1.1rem">@(Model.OpenShift is null ? Strings.Shift_None : Strings.Shift_Open)</div>
+            <a href="/admin/shift">@(Model.OpenShift is null ? Strings.Shift_OpenAction : Strings.Shift_View)</a>
+        </div>
+    }
 </div>
-<div class="card">
-    <p><a href="/admin/network">@Strings.Network_Title</a></p>
-    <p><a href="/admin/devices">@Strings.Nav_Devices</a></p>
-    <p class="muted">@Strings.Admin_LocalOnly</p>
-</div>
+
+<a class="button" href="/admin/sell">@Strings.Nav_Sell</a>
+<a class="button secondary" href="/admin/accounts">@Strings.Nav_Accounts</a>

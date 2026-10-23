@@ -8,6 +8,7 @@ namespace StonesHotspot.Core.Services;
 public static class SettingKeys
 {
     public const string BusinessName = "Business.Name";
+    public const string WifiName = "Business.WifiName";
     public const string DefaultLanguage = "Ui.DefaultLanguage";
     public const string DefaultIdleTimeoutMinutes = "Sessions.DefaultIdleTimeoutMinutes";
     public const string LastReceiptNumber = "Receipts.LastNumber";

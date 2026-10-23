@@ -1,0 +1,64 @@
+@page "/admin/staff"
+@model StonesHotspot.Web.Pages.Admin.StaffModel
+@using StonesHotspot.Core.Data.Entities
+@using StonesHotspot.Web.Admin
+@{
+    ViewData["Title"] = Strings.Nav_Staff;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+}
+<h1>@Strings.Nav_Staff</h1>
+@if (Model.Error is not null)
+{
+    <div class="msg error">@Model.Error</div>
+}
+<div class="scroll">
+<table>
+    <tr><th>@Strings.Portal_Username</th><th>@Strings.Col_Name</th><th>@Strings.Staff_Role</th><th>@Strings.Col_State</th><th>@Strings.Staff_LastLogin</th><th></th></tr>
+    @foreach (var s in Model.Members)
+    {
+        <tr>
+            <td><strong>@s.Username</strong>@if (s.MustChangePassword) { <span class="badge">@Strings.Staff_TempPassword</span> }</td>
+            <td>@s.DisplayName</td>
+            <td>@AdminText.Role(s.Role)</td>
+            <td>@(s.Enabled ? Strings.Tariff_Active : Strings.Tariff_Inactive)</td>
+            <td>@(s.LastLoginAt is { } l ? AdminText.Date(l, culture) : "")</td>
+            <td>
+                <form method="post" asp-page-handler="Enable"><input type="hidden" name="id" value="@s.Id"><input type="hidden" name="enabled" value="@(!s.Enabled)">
+                    <button type="submit" class="secondary">@(s.Enabled ? Strings.Staff_Disable : Strings.Staff_Enable)</button></form>
+                <form method="post" asp-page-handler="Reset">
+                    <input type="hidden" name="id" value="@s.Id">
+                    <input type="text" name="temporaryPassword" class="small" placeholder="@Strings.Staff_TempPasswordHint" autocomplete="off" style="max-width:11rem">
+                    <button type="submit" class="secondary">@Strings.Staff_Reset</button>
+                </form>
+            </td>
+        </tr>
+    }
+</table>
+</div>
+
+@if (Model.CanAdd)
+{
+    <form method="post" asp-page-handler="Create" class="card">
+        <h2 style="margin-top:0">@Strings.Staff_New</h2>
+        <div class="row">
+            <div><label for="Username">@Strings.Portal_Username</label><input asp-for="Username" type="text" required autocapitalize="none"></div>
+            <div><label for="DisplayName">@Strings.Col_Name</label><input asp-for="DisplayName" type="text"></div>
+        </div>
+        <div class="row">
+            <div>
+                <label for="Role">@Strings.Staff_Role</label>
+                <select asp-for="Role">
+                    <option value="@StaffRole.Cashier">@Strings.Role_Cashier</option>
+                    <option value="@StaffRole.Admin">@Strings.Role_Admin</option>
+                </select>
+            </div>
+            <div><label for="Password">@Strings.Staff_TempPasswordHint</label><input asp-for="Password" type="text" required autocomplete="off"></div>
+        </div>
+        <p class="muted">@string.Format(Strings.Staff_Help, StonesHotspot.Core.Services.StaffService.MinPasswordLength)</p>
+        <button type="submit">@Strings.Common_Save</button>
+    </form>
+}
+else
+{
+    <div class="msg warning">@Strings.Common_ProFeature</div>
+}

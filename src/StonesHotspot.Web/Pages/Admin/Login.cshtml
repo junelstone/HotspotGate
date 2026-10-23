@@ -1,0 +1,20 @@
+@page "/admin/login"
+@model StonesHotspot.Web.Pages.Admin.LoginModel
+@{
+    ViewData["Title"] = Strings.Login_Title;
+}
+<div style="max-width:420px;margin:2rem auto">
+    <h1>@Strings.Login_Title</h1>
+    @if (Model.Error is not null)
+    {
+        <div class="msg error" role="alert">@Model.Error</div>
+    }
+    <form method="post" class="card">
+        <input type="hidden" asp-for="ReturnUrl">
+        <label for="Username">@Strings.Portal_Username</label>
+        <input asp-for="Username" type="text" autocomplete="username" autocapitalize="none" autofocus>
+        <label for="Password">@Strings.Portal_Password</label>
+        <input asp-for="Password" type="password" autocomplete="current-password">
+        <button type="submit">@Strings.Login_Submit</button>
+    </form>
+</div>

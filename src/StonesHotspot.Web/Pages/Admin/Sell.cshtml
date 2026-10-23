@@ -1,0 +1,51 @@
+@page "/admin/sell"
+@model StonesHotspot.Web.Pages.Admin.SellModel
+@using StonesHotspot.Web.Admin
+@{
+    ViewData["Title"] = Strings.Nav_Sell;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+}
+<h1>@Strings.Nav_Sell</h1>
+@if (Model.NeedsShift)
+{
+    <div class="msg warning">@Strings.Sell_OpenShiftFirst <a href="/admin/shift">@Strings.Shift_OpenAction</a></div>
+}
+@if (Model.Error is not null)
+{
+    <div class="msg error">@Model.Error</div>
+}
+
+<form method="post" asp-page-handler="New" class="card">
+    <h2 style="margin-top:0">@Strings.Sell_NewCodes</h2>
+    <label>@Strings.Col_Tariff</label>
+    @foreach (var t in Model.Tariffs)
+    {
+        <label style="font-weight:normal"><input type="radio" name="TariffId" value="@t.Id" checked="@(t.Id == Model.TariffId)">
+            <strong>@t.Name</strong> — @t.Price <span class="muted">(@AdminText.Describe(t, culture))</span></label>
+    }
+    <div class="row">
+        <div>
+            <label for="Quantity">@Strings.Sell_Quantity</label>
+            <input asp-for="Quantity" type="number" min="1" max="50" class="small">
+        </div>
+        <div>
+            <label for="Method">@Strings.Sell_Payment</label>
+            <select asp-for="Method">
+                @foreach (var m in AdminText.CounterMethods) { <option value="@m">@AdminText.Payment(m)</option> }
+            </select>
+        </div>
+    </div>
+    <button type="submit" disabled="@Model.NeedsShift">@Strings.Sell_Submit</button>
+    <p class="muted">@Strings.Sell_NewNote</p>
+</form>
+
+<form method="post" asp-page-handler="Card" class="card">
+    <h2 style="margin-top:0">@Strings.Sell_Card</h2>
+    <label for="Code">@Strings.Col_Code</label>
+    <input asp-for="Code" type="text" class="code" autocomplete="off" autocapitalize="characters" placeholder="ABCD-EFGH">
+    <label for="CardMethod">@Strings.Sell_Payment</label>
+    <select name="Method" id="CardMethod">
+        @foreach (var m in AdminText.CounterMethods) { <option value="@m">@AdminText.Payment(m)</option> }
+    </select>
+    <button type="submit" disabled="@Model.NeedsShift">@Strings.Sell_CardSubmit</button>
+</form>

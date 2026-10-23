@@ -3,7 +3,7 @@ using StonesHotspot.Network.Setup;
 
 namespace StonesHotspot.Web.Pages.Admin;
 
-[LocalOnly]
+[Microsoft.AspNetCore.Authorization.Authorize(Policy = Auth.StaffPolicies.Admin)]
 public sealed class DevicesModel(ConnectedDeviceRegistry registry, NetworkSetupService setup) : PageModel
 {
     public DeviceScanResult Scan { get; private set; } = DeviceScanResult.Empty;

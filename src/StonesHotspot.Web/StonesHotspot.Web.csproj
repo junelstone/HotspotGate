@@ -8,6 +8,11 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="QRCoder" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="StonesHotspot.Tests" />
   </ItemGroup>
 
   <ItemGroup>

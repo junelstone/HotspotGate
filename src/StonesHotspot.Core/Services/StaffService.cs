@@ -37,6 +37,22 @@ public sealed class StaffService(HotspotDbContext db, IPasswordHasher hasher, Au
         return staff;
     }
 
+    /// <summary>Enables or disables a staff account. The last enabled admin cannot be disabled, nor can you disable yourself.</summary>
+    public async Task SetEnabledAsync(int staffId, bool enabled, Staff actor, CancellationToken ct = default)
+    {
+        var staff = await FindAsync(staffId, ct) ?? throw new BusinessRuleException(ErrorCodes.NotFound, $"Staff {staffId} not found.");
+        if (!enabled)
+        {
+            if (staff.Id == actor.Id)
+                throw new BusinessRuleException(ErrorCodes.NotAllowed, "You cannot disable your own account.");
+            if (staff.Role == StaffRole.Admin && !await db.Staff.AnyAsync(s => s.Id != staffId && s.Role == StaffRole.Admin && s.Enabled, ct))
+                throw new BusinessRuleException(ErrorCodes.NotAllowed, "The last administrator cannot be disabled.");
+        }
+        staff.Enabled = enabled;
+        audit.Record(actor, enabled ? "Staff.Enabled" : "Staff.Disabled", staff.Username);
+        await db.SaveChangesAsync(ct);
+    }
+
     /// <summary>Returns the staff member if the username/password are right and the account is enabled.</summary>
     public async Task<Staff?> AuthenticateAsync(string username, string password, CancellationToken ct = default)
     {

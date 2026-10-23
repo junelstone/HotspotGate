@@ -16,7 +16,7 @@ public enum DeviceAccess { None, Session, Whitelist, Blocked }
 public sealed record GateDeviceRow(ConnectedDevice Device, DeviceAccess Access);
 
 /// <summary>Phase 3 test page: gate status and counters, authorise/revoke a device, web-filter rules.</summary>
-[LocalOnly]
+[Microsoft.AspNetCore.Authorization.Authorize(Policy = Auth.StaffPolicies.Admin)]
 public sealed class GateModel(
     IPacketGate gate,
     ConnectedDeviceRegistry registry,

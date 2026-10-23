@@ -3,10 +3,9 @@
 Windows Wi-Fi hotspot manager (captive portal) by **Stone's IT Consulting**: turns a Windows 10/11 PC into a
 managed, paid Wi-Fi hotspot — vouchers, user accounts, tariffs, Mobile Money, admin dashboard.
 
-> **Status: Phase 4 — captive portal.** Customers join the Wi-Fi, the portal opens by itself, they log in with
-> the code from their ticket (or an account), see their time/data left, and are cut off when it runs out. Staff
-> screens (selling and printing codes) come with the dashboard in phase 5; until then test codes are created on
-> <http://localhost:8080/admin/gate>. See [Build phases](#build-phases).
+> **Status: Phase 5 — admin dashboard.** Staff sign in on the PC or a phone, sell and print codes, manage plans,
+> voucher batches, customer accounts, staff, settings and backups; cashiers work in their own shift. See
+> [Build phases](#build-phases).
 
 ## Requirements
 
@@ -79,9 +78,26 @@ Runtime data (`%ProgramData%\StonesHotspot\`):
 ## First login
 
 On first start the service creates the staff account **`admin`** with a random password, written to
-`%ProgramData%\StonesHotspot\initial-admin-password.txt` (from source: `src\StonesHotspot.Service\data\`). The
-password must be changed at first login. There is deliberately no default password: customers on the
-hotspot can reach the dashboard port.
+`%ProgramData%\StonesHotspot\initial-admin-password.txt` (from source: `src\StonesHotspot.Service\data\`). Sign in
+at <http://localhost:8080/admin>: you must choose your own password, after which the file is deleted. There is
+deliberately no default password: customers on the hotspot can reach the dashboard port.
+
+## Dashboard
+
+`http://localhost:8080/admin` on the PC, `http://192.168.137.1:8080/admin` from a phone on the hotspot Wi-Fi.
+
+| Role | Can use |
+|---|---|
+| **Caissier / Cashier** | Home, **Vendre** (new codes printed on a ticket, or a pre-printed card), **Ma caisse** (open with starting cash, sales, close with counted cash), **Comptes** (search, top up) |
+| **Administrateur** | Everything: **En direct** (customers online: add time, log out, block, whitelist), **Forfaits**, **Tickets** (batches, A4 cards / 58–80 mm tickets with QR, CSV, disable), **Comptes**, **Personnel**, **Paramètres** (name, Wi-Fi name, logo, colour, welcome page, terms, language, idle timeout), **Sauvegarde**, network and diagnostics pages |
+
+- Sign-in ends after 2 hours without activity; 5 wrong passwords from one address → 5 minutes wait. New staff
+  and reset passwords are temporary: they must be changed at first sign-in.
+- Shifts and extra staff accounts are Pro features (included in the trial).
+- Printing uses the browser's print dialog (Ctrl+P on the PC, Share → Print on a phone). Direct thermal printing
+  comes with receipts in phase 7.
+- Backups: **Sauvegarde** downloads a copy of the database; restoring keeps a copy of the current database first.
+  Copy backups to a USB stick regularly (automatic daily backups come in phase 11).
 
 ## Network setup
 
@@ -95,10 +111,10 @@ access point/bridge mode, or the PC's own Wi-Fi in Windows *Mobile hotspot* mode
 4. On the PC, open <http://localhost:8080/admin/network>, choose WAN and LAN, click **Partager Internet**.
    The packet gate starts first, then Windows Internet Connection Sharing gives the LAN card **192.168.137.1**
    and hands out 192.168.137.x addresses.
-5. Connected devices: <http://localhost:8080/admin/devices>. Gate test page (authorise/revoke a device by hand,
-   counters, blocked/free-access domains): <http://localhost:8080/admin/gate>.
+5. Connected devices: <http://localhost:8080/admin/devices>. Gate diagnostics (authorise/revoke a device by hand,
+   counters, blocked/free-access domains, test codes): <http://localhost:8080/admin/gate>.
 
-The setup pages only answer on the PC itself until staff login exists (phase 5). Customers see the portal at
+The setup pages need an administrator sign-in. Customers see the portal at
 `http://192.168.137.1/portal`. Every 5 s the service makes the network match the saved setup (it switches
 sharing back on if Windows dropped it).
 
@@ -108,8 +124,7 @@ sharing back on if Windows dropped it).
 speed and **Se déconnecter**, terms of use, "site blocked" page — French/English, ~5 KB per page, nothing loaded from
 the internet. After login the customer goes to the **welcome page** (setting `Portal.WelcomeUrl`) if set, otherwise
 to the page they first asked for. Business name, accent colour (`Portal.AccentColor`) and logo
-(`%ProgramData%\StonesHotspot\branding\logo.png`) come from the settings; terms can be replaced with the
-settings `Portal.TermsFr` / `Portal.TermsEn` (the dashboard edits all of these in phase 5).
+(`%ProgramData%\StonesHotspot\branding\logo.png`) and the terms of use are set in **Paramètres**.
 
 ### Packet gate (WinDivert)
 
@@ -124,7 +139,8 @@ Windows restart it automatically. In Windows Mobile hotspot mode the service can
 PC's own internet is never filtered.
 
 Manual tests: [`phase-2-network.md`](docs/manual-tests/phase-2-network.md),
-[`phase-3-gate.md`](docs/manual-tests/phase-3-gate.md), [`phase-4-portal.md`](docs/manual-tests/phase-4-portal.md).
+[`phase-3-gate.md`](docs/manual-tests/phase-3-gate.md), [`phase-4-portal.md`](docs/manual-tests/phase-4-portal.md),
+[`phase-5-dashboard.md`](docs/manual-tests/phase-5-dashboard.md).
 
 ## Database
 
@@ -169,8 +185,8 @@ Business rules are summarised in [`docs/business-rules.md`](docs/business-rules.
 | 1 | Data layer and business rules | done |
 | 2 | Network setup (adapters, ICS, connected devices) | done (Mode B dropped) |
 | 3 | Packet gate (WinDivert) and DNS | done — to be verified on Windows |
-| 4 | Captive portal | **done** — to be verified on Windows |
-| 5 | Admin dashboard | — |
+| 4 | Captive portal | done — to be verified on Windows |
+| 5 | Admin dashboard | **done** |
 | 6 | Bandwidth control and web filter | — |
 | 7 | Business tools (shifts, POS, reports) | — |
 | 8 | Free access and SMS login | — |
@@ -197,5 +213,6 @@ Plans for each phase are in `docs/phase-N-plan.md`.
 | Portal says "Votre appareil n'a pas pu être identifié" | The PC has not seen the phone in its ARP table: turn the phone's Wi-Fi off and on. If it persists, check the LAN adapter choice on the Network page |
 | Phones never show "Sign in to network" | Check the firewall rule for port 80 above and the gate state on <http://localhost:8080/admin/gate> |
 | "database is locked" in the log | Another program (e.g. DB Browser for SQLite) has the database open for writing; close it |
-| Lost the admin password | Another admin can reset it; an offline reset tool for the last admin comes with the dashboard (phase 5) |
+| Lost the admin password | Another admin resets it in **Personnel**. If no admin can sign in: restore a backup, or contact Stone's IT Consulting (an offline reset tool comes with the installer, phase 11) |
+| Dashboard says "Accès refusé" | The page is for administrators; sign in with an admin account |
 | Tray "Start/Stop" shows an administrator message | Run the tray app as administrator (the installer will grant service rights later) |

@@ -159,7 +159,7 @@ public sealed class GateIntegrationTests : IClassFixture<ServiceSmokeTests.Facto
     [Fact]
     public async Task Gate_page_creates_a_test_voucher()
     {
-        var client = Client();
+        var client = (await StaffSignIn.AsAsync(_factory)).Http;
         var page = await client.GetStringAsync("/admin/gate");
         var token = Regex.Match(page, "name=\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\"").Groups[1].Value;
         var tariffId = await InScope(async sp => (await sp.GetRequiredService<TariffService>().ListAsync()).First().Id);
@@ -179,7 +179,7 @@ public sealed class GateIntegrationTests : IClassFixture<ServiceSmokeTests.Facto
     public async Task Gate_page_authorises_a_device_with_anti_forgery_protection()
     {
         const string mac = "DA:A1:19:00:00:64";
-        var client = Client();
+        var client = (await StaffSignIn.AsAsync(_factory)).Http;
         var page = await client.GetStringAsync("/admin/gate");
         var token = Regex.Match(page, "name=\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\"").Groups[1].Value;
         Assert.Contains("Filtrage des paquets", WebUtility.HtmlDecode(page));

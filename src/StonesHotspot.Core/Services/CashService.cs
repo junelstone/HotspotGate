@@ -24,6 +24,27 @@ public sealed class CashService(HotspotDbContext db, AuditService audit, Receipt
     public Task<Shift?> GetOpenShiftAsync(int staffId, CancellationToken ct = default) =>
         db.Shifts.FirstOrDefaultAsync(s => s.StaffId == staffId && s.ClosedAt == null, ct);
 
+    public Task<List<Transaction>> ListShiftTransactionsAsync(int shiftId, CancellationToken ct = default) =>
+        db.Transactions.AsNoTracking().Include(t => t.Voucher).Where(t => t.ShiftId == shiftId)
+            .OrderByDescending(t => t.Timestamp).ToListAsync(ct);
+
+    /// <summary>Most recent shifts, of one staff member or of everyone.</summary>
+    public Task<List<Shift>> ListShiftsAsync(int? staffId, int take = 20, CancellationToken ct = default) =>
+        db.Shifts.AsNoTracking().Include(s => s.Staff).Where(s => staffId == null || s.StaffId == staffId)
+            .OrderByDescending(s => s.OpenedAt).Take(take).ToListAsync(ct);
+
+    public Task<Shift?> FindShiftAsync(int shiftId, CancellationToken ct = default) =>
+        db.Shifts.AsNoTracking().Include(s => s.Staff).FirstOrDefaultAsync(s => s.Id == shiftId, ct);
+
+    /// <summary>Total of the transactions of one staff member (or everyone) since <paramref name="since"/>, without account charges.</summary>
+    public async Task<(Xaf Total, int Count)> SalesSinceAsync(DateTime since, int? staffId, CancellationToken ct = default)
+    {
+        var amounts = await db.Transactions.AsNoTracking()
+            .Where(t => t.Timestamp >= since && t.Type != TransactionType.AccountCharge && (staffId == null || t.StaffId == staffId))
+            .Select(t => t.Amount).ToListAsync(ct);
+        return (Xaf.Sum(amounts), amounts.Count);
+    }
+
     public async Task<Shift> OpenShiftAsync(Staff staff, Xaf openingCash, CancellationToken ct = default)
     {
         if (openingCash.IsNegative)

@@ -1,0 +1,55 @@
+@page "/admin/live"
+@model StonesHotspot.Web.Pages.Admin.LiveModel
+@using StonesHotspot.Core.Localization
+@using StonesHotspot.Core.Rules
+@using StonesHotspot.Web.Admin
+@{
+    ViewData["Title"] = Strings.Nav_Live;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+}
+@section Head { <meta http-equiv="refresh" content="30"> }
+<h1>@Strings.Nav_Live</h1>
+<p class="muted">@string.Format(Strings.Live_Intro, Model.Sessions.Count) <a href="/admin/live">@Strings.Common_Refresh</a></p>
+
+@if (Model.Sessions.Count == 0)
+{
+    <div class="card muted">@Strings.Live_None</div>
+}
+else
+{
+    <div class="scroll">
+    <table>
+        <tr><th>@Strings.Gate_Devices</th><th>@Strings.Live_Login</th><th>@Strings.Col_Tariff</th><th class="num">@Strings.Status_TimeLeft</th>
+            <th class="num">@Strings.Status_DataLeft</th><th class="num">@Strings.Status_Speed</th><th class="num">@Strings.Status_Used</th><th></th></tr>
+        @foreach (var s in Model.Sessions)
+        {
+            var d = s.Session.Device;
+            var (down, up) = Model.Speed(s.Session.Id);
+            <tr>
+                <td><code>@d.Mac</code>@if (MacAddress.IsRandomized(d.Mac)) { <span class="badge">@Strings.Devices_RandomMac</span> }
+                    <div class="muted">@(d.Hostname ?? "") @s.Session.Ip</div></td>
+                <td>@AdminText.Method(s.Session.Method)<div class="muted code">@(s.VoucherCode is { } c ? VoucherCodeGenerator.Format(c) : s.Username)</div>
+                    <div class="muted">@AdminText.Date(s.Session.StartedAt, culture)</div></td>
+                <td>@s.Tariff.Name</td>
+                <td class="num">@(s.SecondsLeft is { } sec ? Units.Duration(sec, culture) : Strings.Status_Unlimited)</td>
+                <td class="num">@(s.BytesLeft is { } b ? Units.Bytes(b, culture) : "—")</td>
+                <td class="num">↓ @Units.Speed(down, culture)<br>↑ @Units.Speed(up, culture)</td>
+                <td class="num">@Units.Bytes(s.Session.BytesUp + s.Session.BytesDown, culture)</td>
+                <td style="min-width:240px">
+                    <form method="post" asp-page-handler="AddTime">
+                        <input type="hidden" name="sessionId" value="@s.Session.Id">
+                        <select name="minutes" class="small">
+                            <option value="15">+15 min</option><option value="30">+30 min</option><option value="60">+1 h</option><option value="1440">+24 h</option>
+                        </select>
+                        <button type="submit">@Strings.Live_AddTime</button>
+                    </form>
+                    <form method="post" asp-page-handler="Kick"><input type="hidden" name="sessionId" value="@s.Session.Id"><button type="submit" class="secondary">@Strings.Live_Kick</button></form>
+                    <form method="post" asp-page-handler="Block"><input type="hidden" name="mac" value="@d.Mac"><button type="submit" class="danger">@Strings.Live_Block</button></form>
+                    <form method="post" asp-page-handler="Whitelist"><input type="hidden" name="mac" value="@d.Mac"><button type="submit" class="secondary">@Strings.Live_Whitelist</button></form>
+                </td>
+            </tr>
+        }
+    </table>
+    </div>
+}
+<p class="muted">@Strings.Devices_RandomMacNote</p>

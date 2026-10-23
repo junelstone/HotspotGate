@@ -1,0 +1,51 @@
+@page "/admin/tariff"
+@model StonesHotspot.Web.Pages.Admin.TariffModel
+@using StonesHotspot.Core.Data.Entities
+@{
+    ViewData["Title"] = Model.Id is null ? Strings.Tariff_New : Strings.Common_Edit;
+}
+<h1>@ViewData["Title"]</h1>
+@if (Model.Error is not null)
+{
+    <div class="msg error">@Model.Error</div>
+}
+<form method="post" class="card">
+    <div class="row">
+        <div><label for="Input_Name">@Strings.Col_Name</label><input asp-for="Input.Name" type="text" required maxlength="100"></div>
+        <div><label for="Input_Price">@Strings.Col_Price (FCFA)</label><input asp-for="Input.Price" type="text" inputmode="numeric" required></div>
+    </div>
+    <div class="row">
+        <div>
+            <label for="Input_Type">@Strings.Tariff_Type</label>
+            <select asp-for="Input.Type">
+                <option value="@TariffType.TimeBased">@Strings.Tariff_Type_Time</option>
+                <option value="@TariffType.DataBased">@Strings.Tariff_Type_Data</option>
+                <option value="@TariffType.Unlimited">@Strings.Status_Unlimited</option>
+            </select>
+        </div>
+        <div><label for="Input_Quota">@Strings.Tariff_Quota</label><input asp-for="Input.Quota" type="number" min="0"></div>
+    </div>
+    <div class="row">
+        <div>
+            <label for="Input_CountdownMode">@Strings.Tariff_Countdown</label>
+            <select asp-for="Input.CountdownMode">
+                <option value="@CountdownMode.UsageOnly">@Strings.Tariff_Countdown_Usage</option>
+                <option value="@CountdownMode.WallClock">@Strings.Tariff_Countdown_Wall</option>
+            </select>
+        </div>
+        <div><label for="Input_MaxDevices">@Strings.Tariff_MaxDevices</label><input asp-for="Input.MaxDevices" type="number" min="1" max="50"></div>
+    </div>
+    <div class="row">
+        <div><label for="Input_ValidityHours">@Strings.Tariff_ValidityHours</label><input asp-for="Input.ValidityHours" type="number" min="1"></div>
+        <div><label for="Input_ValidUntil">@Strings.Tariff_ValidUntil</label><input asp-for="Input.ValidUntil" type="date"></div>
+    </div>
+    <div class="row">
+        <div><label for="Input_DownloadKbps">@Strings.Tariff_Download</label><input asp-for="Input.DownloadKbps" type="number" min="1"></div>
+        <div><label for="Input_UploadKbps">@Strings.Tariff_Upload</label><input asp-for="Input.UploadKbps" type="number" min="1"></div>
+        <div><label for="Input_IdleTimeoutMinutes">@Strings.Tariff_Idle</label><input asp-for="Input.IdleTimeoutMinutes" type="number" min="1"></div>
+    </div>
+    <label style="font-weight:normal"><input asp-for="Input.IsActive" type="checkbox"> @Strings.Tariff_Active</label>
+    <p class="muted">@Strings.Tariff_Help</p>
+    <button type="submit">@Strings.Common_Save</button>
+    <a class="button secondary" href="/admin/tariffs">@Strings.Common_Cancel</a>
+</form>

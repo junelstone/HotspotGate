@@ -1,0 +1,45 @@
+@page "/admin/settings"
+@model StonesHotspot.Web.Pages.Admin.SettingsModel
+@{
+    ViewData["Title"] = Strings.Nav_Settings;
+}
+<h1>@Strings.Nav_Settings</h1>
+@if (Model.Error is not null)
+{
+    <div class="msg error">@Model.Error</div>
+}
+<form method="post" enctype="multipart/form-data" class="card">
+    <h2 style="margin-top:0">@Strings.Settings_Business</h2>
+    <div class="row">
+        <div><label for="BusinessName">@Strings.Settings_BusinessName</label><input asp-for="BusinessName" type="text" required maxlength="100"></div>
+        <div><label for="WifiName">@Strings.Settings_WifiName</label><input asp-for="WifiName" type="text" maxlength="32"></div>
+    </div>
+    <label for="Logo">@Strings.Settings_Logo</label>
+    <input asp-for="Logo" type="file" accept=".png,.jpg,.jpeg,.svg,.webp">
+    @if (Model.HasLogo) { <p><img src="/portal/logo" alt="" style="max-height:60px"></p> }
+    <p class="muted">@Strings.Settings_LogoHelp</p>
+
+    <h2>@Strings.Settings_Portal</h2>
+    <div class="row">
+        <div><label for="AccentColor">@Strings.Settings_Color</label><input asp-for="AccentColor" type="color" style="max-width:6rem;height:2.6rem"></div>
+        <div>
+            <label for="DefaultLanguage">@Strings.Settings_Language</label>
+            <select asp-for="DefaultLanguage"><option value="fr">Français</option><option value="en">English</option></select>
+        </div>
+        <div><label for="IdleTimeout">@Strings.Settings_Idle</label><input asp-for="IdleTimeout" type="number" min="1" max="1440"></div>
+    </div>
+    <label for="WelcomeUrl">@Strings.Settings_WelcomeUrl</label>
+    <input asp-for="WelcomeUrl" type="url" placeholder="https://…">
+    <p class="muted">@Strings.Settings_WelcomeHelp</p>
+    <label for="TermsFr">@Strings.Settings_TermsFr</label>
+    <textarea asp-for="TermsFr" placeholder="@Strings.Settings_TermsHelp"></textarea>
+    <label for="TermsEn">@Strings.Settings_TermsEn</label>
+    <textarea asp-for="TermsEn" placeholder="@Strings.Settings_TermsHelp"></textarea>
+    <button type="submit">@Strings.Common_Save</button>
+    <a class="button secondary" href="/portal" target="_blank">@Strings.Settings_Preview</a>
+</form>
+@if (Model.HasLogo)
+{
+    <form method="post" asp-page-handler="RemoveLogo"><button type="submit" class="danger">@Strings.Settings_RemoveLogo</button></form>
+}
+<p class="muted">@Strings.Settings_NetworkHint <a href="/admin/network">@Strings.Nav_Network</a></p>

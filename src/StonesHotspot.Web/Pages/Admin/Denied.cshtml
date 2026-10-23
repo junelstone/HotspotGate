@@ -1,0 +1,8 @@
+@page "/admin/denied"
+@{
+    ViewData["Title"] = Strings.Denied_Title;
+    Response.StatusCode = 403;
+}
+<h1>@Strings.Denied_Title</h1>
+<div class="card">@Strings.Denied_Text</div>
+<a class="button secondary" href="/admin">@Strings.Nav_Home</a>

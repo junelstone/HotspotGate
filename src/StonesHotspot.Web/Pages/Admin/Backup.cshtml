@@ -1,0 +1,34 @@
+@page "/admin/backup"
+@model StonesHotspot.Web.Pages.Admin.BackupModel
+@using StonesHotspot.Core.Localization
+@using StonesHotspot.Web.Admin
+@{
+    ViewData["Title"] = Strings.Nav_Backup;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+}
+<h1>@Strings.Nav_Backup</h1>
+<form method="post" asp-page-handler="Create" class="card">
+    <p>@Strings.Backup_Intro</p>
+    <button type="submit">@Strings.Backup_Create</button>
+</form>
+
+@if (Model.Files.Count > 0)
+{
+    <div class="scroll">
+    <table>
+        <tr><th>@Strings.Backup_File</th><th>@Strings.Col_Created</th><th class="num">@Strings.Backup_Size</th></tr>
+        @foreach (var f in Model.Files)
+        {
+            <tr><td><a href="/admin/backup?handler=Download&name=@Uri.EscapeDataString(f.Name)">@f.Name</a></td>
+                <td>@AdminText.Date(f.CreatedAt, culture)</td><td class="num">@Units.Bytes(f.Size, culture)</td></tr>
+        }
+    </table>
+    </div>
+}
+
+<form method="post" asp-page-handler="Restore" enctype="multipart/form-data" class="card">
+    <h2 style="margin-top:0">@Strings.Backup_RestoreTitle</h2>
+    <div class="msg warning">@Strings.Backup_RestoreWarning</div>
+    <input asp-for="Upload" type="file" accept=".db">
+    <br><button type="submit" class="danger" data-confirm="@Strings.Backup_RestoreConfirm">@Strings.Backup_Restore</button>
+</form>

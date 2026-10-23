@@ -1,0 +1,66 @@
+@page "/admin/account"
+@model StonesHotspot.Web.Pages.Admin.AccountModel
+@using StonesHotspot.Web.Admin
+@using StonesHotspot.Web.Auth
+@{
+    var a = Model.Account;
+    ViewData["Title"] = a.Username;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+}
+<h1>@a.Username</h1>
+@if (Model.Error is not null)
+{
+    <div class="msg error">@Model.Error</div>
+}
+<div class="cards">
+    <div class="card"><div class="muted">@Strings.Status_Balance</div><div class="stat">@a.Balance</div></div>
+    <div class="card"><div class="muted">@Strings.Col_Tariff</div><div class="stat" style="font-size:1.1rem">@a.Tariff.Name — @a.Tariff.Price</div></div>
+</div>
+
+<form method="post" asp-page-handler="Deposit" asp-route-id="@a.Id" class="card">
+    <h2 style="margin-top:0">@Strings.Account_Deposit</h2>
+    <div class="row">
+        <div><label for="Amount">@Strings.Col_Amount (FCFA)</label><input asp-for="Amount" type="text" inputmode="numeric" required></div>
+        <div>
+            <label for="Method">@Strings.Sell_Payment</label>
+            <select asp-for="Method">@foreach (var m in AdminText.CounterMethods) { <option value="@m">@AdminText.Payment(m)</option> }</select>
+        </div>
+    </div>
+    <button type="submit">@Strings.Account_DepositButton</button>
+</form>
+
+@if (User.IsAdmin())
+{
+    <form method="post" asp-page-handler="Save" asp-route-id="@a.Id" class="card">
+        <h2 style="margin-top:0">@Strings.Common_Edit</h2>
+        <div class="row">
+            <div><label for="FirstName">@Strings.Account_FirstName</label><input asp-for="FirstName" type="text"></div>
+            <div><label for="LastName">@Strings.Account_LastName</label><input asp-for="LastName" type="text"></div>
+            <div><label for="Phone">@Strings.Account_Phone</label><input asp-for="Phone" type="text" inputmode="tel"></div>
+        </div>
+        <div class="row">
+            <div>
+                <label for="TariffId">@Strings.Col_Tariff</label>
+                <select asp-for="TariffId">@foreach (var t in Model.Tariffs) { <option value="@t.Id">@t.Name — @t.Price</option> }</select>
+            </div>
+            <div><label for="ExpiresOn">@Strings.Account_ExpiresOn</label><input asp-for="ExpiresOn" type="date"></div>
+            <div><label for="Overdraft">@Strings.Account_Overdraft</label><input asp-for="Overdraft" type="text" inputmode="numeric"></div>
+        </div>
+        <label for="NewPassword">@Strings.Account_NewPassword</label>
+        <input asp-for="NewPassword" type="text" autocomplete="off">
+        <label style="font-weight:normal"><input asp-for="Enabled" type="checkbox"> @Strings.Tariff_Active</label>
+        <button type="submit">@Strings.Common_Save</button>
+    </form>
+}
+
+<h2>@Strings.Account_History</h2>
+<div class="scroll">
+<table>
+    <tr><th>@Strings.Col_Time</th><th>@Strings.Col_Type</th><th>@Strings.Sell_Payment</th><th class="num">@Strings.Col_Amount</th><th>@Strings.Col_Receipt</th></tr>
+    @foreach (var t in Model.History)
+    {
+        <tr><td>@AdminText.Date(t.Timestamp, culture)</td><td>@AdminText.TransactionType(t.Type)</td><td>@AdminText.Payment(t.PaymentMethod)</td>
+            <td class="num">@t.Amount</td><td>@t.ReceiptNumber</td></tr>
+    }
+</table>
+</div>

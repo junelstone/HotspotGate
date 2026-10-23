@@ -5,7 +5,7 @@ using StonesHotspot.Network.Setup;
 
 namespace StonesHotspot.Web.Pages.Admin;
 
-[LocalOnly]
+[Microsoft.AspNetCore.Authorization.Authorize(Policy = Auth.StaffPolicies.Admin)]
 public sealed class NetworkModel(NetworkSetupService setup) : PageModel
 {
     public NetworkOverview Overview { get; private set; } = null!;

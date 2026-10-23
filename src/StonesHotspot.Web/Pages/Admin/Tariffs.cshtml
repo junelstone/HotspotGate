@@ -1,0 +1,32 @@
+@page "/admin/tariffs"
+@model StonesHotspot.Web.Pages.Admin.TariffsModel
+@using StonesHotspot.Core.Localization
+@using StonesHotspot.Web.Admin
+@{
+    ViewData["Title"] = Strings.Nav_Tariffs;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+}
+<h1>@Strings.Nav_Tariffs</h1>
+<a class="button" href="/admin/tariff">@Strings.Tariff_New</a>
+<div class="scroll" style="margin-top:1rem">
+<table>
+    <tr><th>@Strings.Col_Name</th><th class="num">@Strings.Col_Price</th><th>@Strings.Tariff_Content</th><th>@Strings.Status_SpeedLimit</th>
+        <th class="num">@Strings.Tariff_MaxDevices</th><th>@Strings.Col_State</th><th></th></tr>
+    @foreach (var t in Model.Tariffs)
+    {
+        <tr>
+            <td><strong>@t.Name</strong></td>
+            <td class="num">@t.Price</td>
+            <td>@AdminText.Describe(t, culture)</td>
+            <td>@(t.DownloadKbps is { } d ? "↓ " + Units.SpeedLimit(d, culture) : "—") @(t.UploadKbps is { } u ? " ↑ " + Units.SpeedLimit(u, culture) : "")</td>
+            <td class="num">@t.MaxDevices</td>
+            <td>@(t.IsActive ? Strings.Tariff_Active : Strings.Tariff_Inactive)</td>
+            <td>
+                <a href="/admin/tariff?id=@t.Id">@Strings.Common_Edit</a>
+                <form method="post" asp-page-handler="Delete"><input type="hidden" name="id" value="@t.Id"><button type="submit" class="link">@Strings.Common_Delete</button></form>
+            </td>
+        </tr>
+    }
+</table>
+</div>
+<p class="muted">@Strings.Tariff_DeleteNote</p>

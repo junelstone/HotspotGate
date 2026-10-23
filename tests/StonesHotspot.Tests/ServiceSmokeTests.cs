@@ -86,7 +86,8 @@ public sealed class ServiceSmokeTests : IClassFixture<ServiceSmokeTests.Factory>
     [InlineData("?lang=en", "lang=\"en\"", "Pro trial")]
     public async Task Admin_home_is_localised(string query, string langAttribute, string text)
     {
-        var response = await _factory.CreateClient().GetAsync("/admin" + query);
+        var admin = await StaffSignIn.AsAsync(_factory);
+        var response = await admin.Http.GetAsync("/admin" + query);
         var html = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -97,7 +98,7 @@ public sealed class ServiceSmokeTests : IClassFixture<ServiceSmokeTests.Factory>
     [Fact]
     public async Task Language_choice_is_remembered_for_the_next_pages()
     {
-        var client = _factory.CreateClient();
+        var client = (await StaffSignIn.AsAsync(_factory)).Http;
         await client.GetAsync("/admin?lang=en");
 
         var html = await client.GetStringAsync("/admin/network");
@@ -117,7 +118,7 @@ public sealed class ServiceSmokeTests : IClassFixture<ServiceSmokeTests.Factory>
     [Fact]
     public async Task Network_page_lists_adapters_on_the_pc_itself()
     {
-        var html = WebUtility.HtmlDecode(await _factory.CreateClient().GetStringAsync("/admin/network"));
+        var html = WebUtility.HtmlDecode(await (await StaffSignIn.AsAsync(_factory)).Http.GetStringAsync("/admin/network"));
 
         Assert.Contains("Configuration réseau", html);
         Assert.Contains("Ethernet 2", html);
@@ -127,20 +128,30 @@ public sealed class ServiceSmokeTests : IClassFixture<ServiceSmokeTests.Factory>
     [Theory]
     [InlineData("/admin/network")]
     [InlineData("/admin/devices")]
-    public async Task Setup_pages_refuse_other_devices_on_the_network(string url)
+    [InlineData("/admin/live")]
+    [InlineData("/admin/settings")]
+    public async Task Setup_pages_need_an_administrator(string url)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.Add(RemoteIpHeader, "192.168.137.23");
+        // Anyone on the Wi-Fi: sent to the sign-in page.
+        var anonymous = await StaffSignIn.Client(_factory, "192.168.137.23").GetAsync(url);
+        Assert.Equal(HttpStatusCode.Redirect, anonymous.StatusCode);
+        Assert.StartsWith("/admin/login", anonymous.Headers.Location!.PathAndQuery);
 
-        var response = await _factory.CreateClient().SendAsync(request);
+        // A cashier: refused.
+        var cashier = await StaffSignIn.AsAsync(_factory, StonesHotspot.Core.Data.Entities.StaffRole.Cashier, "192.168.137.23");
+        var refused = await cashier.Http.GetAsync(url);
+        Assert.Equal(HttpStatusCode.Redirect, refused.StatusCode);
+        Assert.StartsWith("/admin/denied", refused.Headers.Location!.PathAndQuery);
 
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        // An administrator, even from a phone on the Wi-Fi.
+        var admin = await StaffSignIn.AsAsync(_factory, remoteIp: "192.168.137.24");
+        Assert.Equal(HttpStatusCode.OK, (await admin.Http.GetAsync(url)).StatusCode);
     }
 
     [Fact]
     public async Task Sharing_form_enables_ics_with_anti_forgery_protection()
     {
-        var client = _factory.CreateClient();
+        var client = (await StaffSignIn.AsAsync(_factory)).Http;
         var page = await client.GetStringAsync("/admin/network");
         var token = Regex.Match(page, "name=\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\"").Groups[1].Value;
         Assert.NotEmpty(token);
@@ -175,7 +186,7 @@ public sealed class ServiceSmokeTests : IClassFixture<ServiceSmokeTests.Factory>
         var discovery = _factory.Services.GetServices<IHostedService>().OfType<DeviceDiscoveryService>().Single();
         await discovery.ScanOnceAsync(CancellationToken.None);
 
-        var html = WebUtility.HtmlDecode(await _factory.CreateClient().GetStringAsync("/admin/devices?lang=en"));
+        var html = WebUtility.HtmlDecode(await (await StaffSignIn.AsAsync(_factory)).Http.GetStringAsync("/admin/devices?lang=en"));
         Assert.Contains("DA:A1:19:00:00:42", html);
         Assert.Contains("192.168.137.42", html);
         Assert.Contains("Private MAC", html);

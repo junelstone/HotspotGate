@@ -1,0 +1,44 @@
+@page "/admin/vouchers"
+@model StonesHotspot.Web.Pages.Admin.VouchersModel
+@using StonesHotspot.Web.Admin
+@{
+    ViewData["Title"] = Strings.Nav_Vouchers;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+}
+<h1>@Strings.Nav_Vouchers</h1>
+
+<form method="post" asp-page-handler="Create" class="card">
+    <h2 style="margin-top:0">@Strings.Vouchers_NewBatch</h2>
+    <div class="row">
+        <div>
+            <label for="TariffId">@Strings.Col_Tariff</label>
+            <select asp-for="TariffId">
+                @foreach (var t in Model.Tariffs) { <option value="@t.Id">@t.Name — @t.Price</option> }
+            </select>
+        </div>
+        <div><label for="Count">@Strings.Vouchers_Count</label><input asp-for="Count" type="number" min="1" max="1000"></div>
+        <div><label for="Name">@Strings.Vouchers_BatchName</label><input asp-for="Name" type="text" placeholder="@Strings.Vouchers_BatchNameHint"></div>
+    </div>
+    <label style="font-weight:normal"><input asp-for="SingleUse" type="checkbox"> @Strings.Vouchers_SingleUse</label>
+    <p class="muted">@Strings.Vouchers_CountHint</p>
+    <button type="submit">@Strings.Vouchers_Generate</button>
+</form>
+
+<h2>@Strings.Vouchers_Batches</h2>
+<div class="scroll">
+<table>
+    <tr><th>@Strings.Vouchers_BatchName</th><th>@Strings.Col_Tariff</th><th class="num">@Strings.Vouchers_Total</th>
+        <th class="num">@Strings.Voucher_Status_New</th><th class="num">@Strings.Voucher_Status_Sold</th><th class="num">@Strings.Voucher_Status_Active</th>
+        <th class="num">@Strings.Voucher_Status_Expired</th><th class="num">@Strings.Voucher_Status_Disabled</th><th>@Strings.Col_Created</th></tr>
+    @foreach (var b in Model.Batches)
+    {
+        <tr>
+            <td><a href="/admin/batch?name=@Uri.EscapeDataString(b.Name)">@b.Name</a></td>
+            <td>@b.TariffName</td>
+            <td class="num">@b.Total</td><td class="num">@b.New</td><td class="num">@b.Sold</td><td class="num">@b.Active</td>
+            <td class="num">@b.Expired</td><td class="num">@b.Disabled</td>
+            <td>@AdminText.Date(b.CreatedAt, culture)</td>
+        </tr>
+    }
+</table>
+</div>

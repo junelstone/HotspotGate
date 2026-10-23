@@ -28,6 +28,17 @@ public class PortalUnitTests
     }
 
     [Theory]
+    [InlineData(1800, "30 min", "30 min")]
+    [InlineData(5400, "1 h 30 min", "1 h 30 min")]
+    [InlineData(7 * 86400, "7 j", "7 d")]
+    [InlineData(86400 + 60, "1 j 1 min", "1 d 1 min")]
+    public void Plan_periods_have_no_zero_parts(long seconds, string french, string english)
+    {
+        Assert.Equal(french, Units.Period(seconds, Fr));
+        Assert.Equal(english, Units.Period(seconds, En));
+    }
+
+    [Theory]
     [InlineData(500, "500 o", "500 B")]
     [InlineData(870_400, "850 Ko", "850 KB")]
     [InlineData(13_107_200, "12,5 Mo", "12.5 MB")]

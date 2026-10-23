@@ -126,11 +126,13 @@ public sealed class FakeNeighborTable : INeighborTable
 public sealed class FakeLicenseService : StonesHotspot.Licensing.ILicenseService
 {
     public bool HotspotAllowed { get; set; } = true;
+    public StonesHotspot.Licensing.Edition Edition { get; set; } = StonesHotspot.Licensing.Edition.Trial;
 
     public StonesHotspot.Licensing.LicenseStatus GetStatus() =>
-        new(StonesHotspot.Licensing.Edition.Trial, DateTimeOffset.UtcNow.AddDays(30), InGracePeriod: false, HotspotAllowed);
+        new(Edition, DateTimeOffset.UtcNow.AddDays(30), InGracePeriod: false, HotspotAllowed);
 
-    public bool IsAllowed(StonesHotspot.Licensing.Feature feature) => HotspotAllowed;
+    public bool IsAllowed(StonesHotspot.Licensing.Feature feature) =>
+        HotspotAllowed && StonesHotspot.Licensing.EditionFeatures.Includes(Edition, feature);
 }
 
 /// <summary>Sends every request as if it came from a given customer IP (see ServiceSmokeTests.RemoteIpHeader).</summary>

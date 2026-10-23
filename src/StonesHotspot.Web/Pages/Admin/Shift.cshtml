@@ -1,0 +1,101 @@
+@page "/admin/shift"
+@model StonesHotspot.Web.Pages.Admin.ShiftModel
+@using StonesHotspot.Core.Rules
+@using StonesHotspot.Web.Admin
+@{
+    ViewData["Title"] = Strings.Nav_Shift;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+    var r = Model.Report;
+}
+<h1>@Strings.Nav_Shift</h1>
+@if (!Model.Enabled)
+{
+    <div class="msg warning">@Strings.Common_ProFeature</div>
+    return;
+}
+@if (Model.Error is not null)
+{
+    <div class="msg error">@Model.Error</div>
+}
+
+@if (r is null)
+{
+    <form method="post" asp-page-handler="Open" class="card">
+        <p>@Strings.Shift_NoneOpenText</p>
+        <label for="Amount">@Strings.Shift_OpeningCash</label>
+        <input asp-for="Amount" type="text" inputmode="numeric" class="small" placeholder="0"> FCFA
+        <br><button type="submit">@Strings.Shift_OpenAction</button>
+    </form>
+}
+else
+{
+    var s = r.Shift;
+    <div class="card">
+        <p><strong>@(s.Staff?.DisplayName ?? s.Staff?.Username)</strong> · @Strings.Shift_OpenedAt @AdminText.Date(s.OpenedAt, culture)
+            @if (s.ClosedAt is { } closed) { <span> · @Strings.Shift_ClosedAt @AdminText.Date(closed, culture)</span> }</p>
+        <table>
+            <tr><th>@Strings.Shift_OpeningCash</th><td class="num">@r.OpeningCash</td></tr>
+            <tr><th>@Strings.Shift_CashIn</th><td class="num">@r.CashTransactionsTotal</td></tr>
+            <tr><th>@Strings.Shift_Expected</th><td class="num"><strong>@r.ExpectedCash</strong></td></tr>
+            @foreach (var (method, total) in r.TotalsByPaymentMethod.Where(t => t.Key != StonesHotspot.Core.Data.Entities.PaymentMethod.Cash))
+            {
+                <tr><th>@AdminText.Payment(method)</th><td class="num">@total</td></tr>
+            }
+            @if (r.CountedCash is { } counted)
+            {
+                <tr><th>@Strings.Shift_Counted</th><td class="num">@counted</td></tr>
+                <tr><th>@Strings.Shift_Difference</th><td class="num"><strong>@r.Difference</strong></td></tr>
+            }
+        </table>
+    </div>
+
+    @if (s.ClosedAt is null && (Model.IsMine || Model.Me.Role == StonesHotspot.Core.Data.Entities.StaffRole.Admin))
+    {
+        <form method="post" asp-page-handler="Close" class="card">
+            <input type="hidden" name="shiftId" value="@s.Id">
+            <label for="Amount">@Strings.Shift_CountedPrompt</label>
+            <input asp-for="Amount" type="text" inputmode="numeric" class="small"> FCFA
+            <label for="Note">@Strings.Shift_Note</label>
+            <input asp-for="Note" type="text">
+            <br><button type="submit">@Strings.Shift_CloseAction</button>
+        </form>
+    }
+
+    <h2>@string.Format(Strings.Home_Transactions, r.TransactionCount)</h2>
+    <div class="scroll">
+    <table>
+        <tr><th>@Strings.Col_Time</th><th>@Strings.Col_Receipt</th><th>@Strings.Col_Type</th><th>@Strings.Col_Code</th><th>@Strings.Sell_Payment</th><th class="num">@Strings.Col_Amount</th></tr>
+        @foreach (var t in Model.Transactions)
+        {
+            <tr>
+                <td>@AdminText.Date(t.Timestamp, culture)</td>
+                <td><a href="/admin/print?receipt=@t.ReceiptNumber">@t.ReceiptNumber</a></td>
+                <td>@AdminText.TransactionType(t.Type)</td>
+                <td class="code">@(t.Voucher is null ? (t.Description ?? "") : VoucherCodeGenerator.Format(t.Voucher.Code))</td>
+                <td>@AdminText.Payment(t.PaymentMethod)</td>
+                <td class="num">@t.Amount</td>
+            </tr>
+        }
+    </table>
+    </div>
+}
+
+@if (Model.History.Count > 0)
+{
+    <h2>@Strings.Shift_History</h2>
+    <div class="scroll">
+    <table>
+        <tr><th>@Strings.Shift_OpenedAt</th><th>@Strings.Col_Staff</th><th>@Strings.Shift_ClosedAt</th><th class="num">@Strings.Shift_Difference</th><th></th></tr>
+        @foreach (var h in Model.History)
+        {
+            <tr>
+                <td>@AdminText.Date(h.OpenedAt, culture)</td>
+                <td>@(h.Staff?.DisplayName ?? h.Staff?.Username)</td>
+                <td>@(h.ClosedAt is { } c ? AdminText.Date(c, culture) : Strings.Shift_Open)</td>
+                <td class="num">@(h.CountedClosingCash is { } cc && h.ExpectedClosingCash is { } ec ? (cc - ec).ToString() : "")</td>
+                <td><a href="/admin/shift?id=@h.Id">@Strings.Shift_View</a></td>
+            </tr>
+        }
+    </table>
+    </div>
+}

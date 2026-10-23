@@ -1,0 +1,40 @@
+@page "/admin/batch"
+@model StonesHotspot.Web.Pages.Admin.BatchModel
+@using StonesHotspot.Core.Rules
+@using StonesHotspot.Web.Admin
+@{
+    ViewData["Title"] = Model.Name;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+    var q = Uri.EscapeDataString(Model.Name);
+}
+<h1>@Model.Name</h1>
+<p>
+    <a class="button" href="/admin/print?batch=@q&format=a4">@Strings.Vouchers_PrintA4</a>
+    <a class="button secondary" href="/admin/print?batch=@q&format=80">@Strings.Vouchers_PrintThermal 80 mm</a>
+    <a class="button secondary" href="/admin/print?batch=@q&format=58">58 mm</a>
+    <a class="button secondary" href="/admin/batch?handler=Csv&name=@q">CSV</a>
+</p>
+<p class="muted">@Strings.Vouchers_PrintNote</p>
+<form method="post" asp-page-handler="Disable" asp-route-name="@Model.Name" style="display:inline">
+    <button type="submit" class="danger" data-confirm="@Strings.Vouchers_DisableConfirm">@Strings.Vouchers_Disable</button>
+</form>
+<form method="post" asp-page-handler="Delete" asp-route-name="@Model.Name" style="display:inline">
+    <button type="submit" class="danger" data-confirm="@Strings.Vouchers_DeleteConfirm">@Strings.Vouchers_Delete</button>
+</form>
+
+<div class="scroll" style="margin-top:1rem">
+<table>
+    <tr><th>@Strings.Col_Code</th><th>@Strings.Col_Tariff</th><th>@Strings.Col_State</th><th>@Strings.Vouchers_SoldAt</th><th>@Strings.Vouchers_FirstUse</th><th>@Strings.Status_ValidUntil</th></tr>
+    @foreach (var v in Model.Vouchers)
+    {
+        <tr>
+            <td class="code">@VoucherCodeGenerator.Format(v.Code)</td>
+            <td>@v.Tariff.Name</td>
+            <td>@StonesHotspot.Web.Pages.Admin.GateModel.VoucherStatusText(v.Status)</td>
+            <td>@(v.SoldAt is { } s ? AdminText.Date(s, culture) : "")</td>
+            <td>@(v.FirstUsedAt is { } f ? AdminText.Date(f, culture) : "")</td>
+            <td>@(v.Allowance.ExpiresAt is { } e ? AdminText.Date(e, culture) : "")</td>
+        </tr>
+    }
+</table>
+</div>

@@ -28,6 +28,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<SessionService>();
         services.AddScoped<WebFilterService>();
         services.AddScoped<DatabaseInitializer>();
+        services.AddScoped<BackupService>();
         return services;
     }
 }

@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using StonesHotspot.Core.Services;
 using Microsoft.AspNetCore.Localization;
 using StonesHotspot.Core.Localization;
 
@@ -26,6 +28,13 @@ public static class LocalizationSetup
             QueryStringKey = "lang",
             UIQueryStringKey = "lang",
         });
+        // Last resort before French: the default language chosen in the dashboard settings.
+        options.RequestCultureProviders.Add(new CustomRequestCultureProvider(async context =>
+        {
+            var settings = context.RequestServices.GetService<SettingsService>();
+            var language = settings is null ? null : await settings.GetAsync(SettingKeys.DefaultLanguage, context.RequestAborted);
+            return language is null ? null : new ProviderCultureResult(Languages.Resolve(language).Name);
+        }));
         app.UseRequestLocalization(options);
         return app.Use(async (context, next) =>
         {

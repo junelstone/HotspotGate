@@ -1,0 +1,60 @@
+@page "/admin/accounts"
+@model StonesHotspot.Web.Pages.Admin.AccountsModel
+@using StonesHotspot.Web.Auth
+@{
+    ViewData["Title"] = Strings.Nav_Accounts;
+}
+<h1>@Strings.Nav_Accounts</h1>
+@if (Model.Error is not null)
+{
+    <div class="msg error">@Model.Error</div>
+}
+<form method="get" class="card">
+    <label for="Search">@Strings.Account_Search</label>
+    <input asp-for="Search" type="text" placeholder="@Strings.Account_SearchHint">
+    <button type="submit">@Strings.Account_SearchButton</button>
+</form>
+
+<div class="scroll">
+<table>
+    <tr><th>@Strings.Portal_Username</th><th>@Strings.Col_Name</th><th>@Strings.Account_Phone</th><th>@Strings.Col_Tariff</th><th class="num">@Strings.Status_Balance</th><th>@Strings.Col_State</th></tr>
+    @foreach (var a in Model.Accounts)
+    {
+        <tr>
+            <td><a href="/admin/account?id=@a.Id"><strong>@a.Username</strong></a></td>
+            <td>@a.FirstName @a.LastName</td>
+            <td>@a.Phone</td>
+            <td>@a.Tariff.Name</td>
+            <td class="num">@a.Balance</td>
+            <td>@(a.Enabled ? Strings.Tariff_Active : Strings.Tariff_Inactive)</td>
+        </tr>
+    }
+</table>
+</div>
+
+@if (User.IsAdmin())
+{
+    <form method="post" asp-page-handler="Create" class="card">
+        <h2 style="margin-top:0">@Strings.Account_New</h2>
+        <div class="row">
+            <div><label for="Username">@Strings.Portal_Username</label><input asp-for="Username" type="text" required autocapitalize="none"></div>
+            <div><label for="Password">@Strings.Portal_Password</label><input asp-for="Password" type="text" required autocomplete="off"></div>
+        </div>
+        <div class="row">
+            <div><label for="FirstName">@Strings.Account_FirstName</label><input asp-for="FirstName" type="text"></div>
+            <div><label for="LastName">@Strings.Account_LastName</label><input asp-for="LastName" type="text"></div>
+            <div><label for="Phone">@Strings.Account_Phone</label><input asp-for="Phone" type="text" inputmode="tel" placeholder="+242 06 …"></div>
+        </div>
+        <div class="row">
+            <div>
+                <label for="TariffId">@Strings.Col_Tariff</label>
+                <select asp-for="TariffId">
+                    @foreach (var t in Model.Tariffs) { <option value="@t.Id">@t.Name — @t.Price</option> }
+                </select>
+            </div>
+            <div><label for="Deposit">@Strings.Account_InitialDeposit</label><input asp-for="Deposit" type="text" inputmode="numeric" placeholder="0"></div>
+        </div>
+        <p class="muted">@Strings.Account_Help</p>
+        <button type="submit">@Strings.Common_Save</button>
+    </form>
+}

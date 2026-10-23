@@ -22,7 +22,6 @@
   <data name="Edition_Pro" xml:space="preserve"><value>Pro</value></data>
   <data name="Licence_TrialDaysLeft" xml:space="preserve"><value>Version d'essai Pro — {0} jour(s) restant(s)</value></data>
   <data name="Licence_FeatureNotInEdition" xml:space="preserve"><value>Cette fonction nécessite l'édition {0}.</value></data>
-  <data name="Placeholder_ComingSoon" xml:space="preserve"><value>Le tableau de bord sera disponible dans une prochaine version.</value></data>
   <data name="Common_Ok" xml:space="preserve"><value>OK</value></data>
   <data name="Common_Cancel" xml:space="preserve"><value>Annuler</value></data>
   <data name="Common_Copy" xml:space="preserve"><value>Copier</value></data>
@@ -31,7 +30,6 @@
   <data name="Nav_Home" xml:space="preserve"><value>Accueil</value></data>
   <data name="Nav_Network" xml:space="preserve"><value>Réseau</value></data>
   <data name="Nav_Devices" xml:space="preserve"><value>Appareils connectés</value></data>
-  <data name="Admin_LocalOnly" xml:space="preserve"><value>Cette page n'est accessible que sur le PC du hotspot (http://localhost:8080) tant que la connexion du personnel n'existe pas.</value></data>
   <data name="Network_Title" xml:space="preserve"><value>Configuration réseau</value></data>
   <data name="Network_Intro" xml:space="preserve"><value>Choisissez la connexion Internet (WAN) et la carte reliée au point d'accès Wi-Fi des clients (LAN), puis cliquez sur « Partager Internet ».</value></data>
   <data name="Network_Status" xml:space="preserve"><value>État</value></data>
@@ -213,4 +211,217 @@ L'établissement peut couper un accès en cas d'abus. Le service est fourni sans
   <data name="Voucher_Status_Active" xml:space="preserve"><value>Actif</value></data>
   <data name="Voucher_Status_Expired" xml:space="preserve"><value>Terminé</value></data>
   <data name="Voucher_Status_Disabled" xml:space="preserve"><value>Désactivé</value></data>
+  <data name="Account_Deposit" xml:space="preserve"><value>Recharger le compte</value></data>
+  <data name="Account_DepositButton" xml:space="preserve"><value>Encaisser la recharge</value></data>
+  <data name="Account_Deposited" xml:space="preserve"><value>{0} ajoutés au compte (reçu {1}).</value></data>
+  <data name="Account_ExpiresOn" xml:space="preserve"><value>Fin de validité du compte</value></data>
+  <data name="Account_FirstName" xml:space="preserve"><value>Prénom</value></data>
+  <data name="Account_Help" xml:space="preserve"><value>Le client se connecte avec ce nom et ce mot de passe. À chaque connexion sans forfait en cours, le prix du forfait est retiré du solde.</value></data>
+  <data name="Account_History" xml:space="preserve"><value>Mouvements</value></data>
+  <data name="Account_InitialDeposit" xml:space="preserve"><value>Premier versement en espèces (FCFA)</value></data>
+  <data name="Account_LastName" xml:space="preserve"><value>Nom</value></data>
+  <data name="Account_New" xml:space="preserve"><value>Nouveau compte client</value></data>
+  <data name="Account_NewPassword" xml:space="preserve"><value>Nouveau mot de passe (laisser vide pour ne pas changer)</value></data>
+  <data name="Account_Overdraft" xml:space="preserve"><value>Découvert autorisé (FCFA)</value></data>
+  <data name="Account_Phone" xml:space="preserve"><value>Téléphone</value></data>
+  <data name="Account_Search" xml:space="preserve"><value>Rechercher un compte</value></data>
+  <data name="Account_SearchButton" xml:space="preserve"><value>Rechercher</value></data>
+  <data name="Account_SearchHint" xml:space="preserve"><value>Nom d'utilisateur, nom ou téléphone</value></data>
+  <data name="Account_UsernameTaken" xml:space="preserve"><value>Ce nom d'utilisateur est déjà pris.</value></data>
+  <data name="Backup_Create" xml:space="preserve"><value>Créer une sauvegarde et la télécharger</value></data>
+  <data name="Backup_File" xml:space="preserve"><value>Fichier</value></data>
+  <data name="Backup_Intro" xml:space="preserve"><value>Une sauvegarde contient toute la base : forfaits, codes, comptes, ventes, réglages. Copiez-la régulièrement sur une clé USB.</value></data>
+  <data name="Backup_InvalidFile" xml:space="preserve"><value>Ce fichier n'est pas une sauvegarde Stone's Hotspot valide. Rien n'a été modifié.</value></data>
+  <data name="Backup_NoFile" xml:space="preserve"><value>Choisissez d'abord un fichier de sauvegarde.</value></data>
+  <data name="Backup_Restore" xml:space="preserve"><value>Restaurer</value></data>
+  <data name="Backup_RestoreConfirm" xml:space="preserve"><value>Remplacer toutes les données actuelles par cette sauvegarde ?</value></data>
+  <data name="Backup_RestoreTitle" xml:space="preserve"><value>Restaurer une sauvegarde</value></data>
+  <data name="Backup_RestoreWarning" xml:space="preserve"><value>Toutes les données actuelles seront remplacées. Une copie de la base actuelle est faite automatiquement avant.</value></data>
+  <data name="Backup_Restored" xml:space="preserve"><value>Sauvegarde restaurée. L'ancienne base a été gardée sous le nom {0}.</value></data>
+  <data name="Backup_Size" xml:space="preserve"><value>Taille</value></data>
+  <data name="Col_Amount" xml:space="preserve"><value>Montant</value></data>
+  <data name="Col_Created" xml:space="preserve"><value>Créé le</value></data>
+  <data name="Col_Price" xml:space="preserve"><value>Prix</value></data>
+  <data name="Col_Receipt" xml:space="preserve"><value>Reçu</value></data>
+  <data name="Col_Staff" xml:space="preserve"><value>Personnel</value></data>
+  <data name="Col_Time" xml:space="preserve"><value>Date</value></data>
+  <data name="Common_Delete" xml:space="preserve"><value>Supprimer</value></data>
+  <data name="Common_Edit" xml:space="preserve"><value>Modifier</value></data>
+  <data name="Common_InvalidAmount" xml:space="preserve"><value>Montant invalide : entrez un nombre entier de FCFA, par exemple 1 000.</value></data>
+  <data name="Common_ProFeature" xml:space="preserve"><value>Cette fonction fait partie de l'édition Pro.</value></data>
+  <data name="Common_Refresh" xml:space="preserve"><value>Actualiser</value></data>
+  <data name="Common_Save" xml:space="preserve"><value>Enregistrer</value></data>
+  <data name="Common_Saved" xml:space="preserve"><value>Enregistré.</value></data>
+  <data name="Denied_Text" xml:space="preserve"><value>Votre compte n'a pas accès à cette page.</value></data>
+  <data name="Denied_Title" xml:space="preserve"><value>Accès refusé</value></data>
+  <data name="Home_DevicesOnWifi" xml:space="preserve"><value>Appareils sur le Wi-Fi</value></data>
+  <data name="Home_MySalesToday" xml:space="preserve"><value>Mes ventes aujourd'hui</value></data>
+  <data name="Home_Online" xml:space="preserve"><value>Clients connectés</value></data>
+  <data name="Home_SalesToday" xml:space="preserve"><value>Ventes aujourd'hui</value></data>
+  <data name="Home_Transactions" xml:space="preserve"><value>{0} opération(s)</value></data>
+  <data name="Live_AddTime" xml:space="preserve"><value>Ajouter</value></data>
+  <data name="Live_Block" xml:space="preserve"><value>Bloquer l'appareil</value></data>
+  <data name="Live_Blocked" xml:space="preserve"><value>Appareil {0} bloqué.</value></data>
+  <data name="Live_Intro" xml:space="preserve"><value>{0} client(s) connecté(s). La page s'actualise toutes les 30 secondes.</value></data>
+  <data name="Live_Kick" xml:space="preserve"><value>Déconnecter</value></data>
+  <data name="Live_Kicked" xml:space="preserve"><value>Client déconnecté.</value></data>
+  <data name="Live_Login" xml:space="preserve"><value>Connexion</value></data>
+  <data name="Live_NoTimeToAdd" xml:space="preserve"><value>Impossible d'ajouter du temps à ce forfait (ni durée ni date de fin).</value></data>
+  <data name="Live_None" xml:space="preserve"><value>Aucun client connecté pour l'instant.</value></data>
+  <data name="Live_TimeAdded" xml:space="preserve"><value>{0} minutes ajoutées.</value></data>
+  <data name="Live_Whitelist" xml:space="preserve"><value>Liste blanche</value></data>
+  <data name="Live_Whitelisted" xml:space="preserve"><value>Appareil {0} ajouté à la liste blanche (accès gratuit permanent).</value></data>
+  <data name="Login_Submit" xml:space="preserve"><value>Se connecter</value></data>
+  <data name="Login_Title" xml:space="preserve"><value>Connexion du personnel</value></data>
+  <data name="Method_Account" xml:space="preserve"><value>Compte</value></data>
+  <data name="Method_Free" xml:space="preserve"><value>Accès gratuit</value></data>
+  <data name="Method_Voucher" xml:space="preserve"><value>Code</value></data>
+  <data name="Nav_Accounts" xml:space="preserve"><value>Comptes</value></data>
+  <data name="Nav_Backup" xml:space="preserve"><value>Sauvegarde</value></data>
+  <data name="Nav_Live" xml:space="preserve"><value>En direct</value></data>
+  <data name="Nav_Logout" xml:space="preserve"><value>Déconnexion</value></data>
+  <data name="Nav_Sell" xml:space="preserve"><value>Vendre</value></data>
+  <data name="Nav_Settings" xml:space="preserve"><value>Paramètres</value></data>
+  <data name="Nav_Shift" xml:space="preserve"><value>Ma caisse</value></data>
+  <data name="Nav_Staff" xml:space="preserve"><value>Personnel</value></data>
+  <data name="Nav_Tariffs" xml:space="preserve"><value>Forfaits</value></data>
+  <data name="Nav_Vouchers" xml:space="preserve"><value>Tickets</value></data>
+  <data name="Password_Changed" xml:space="preserve"><value>Mot de passe modifié.</value></data>
+  <data name="Password_Confirm" xml:space="preserve"><value>Répétez le nouveau mot de passe</value></data>
+  <data name="Password_Current" xml:space="preserve"><value>Mot de passe actuel</value></data>
+  <data name="Password_Mismatch" xml:space="preserve"><value>Les deux nouveaux mots de passe ne sont pas identiques.</value></data>
+  <data name="Password_MustChange" xml:space="preserve"><value>Vous utilisez un mot de passe temporaire : choisissez votre propre mot de passe pour continuer.</value></data>
+  <data name="Password_New" xml:space="preserve"><value>Nouveau mot de passe</value></data>
+  <data name="Password_Rule" xml:space="preserve"><value>Au moins {0} caractères. Ne le donnez à personne.</value></data>
+  <data name="Password_Title" xml:space="preserve"><value>Changer mon mot de passe</value></data>
+  <data name="Password_TooWeak" xml:space="preserve"><value>Le mot de passe doit avoir au moins {0} caractères (et être différent de l'ancien).</value></data>
+  <data name="Password_WrongCurrent" xml:space="preserve"><value>Le mot de passe actuel est incorrect.</value></data>
+  <data name="Payment_Account" xml:space="preserve"><value>Solde du compte</value></data>
+  <data name="Payment_Cash" xml:space="preserve"><value>Espèces</value></data>
+  <data name="Print_HowTo" xml:space="preserve"><value>Connectez-vous au Wi-Fi, ouvrez une page web et entrez ce code (ou scannez le QR).</value></data>
+  <data name="Print_Print" xml:space="preserve"><value>Imprimer</value></data>
+  <data name="Print_Receipt" xml:space="preserve"><value>Reçu n°</value></data>
+  <data name="Print_Seller" xml:space="preserve"><value>Vendeur</value></data>
+  <data name="Print_Thanks" xml:space="preserve"><value>Merci de votre visite !</value></data>
+  <data name="Print_Title" xml:space="preserve"><value>Impression des codes</value></data>
+  <data name="Print_Total" xml:space="preserve"><value>Total</value></data>
+  <data name="Role_Admin" xml:space="preserve"><value>Administrateur</value></data>
+  <data name="Role_Cashier" xml:space="preserve"><value>Caissier</value></data>
+  <data name="Sell_Card" xml:space="preserve"><value>Vendre un ticket déjà imprimé</value></data>
+  <data name="Sell_CardNotNew" xml:space="preserve"><value>Ce ticket a déjà été vendu, utilisé ou désactivé.</value></data>
+  <data name="Sell_CardSold" xml:space="preserve"><value>Ticket {0} vendu (reçu {1}).</value></data>
+  <data name="Sell_CardSubmit" xml:space="preserve"><value>Encaisser ce ticket</value></data>
+  <data name="Sell_Error" xml:space="preserve"><value>La vente n'a pas pu être enregistrée. Vérifiez le forfait et la quantité.</value></data>
+  <data name="Sell_NewCodes" xml:space="preserve"><value>Nouveaux codes</value></data>
+  <data name="Sell_NewNote" xml:space="preserve"><value>Les codes sont créés et vendus en une fois ; le ticket à imprimer ou montrer au client s'ouvre ensuite.</value></data>
+  <data name="Sell_OpenShiftFirst" xml:space="preserve"><value>Ouvrez d'abord votre caisse (montant de départ) avant de vendre.</value></data>
+  <data name="Sell_Payment" xml:space="preserve"><value>Paiement</value></data>
+  <data name="Sell_Quantity" xml:space="preserve"><value>Quantité</value></data>
+  <data name="Sell_Submit" xml:space="preserve"><value>Vendre et imprimer</value></data>
+  <data name="Settings_Business" xml:space="preserve"><value>Établissement</value></data>
+  <data name="Settings_BusinessName" xml:space="preserve"><value>Nom de l'établissement</value></data>
+  <data name="Settings_Color" xml:space="preserve"><value>Couleur du portail</value></data>
+  <data name="Settings_Idle" xml:space="preserve"><value>Déconnexion après inactivité (minutes, par défaut)</value></data>
+  <data name="Settings_InvalidColor" xml:space="preserve"><value>Couleur invalide.</value></data>
+  <data name="Settings_InvalidIdle" xml:space="preserve"><value>La durée d'inactivité doit être entre 1 et 1440 minutes.</value></data>
+  <data name="Settings_InvalidLanguage" xml:space="preserve"><value>Langue invalide.</value></data>
+  <data name="Settings_InvalidLogo" xml:space="preserve"><value>Le logo doit être une image PNG, JPG, SVG ou WebP.</value></data>
+  <data name="Settings_InvalidUrl" xml:space="preserve"><value>L'adresse de la page d'accueil doit commencer par http:// ou https://.</value></data>
+  <data name="Settings_Language" xml:space="preserve"><value>Langue par défaut</value></data>
+  <data name="Settings_Logo" xml:space="preserve"><value>Logo</value></data>
+  <data name="Settings_LogoHelp" xml:space="preserve"><value>Affiché sur le portail. Image de 512 Ko maximum, idéalement large et peu haute.</value></data>
+  <data name="Settings_LogoTooBig" xml:space="preserve"><value>Le logo dépasse 512 Ko.</value></data>
+  <data name="Settings_NameRequired" xml:space="preserve"><value>Le nom de l'établissement est obligatoire (100 caractères maximum).</value></data>
+  <data name="Settings_NetworkHint" xml:space="preserve"><value>Cartes réseau et partage de connexion :</value></data>
+  <data name="Settings_Portal" xml:space="preserve"><value>Portail client</value></data>
+  <data name="Settings_Preview" xml:space="preserve"><value>Voir le portail</value></data>
+  <data name="Settings_RemoveLogo" xml:space="preserve"><value>Retirer le logo</value></data>
+  <data name="Settings_TermsEn" xml:space="preserve"><value>Conditions d'utilisation (anglais)</value></data>
+  <data name="Settings_TermsFr" xml:space="preserve"><value>Conditions d'utilisation (français)</value></data>
+  <data name="Settings_TermsHelp" xml:space="preserve"><value>Laisser vide pour le texte par défaut. Séparez les paragraphes par une ligne vide.</value></data>
+  <data name="Settings_WelcomeHelp" xml:space="preserve"><value>Optionnel. Si rempli, les clients arrivent sur cette page après la connexion, sinon sur la page qu'ils avaient demandée.</value></data>
+  <data name="Settings_WelcomeUrl" xml:space="preserve"><value>Page d'accueil après connexion</value></data>
+  <data name="Settings_WifiName" xml:space="preserve"><value>Nom du Wi-Fi (imprimé sur les tickets)</value></data>
+  <data name="Shift_AlreadyOpen" xml:space="preserve"><value>Vous avez déjà une caisse ouverte.</value></data>
+  <data name="Shift_CashIn" xml:space="preserve"><value>Espèces encaissées</value></data>
+  <data name="Shift_CloseAction" xml:space="preserve"><value>Fermer la caisse</value></data>
+  <data name="Shift_Closed" xml:space="preserve"><value>Caisse fermée. Écart : {0}.</value></data>
+  <data name="Shift_ClosedAt" xml:space="preserve"><value>Fermée le</value></data>
+  <data name="Shift_Counted" xml:space="preserve"><value>Espèces comptées</value></data>
+  <data name="Shift_CountedPrompt" xml:space="preserve"><value>Espèces comptées dans le tiroir</value></data>
+  <data name="Shift_Difference" xml:space="preserve"><value>Écart</value></data>
+  <data name="Shift_Expected" xml:space="preserve"><value>Espèces attendues</value></data>
+  <data name="Shift_History" xml:space="preserve"><value>Caisses précédentes</value></data>
+  <data name="Shift_None" xml:space="preserve"><value>Fermée</value></data>
+  <data name="Shift_NoneOpenText" xml:space="preserve"><value>Aucune caisse ouverte. Comptez l'argent du tiroir et ouvrez votre caisse pour commencer à vendre.</value></data>
+  <data name="Shift_Note" xml:space="preserve"><value>Remarque (optionnel)</value></data>
+  <data name="Shift_Open" xml:space="preserve"><value>Ouverte</value></data>
+  <data name="Shift_OpenAction" xml:space="preserve"><value>Ouvrir la caisse</value></data>
+  <data name="Shift_Opened" xml:space="preserve"><value>Caisse ouverte.</value></data>
+  <data name="Shift_OpenedAt" xml:space="preserve"><value>Ouverte le</value></data>
+  <data name="Shift_OpeningCash" xml:space="preserve"><value>Espèces au départ</value></data>
+  <data name="Shift_View" xml:space="preserve"><value>Voir</value></data>
+  <data name="Staff_CannotDisable" xml:space="preserve"><value>Impossible : vous ne pouvez pas désactiver votre propre compte ni le dernier administrateur.</value></data>
+  <data name="Staff_Created" xml:space="preserve"><value>Compte {0} créé. Il devra choisir son mot de passe à la première connexion.</value></data>
+  <data name="Staff_Disable" xml:space="preserve"><value>Désactiver</value></data>
+  <data name="Staff_Enable" xml:space="preserve"><value>Activer</value></data>
+  <data name="Staff_Help" xml:space="preserve"><value>Donnez le mot de passe temporaire à la personne ; elle devra le changer à sa première connexion. Au moins {0} caractères.</value></data>
+  <data name="Staff_LastLogin" xml:space="preserve"><value>Dernière connexion</value></data>
+  <data name="Staff_New" xml:space="preserve"><value>Nouveau membre du personnel</value></data>
+  <data name="Staff_PasswordReset" xml:space="preserve"><value>Mot de passe temporaire défini. La personne devra le changer à sa prochaine connexion.</value></data>
+  <data name="Staff_Reset" xml:space="preserve"><value>Nouveau mot de passe</value></data>
+  <data name="Staff_Role" xml:space="preserve"><value>Rôle</value></data>
+  <data name="Staff_TempPassword" xml:space="preserve"><value>mot de passe temporaire</value></data>
+  <data name="Staff_TempPasswordHint" xml:space="preserve"><value>Mot de passe temporaire</value></data>
+  <data name="Tariff_Active" xml:space="preserve"><value>Actif</value></data>
+  <data name="Tariff_Content" xml:space="preserve"><value>Contenu</value></data>
+  <data name="Tariff_Countdown" xml:space="preserve"><value>Décompte du temps</value></data>
+  <data name="Tariff_Countdown_Usage" xml:space="preserve"><value>Seulement pendant la connexion (pause à la déconnexion)</value></data>
+  <data name="Tariff_Countdown_Wall" xml:space="preserve"><value>En continu dès la 1re connexion</value></data>
+  <data name="Tariff_DeleteNote" xml:space="preserve"><value>Un forfait déjà utilisé ne peut pas être supprimé : décochez « Actif » pour le retirer de la vente.</value></data>
+  <data name="Tariff_Deleted" xml:space="preserve"><value>Forfait supprimé.</value></data>
+  <data name="Tariff_Download" xml:space="preserve"><value>Débit max. réception (kbit/s)</value></data>
+  <data name="Tariff_DuplicateName" xml:space="preserve"><value>Un forfait actif porte déjà ce nom.</value></data>
+  <data name="Tariff_Help" xml:space="preserve"><value>Quota : minutes pour un forfait temps, Mo pour un forfait données. Laissez les débits vides pour ne pas limiter. Un forfait illimité doit avoir une validité ou une date de fin.</value></data>
+  <data name="Tariff_Idle" xml:space="preserve"><value>Déconnexion après inactivité (min)</value></data>
+  <data name="Tariff_InUse" xml:space="preserve"><value>Ce forfait a déjà été utilisé : désactivez-le au lieu de le supprimer.</value></data>
+  <data name="Tariff_Inactive" xml:space="preserve"><value>Inactif</value></data>
+  <data name="Tariff_MaxDevices" xml:space="preserve"><value>Appareils simultanés</value></data>
+  <data name="Tariff_New" xml:space="preserve"><value>Nouveau forfait</value></data>
+  <data name="Tariff_Quota" xml:space="preserve"><value>Quota (minutes ou Mo)</value></data>
+  <data name="Tariff_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Tariff_Type_Data" xml:space="preserve"><value>Données (Mo)</value></data>
+  <data name="Tariff_Type_Time" xml:space="preserve"><value>Temps (minutes)</value></data>
+  <data name="Tariff_Upload" xml:space="preserve"><value>Débit max. envoi (kbit/s)</value></data>
+  <data name="Tariff_ValidFor" xml:space="preserve"><value>valable {0}</value></data>
+  <data name="Tariff_ValidUntil" xml:space="preserve"><value>Dernier jour d'utilisation</value></data>
+  <data name="Tariff_ValidityHours" xml:space="preserve"><value>Validité après 1re connexion (heures)</value></data>
+  <data name="Tx_AccountCharge" xml:space="preserve"><value>Forfait payé par le compte</value></data>
+  <data name="Tx_AccountDeposit" xml:space="preserve"><value>Recharge de compte</value></data>
+  <data name="Tx_MobileMoney" xml:space="preserve"><value>Paiement Mobile Money</value></data>
+  <data name="Tx_ProductSale" xml:space="preserve"><value>Vente de produit</value></data>
+  <data name="Tx_Refund" xml:space="preserve"><value>Remboursement</value></data>
+  <data name="Tx_VoucherSale" xml:space="preserve"><value>Vente de code</value></data>
+  <data name="Vouchers_BatchName" xml:space="preserve"><value>Nom du lot</value></data>
+  <data name="Vouchers_BatchNameHint" xml:space="preserve"><value>par ex. Juin – 1 heure</value></data>
+  <data name="Vouchers_Batches" xml:space="preserve"><value>Lots de codes</value></data>
+  <data name="Vouchers_Count" xml:space="preserve"><value>Nombre de codes</value></data>
+  <data name="Vouchers_CountHint" xml:space="preserve"><value>21 codes remplissent une feuille A4.</value></data>
+  <data name="Vouchers_Created" xml:space="preserve"><value>{0} code(s) créé(s).</value></data>
+  <data name="Vouchers_Delete" xml:space="preserve"><value>Supprimer les codes jamais vendus</value></data>
+  <data name="Vouchers_DeleteConfirm" xml:space="preserve"><value>Supprimer définitivement les codes jamais vendus de ce lot ?</value></data>
+  <data name="Vouchers_Deleted" xml:space="preserve"><value>{0} code(s) supprimé(s).</value></data>
+  <data name="Vouchers_Disable" xml:space="preserve"><value>Désactiver les codes non utilisés</value></data>
+  <data name="Vouchers_DisableConfirm" xml:space="preserve"><value>Désactiver tous les codes non utilisés de ce lot (cartes perdues ou volées) ?</value></data>
+  <data name="Vouchers_Disabled" xml:space="preserve"><value>{0} code(s) désactivé(s).</value></data>
+  <data name="Vouchers_FirstUse" xml:space="preserve"><value>1re connexion</value></data>
+  <data name="Vouchers_Generate" xml:space="preserve"><value>Créer les codes</value></data>
+  <data name="Vouchers_InvalidCount" xml:space="preserve"><value>Le nombre de codes doit être entre 1 et {0}.</value></data>
+  <data name="Vouchers_NewBatch" xml:space="preserve"><value>Nouveau lot de codes à imprimer</value></data>
+  <data name="Vouchers_PrintA4" xml:space="preserve"><value>Imprimer en cartes A4</value></data>
+  <data name="Vouchers_PrintNote" xml:space="preserve"><value>Seuls les codes nouveaux ou vendus (pas encore utilisés) sont imprimés.</value></data>
+  <data name="Vouchers_PrintThermal" xml:space="preserve"><value>Ticket</value></data>
+  <data name="Vouchers_SingleUse" xml:space="preserve"><value>Usage unique (le code est terminé dès la déconnexion)</value></data>
+  <data name="Vouchers_SoldAt" xml:space="preserve"><value>Vendu le</value></data>
+  <data name="Vouchers_Total" xml:space="preserve"><value>Total</value></data>
 </root>
