@@ -51,6 +51,12 @@ supabase functions deploy licence --no-verify-jwt
 
 4. Check: open `https://<project-ref>.supabase.co/functions/v1/licence/health` → `{"status":"ok"}`.
 
+Supabase's own keys: the function gets the server key from Supabase automatically (legacy service-role key or the new
+`sb_secret_…` keys). Only if the log says no key was found: `supabase secrets set SB_SECRET_KEY=<a secret key>`. The
+**secret key** (`sb_secret_…`) bypasses every database protection: never in Git, in the hotspot, in a chat or an
+e-mail; if it was shown somewhere, create a new one (Project Settings → API Keys) and delete the old. The
+**publishable key** (`sb_publishable_…`) is not used by Stone's Hotspot.
+
 ## 3. Point the hotspots and LicenseManager at it
 
 - Hotspot: `src/StonesHotspot.Service/appsettings.json` → `"Licensing": { "ServerUrl":

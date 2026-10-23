@@ -3,7 +3,9 @@
 //   SERVER_PRIVATE_KEY  the owner's server private key (LicenseManager → Clés), base64
 //   LICENCE_PUBLIC_KEY  the owner's licence public key, base64
 //   MANAGER_TOKEN       long random text, also typed in LicenseManager → Serveur
-// SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
+// SUPABASE_URL and the server key are provided by Supabase: the legacy SUPABASE_SERVICE_ROLE_KEY, or the new
+// sb_secret_… keys (SUPABASE_SECRET_KEYS). Only if neither works: supabase secrets set SB_SECRET_KEY=sb_secret_…
+// (never put that key in Git or in the hotspot: it bypasses every database protection).
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { createHandler, type Manifest, type Store, type StoredLicence } from "../_shared/licence-api.ts";
 
@@ -13,7 +15,24 @@ function required(name: string): string {
   return value;
 }
 
-const db = createClient(required("SUPABASE_URL"), required("SUPABASE_SERVICE_ROLE_KEY"), {
+/** The project's server key, whichever form this project has. */
+function serverKey(): string {
+  const own = Deno.env.get("SB_SECRET_KEY");
+  if (own) return own;
+  const keys = Deno.env.get("SUPABASE_SECRET_KEYS");
+  if (keys) {
+    try {
+      const parsed = JSON.parse(keys);
+      const first = typeof parsed === "string" ? parsed : Object.values(parsed ?? {}).find((v) => typeof v === "string");
+      if (first) return first as string;
+    } catch {
+      return keys;
+    }
+  }
+  return required("SUPABASE_SERVICE_ROLE_KEY");
+}
+
+const db = createClient(required("SUPABASE_URL"), serverKey(), {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
