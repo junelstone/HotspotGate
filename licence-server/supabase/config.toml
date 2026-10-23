@@ -1,5 +1,5 @@
 # Supabase CLI project for the Stone's Hotspot licence server. See licence-server/README.md.
-project_id = "stoneshotspot-licences"
+project_id = "tfsnklurcjezjwgwdxkv"
 
 [functions.licence]
 # Hotspots and LicenseManager do not have Supabase sign-in tokens: the function checks its own way

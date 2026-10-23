@@ -13,6 +13,9 @@ change: only the address.
 
 Address after deployment (no domain to buy): **`https://<project-ref>.supabase.co/functions/v1/licence/`**
 
+**This installation:** project ref `tfsnklurcjezjwgwdxkv` → `https://tfsnklurcjezjwgwdxkv.supabase.co/functions/v1/licence/` (already set in
+`src/StonesHotspot.Service/appsettings.json`).
+
 ## 1. The owner's keys (once, on the owner's Windows PC — never in the cloud, never in Git)
 
 1. Build and start LicenseManager: `dotnet run --project tools\StonesHotspot.LicenseManager` (or install
@@ -51,7 +54,7 @@ supabase functions deploy licence --no-verify-jwt
 ## 3. Point the hotspots and LicenseManager at it
 
 - Hotspot: `src/StonesHotspot.Service/appsettings.json` → `"Licensing": { "ServerUrl":
-  "https://<project-ref>.supabase.co/functions/v1/licence/" }`, then build the installer. Existing installations get
+  "https://<project-ref>.supabase.co/functions/v1/licence/" }` (done for `tfsnklurcjezjwgwdxkv`), then build the installer. Existing installations get
   it with the next update (the installer replaces `appsettings.json`), or by editing it by hand and restarting the
   service.
 - LicenseManager → **Serveur**: the same address and the `MANAGER_TOKEN`. **Synchroniser** uploads licences,
