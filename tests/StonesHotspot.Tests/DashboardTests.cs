@@ -65,7 +65,18 @@ public sealed class DashboardTests : IClassFixture<ServiceSmokeTests.Factory>, I
     public async Task First_admin_must_replace_the_initial_password_and_the_file_is_deleted()
     {
         var file = Path.Combine(_factory.DataDirectory, "initial-admin-password.txt");
-        var initial = Regex.Match(await File.ReadAllTextAsync(file), @"Password : (\S+)").Groups[1].Value;
+        Assert.True(File.Exists(file));
+        string initial;
+        try
+        {
+            initial = Regex.Match(await File.ReadAllTextAsync(file), @"Password : (\S+)").Groups[1].Value;
+        }
+        catch (UnauthorizedAccessException) when (OperatingSystem.IsWindows())
+        {
+            // The file is for Administrators only, as intended; without admin rights take a temporary password
+            // the way the PC reset does (the account must change it at first login all the same).
+            initial = await InScope(sp => sp.GetRequiredService<StaffService>().ResetAdminOfflineAsync());
+        }
         var http = Client(_factory);
 
         var login = await PostFormAsync(http, "/admin/login", "/admin/login", new() { ["Username"] = "admin", ["Password"] = initial });
