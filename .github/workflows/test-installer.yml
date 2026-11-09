@@ -21,7 +21,7 @@ jobs:
       - name: Build, test, publish
         shell: pwsh
         run: ./build.ps1 -Publish
-      - name: Release check (development keys allowed: test installer)
+      - name: Release check, development keys allowed (test installer)
         shell: pwsh
         run: ./tools/Test-ReleaseContent.ps1 -Path artifacts/publish -AllowDevelopmentKeys
       - name: Installer
