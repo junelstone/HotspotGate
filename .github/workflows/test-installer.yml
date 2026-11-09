@@ -1,0 +1,42 @@
+name: Test installer
+
+# TEST installer with the development keys, for the owner's own PCs only (never for a customer).
+# Built on pushes to this branch and attached to a DRAFT release, which only repository collaborators can see.
+
+on:
+  push:
+    branches: ["build/test-installer"]
+
+permissions:
+  contents: write
+
+jobs:
+  installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build, test, publish
+        shell: pwsh
+        run: ./build.ps1 -Publish
+      - name: Release check (development keys allowed: test installer)
+        shell: pwsh
+        run: ./tools/Test-ReleaseContent.ps1 -Path artifacts/publish -AllowDevelopmentKeys
+      - name: Installer
+        shell: pwsh
+        run: |
+          $version = ([xml](Get-Content Directory.Build.props)).Project.PropertyGroup.Version
+          choco install innosetup -y --no-progress
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$version" "/DPublishDir=$PWD\artifacts\publish" installer\StonesHotspot.iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed" }
+          "VERSION=$version" | Out-File -Append $env:GITHUB_ENV
+      - name: Draft release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "test-installer-$env:GITHUB_RUN_NUMBER"
+          gh release create $tag "installer\Output\StonesHotspot-Setup-$env:VERSION.exe" --draft --target $env:GITHUB_SHA `
+            --title "TEST installer $env:VERSION (development keys)" --notes "Development keys: for the owner's own PCs only."
