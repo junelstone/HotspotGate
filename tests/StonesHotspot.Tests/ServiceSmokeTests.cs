@@ -55,6 +55,8 @@ public sealed class ServiceSmokeTests : IClassFixture<ServiceSmokeTests.Factory>
                 services.AddSingleton<INeighborTable>(Neighbors);
                 services.AddSingleton<IPacketGate>(sp => new FakePacketGate(sp.GetRequiredService<PacketProcessor>()));
                 services.AddSingleton<IPrivilegeChecker>(new FakePrivileges());
+                // On Windows the real firewall would be registered: never touch the test PC's firewall.
+                services.AddSingleton<StonesHotspot.Network.Firewall.IFirewallManager, StonesHotspot.Network.Firewall.NoFirewall>();
                 services.AddSingleton<StonesHotspot.Licensing.ILicenseService>(Licence);
                 services.AddSingleton<StonesHotspot.Core.Sms.ISmsTransportFactory>(Sms);
                 services.AddSingleton<StonesHotspot.Core.Payments.IPaymentProviderFactory>(Payments);
